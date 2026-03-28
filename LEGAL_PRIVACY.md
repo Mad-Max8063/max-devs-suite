@@ -9,9 +9,9 @@ Al utilizar los servicios de captura de Leads de la Suite (ej. Landing Pages), l
 3. **Resguardo de Contraseñas:** Max Devs Suite y las aplicaciones satélites JAMÁS solicitarán información financiera, de tarjetas de crédito o contraseñas a través de la interfaz web abierta.
 
 ## Propiedad Intelectual
-Este ecosistema tecnológico es una idea arquitectónica original.
-La clonación, desensamblado o comercialización del modelo Freemium subyacente de "Tarjetas Virales" está sujeta a revisión.
-Todo el código de base (backend en Supabase, scripts modulares) y flujos operativos B2B2C constituyen un secreto comercial perteneciente a la autoría inicial.
+Este ecosistema tecnológico es una idea arquitectónica original de **Matías Maximiliano (Max) Bernal**.
+La clonación, desensamblado o comercialización del modelo Freemium subyacente de "Tarjetas Virales" sin el consentimiento de Max Devs / Max Bernal está estrictamente sujeta a revisión legal.
+Todo el código de base (backend en Supabase, scripts modulares) y flujos operativos B2B2C constituyen un secreto comercial perteneciente a su autor, Matías Maximiliano Bernal.
 
 ## Exención de Responsabilidad
 Max Devs Suite asegura altos estándares de "uptime" gracias a su integración Serverless. Sin embargo, no se responsabiliza ante caídas de los proveedores terceros, ni asume compensación económica frente a pérdidas generadas por inactividad de servidores remotos.
