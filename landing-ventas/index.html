@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Devs Solutions | Potencia tu Negocio Digital</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Max Devs</span>
+            </div>
+            <nav class="nav">
+                <a href="#soluciones" class="nav-link">Soluciones</a>
+                <a href="https://wa.me/5491162621406" target="_blank" class="btn btn-outline">Contacto directo</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Landing View -->
+    <main id="landing-view" class="view active">
+        
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container hero-content">
+                <div class="hero-badge">NUEVO LANZAMIENTO</div>
+                <h1 class="hero-title">Automatiza y profesionaliza tu negocio <span>en minutos</span>.</h1>
+                <p class="hero-subtitle">Tarjetas de presentación digitales y sistemas automáticos para gestionar tus turnos 24/7. Deja que la tecnología trabaje por ti.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="startOnboarding('combo')">Obtener Mi Suite Completa</button>
+                    <a href="#soluciones" class="btn btn-secondary">Ver opciones individuales</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing / Solutions -->
+        <section id="soluciones" class="solutions">
+            <div class="container">
+                <h2 class="section-title">Soluciones diseñadas para escalar</h2>
+                <p class="section-subtitle">Empieza gratis, crece sin límites. Elige la herramienta ideal para tu momento.</p>
+
+                <div class="cards-grid">
+                    
+                    <!-- Tarjeta Virtual -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Tarjeta Virtual Pro</h3>
+                            <div class="price">Freemium</div>
+                            <p>Tu presencia digital centralizada en un link.</p>
+                        </div>
+                        <ul class="features-list">
+                            <li>✨ Link bio personalizado</li>
+                            <li>📞 Botones WhatsApp directos</li>
+                            <li>💼 Galería de trabajos</li>
+                            <li>📍 Conexión a Google Maps</li>
+                            <li>✅ VCF (Guardar Contacto)</li>
+                        </ul>
+                        <button class="btn btn-outline" onclick="startOnboarding('tarjeta')">Solicitar Tarjeta</button>
+                    </div>
+
+                    <!-- Combo Suite -->
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">MÁS ELEGIDO</div>
+                        <div class="pricing-header">
+                            <h3>Pack Suite Completa</h3>
+                            <div class="price">Prueba 30 Días</div>
+                            <p>La combinación definitiva para dominar tu sector.</p>
+                        </div>
+                        <ul class="features-list">
+                            <li>⭐ <strong>Tarjeta Virtual Pro</strong> incluida</li>
+                            <li>⭐ <strong>Gestor de Turnos Automático</strong></li>
+                            <li>🗓️ Recordatorios por email (próximamente)</li>
+                            <li>💰 Señas y cobros link</li>
+                            <li>👑 Soporte prioritario Max Devs</li>
+                        </ul>
+                        <button class="btn btn-primary" onclick="startOnboarding('combo')">Quiero la Suite (Recomendado)</button>
+                    </div>
+
+                    <!-- Gestor Turnos -->
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Gestor de Turnos</h3>
+                            <div class="price">Prueba 30 Días</div>
+                            <p>Que tus clientes reserven solos las 24 hs.</p>
+                        </div>
+                        <ul class="features-list">
+                            <li>🗓️ Auto-agenda inteligente</li>
+                            <li>⏰ Control de horarios y bloqueos</li>
+                            <li>💳 Gestión de señas/anticipos</li>
+                            <li>📱 Responsive (App-like)</li>
+                            <li>📊 Panel administrativo propio</li>
+                        </ul>
+                        <button class="btn btn-outline" onclick="startOnboarding('gestor')">Solicitar Gestor</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Onboarding Flow / Wizard -->
+    <main id="onboarding-view" class="view">
+        <div class="container wizard-container">
+            <button class="btn btn-back" onclick="goBackToLanding()">← Volver a inicio</button>
+            
+            <div class="wizard-header">
+                <h2>Configuración Rápida</h2>
+                <p>Completá estos datos para que armemos tu sistema en tiempo récord.</p>
+            </div>
+
+            <!-- Paso 1: Datos Personales (Común) -->
+            <form id="onboarding-form">
+                
+                <!-- Oculto: Qué eligió -->
+                <input type="hidden" id="selected-service" value="">
+
+                <div class="form-section">
+                    <h3>1. Tus datos de contacto</h3>
+                    <div class="form-group">
+                        <label>Nombre y Apellido *</label>
+                        <input type="text" id="user-name" required placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label>Tu WhatsApp (con código de área) *</label>
+                        <input type="tel" id="user-phone" required placeholder="Ej. +54 9 11 1234 5678">
+                    </div>
+                </div>
+
+                <!-- Paso 2A: Datos Tarjeta -->
+                <div class="form-section" id="section-tarjeta" style="display: none;">
+                    <h3>2. Perfil Comercial (Para Tarjeta)</h3>
+                    <div class="form-group">
+                        <label>Profesión / Cargo *</label>
+                        <input type="text" id="card-prof" placeholder="Ej. Abogado Penalista / Barber / Médico">
+                    </div>
+                    <div class="form-group">
+                        <label>Instagram Comercial (ej: @minegocio)</label>
+                        <input type="text" id="card-ig" placeholder="@usuario">
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección del lugar de trabajo / Consultorio</label>
+                        <input type="text" id="card-address" placeholder="Ej. Av. Corrientes 1234, CABA">
+                    </div>
+                </div>
+
+                <!-- Paso 2B: Datos Gestor -->
+                <div class="form-section" id="section-gestor" style="display: none;">
+                    <h3>3. Negocio (Para Turnos)</h3>
+                    <div class="form-group">
+                        <label>Nombre del Negocio o Marca *</label>
+                        <input type="text" id="biz-name" placeholder="Ej. Barbería Styles / Estética Beauty">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor base de la seña (si aplica reclamar pre-pago)</label>
+                        <input type="number" id="biz-deposit" placeholder="Ej. 2000">
+                    </div>
+                    <div class="form-group">
+                        <label>¿Qué servicio principal ofreces? (Uno para empezar)</label>
+                        <input type="text" id="biz-service" placeholder="Ej. Consulta Médica / Corte de Pelo">
+                    </div>
+                </div>
+
+                <!-- Paso 3: Recursos Gráficos -->
+                <div class="form-section">
+                    <h3>Archivos para tu Perfil</h3>
+                    <p class="disclaimer">Sube en formato imagen. Omitir si no los tienes ahora.</p>
+                    <div class="form-group">
+                        <label>Tu Logotipo o Foto de Perfil (Opcional)</label>
+                        <input type="file" id="img-profile" accept="image/*" class="file-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Tu Foto de Portada (Opcional)</label>
+                        <input type="file" id="img-cover" accept="image/*" class="file-input">
+                    </div>
+                </div>
+
+                <!-- Enviar a WA -->
+                <div class="wizard-footer">
+                    <p class="disclaimer">Al solicitar, serás redirigido a conversar con un humano de MaxDevs ⚡ por WhatsApp para confirmar tu activación.</p>
+                    <button type="submit" class="btn btn-primary btn-large">Enviar datos y Solicitar por WhatsApp 🚀</button>
+                </div>
+            </form>
+
+        </div>
+    </main>
+
+    <!-- Footer común -->
+    <footer class="footer">
+        <p>&copy; 2026 Max Devs Solutions. Transformando el software argentino.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

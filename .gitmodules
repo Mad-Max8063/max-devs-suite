@@ -1,0 +1,6 @@
+[submodule "tarjeta-virtual"]
+	path = tarjeta-virtual
+	url = https://github.com/Mad-Max8063/tarjeta-virtual.git
+[submodule "gestor-de-turnos"]
+	path = gestor-de-turnos
+	url = https://github.com/Mad-Max8063/gestor-de-turnos.git
