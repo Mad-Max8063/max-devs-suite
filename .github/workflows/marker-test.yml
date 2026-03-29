@@ -1,0 +1,26 @@
+name: 🚩 Marcador de Diagnóstico
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  marker-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗️ Preparar Archivos de Prueba
+        run: |
+          echo "Este archivo está en la RAÍZ (./)" > RAÍZ.txt
+          echo "Este archivo está en PUBLIC_HTML" > PUBLIC_HTML.txt
+          echo "Este archivo está en DOMAINS" > DOMAINS.txt
+
+      - name: 🚩 Subir a Carpetas Diferentes
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: ./ 
+          # Este subirá los 3 a la raíz actual para ver dónde caen.
