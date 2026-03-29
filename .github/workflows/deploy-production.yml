@@ -1,0 +1,101 @@
+name: 🚀 Producción - Despliegue Unificado Suito
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'admin-panel/**'
+      - 'landing-ventas/**'
+      - 'tarjeta-virtual/**'
+      - 'gestor-de-turnos/**'
+      - '.github/workflows/deploy-production.yml'
+  workflow_dispatch:
+
+jobs:
+  # ---------------------------------------------------------
+  # JOB 1: Landing Page (suito.pro)
+  # ---------------------------------------------------------
+  deploy-landing:
+    name: 🌐 Landing Page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🚀 FTP Deploy - Landing
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./landing-ventas/
+          server-dir: domains/suito.pro/public_html/
+
+  # ---------------------------------------------------------
+  # JOB 2: Admin Panel (suito.pro/admin)
+  # ---------------------------------------------------------
+  deploy-admin:
+    name: ⚙️ Admin Panel
+    needs: deploy-landing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🚀 FTP Deploy - Admin
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./admin-panel/
+          server-dir: domains/suito.pro/public_html/admin/
+
+  # ---------------------------------------------------------
+  # JOB 3: Tarjetas Virtuales (suito.pro/card-app)
+  # ---------------------------------------------------------
+  deploy-tarjetas:
+    name: 💳 Tarjetas Virtuales
+    needs: deploy-admin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🚀 FTP Deploy - Tarjetas
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./tarjeta-virtual/
+          server-dir: domains/suito.pro/public_html/card-app/
+
+  # ---------------------------------------------------------
+  # JOB 4: Gestor de Turnos (suito.pro/turnos)
+  # ---------------------------------------------------------
+  deploy-turnos:
+    name: 📅 Gestor de Turnos
+    needs: deploy-tarjetas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      
+      - name: 🏗️ Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: gestor-de-turnos/package-lock.json
+
+      - name: 📦 Install & Build
+        run: |
+          cd gestor-de-turnos
+          npm install
+          npm run build
+
+      - name: 🚀 FTP Deploy - Turnos
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./gestor-de-turnos/dist/
+          server-dir: domains/suito.pro/public_html/turnos/
