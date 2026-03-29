@@ -3,7 +3,7 @@
 // ============================================
 // NOTE: The Supabase anon key is public by design.
 // Real security is enforced via Row Level Security (RLS) policies.
-
+// Triggering new deployment with unified secrets - v1.0.1
 export const CONFIG = {
     supabase: {
         url: 'https://bfsttdiokdqyvwjuvcbp.supabase.co',

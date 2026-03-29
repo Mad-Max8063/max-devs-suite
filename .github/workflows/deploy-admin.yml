@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'admin-panel/**' # Solo se dispara cuando hay cambios en el panel de admin
+      - 'admin-panel/**'
+      - '.github/workflows/deploy-admin.yml'
   workflow_dispatch:
 
 jobs:
