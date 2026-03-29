@@ -1,0 +1,49 @@
+name: 🚀 Parche de Resurrección - Suito
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  resurrection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🌐 Landing (suito.pro)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./landing-ventas/
+          server-dir: ./ 
+          # NO USAMOS EXCLUDE para no borrar nada por error
+
+      - name: ⚙️ Admin (suito.pro/admin)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./admin-panel/
+          server-dir: admin/ 
+
+      - name: 💳 Tarjetas (suito.pro/card-app)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./tarjeta-virtual/
+          server-dir: card-app/ 
+
+      - name: 📅 Turnos (suito.pro/turnos)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./gestor-de-turnos/dist/
+          server-dir: turnos/ 
