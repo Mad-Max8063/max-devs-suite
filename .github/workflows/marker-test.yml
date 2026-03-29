@@ -1,4 +1,4 @@
-name: 🚩 Marcador de Diagnóstico
+name: 🚩 Marcador de Diagnóstico - TRIPLE LUGAR
 
 on:
   push:
@@ -9,18 +9,54 @@ jobs:
   marker-test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: 🏗️ Preparar Archivos de Prueba
         run: |
-          echo "Este archivo está en la RAÍZ (./)" > RAÍZ.txt
-          echo "Este archivo está en PUBLIC_HTML" > PUBLIC_HTML.txt
-          echo "Este archivo está en DOMAINS" > DOMAINS.txt
+          echo "Este archivo está en la RAÍZ (./)" > RAÍZ_TEST.txt
+          echo "Este archivo está en PUBLIC_HTML" > PUBLIC_HTML_TEST.txt
+          echo "Este archivo está en DOMAINS" > DOMAINS_TEST.txt
 
-      - name: 🚩 Subir a Carpetas Diferentes
+      - name: 🌐 Intento 1: Raíz (./)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./landing-ventas/
+          server-dir: ./ 
+          state-name: .ftp-deploy-sync-state-root.json
+
+      - name: 🌐 Intento 2: public_html/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./landing-ventas/
+          server-dir: public_html/ 
+          state-name: .ftp-deploy-sync-state-pub.json
+
+      - name: 🌐 Intento 3: domains/suito.pro/public_html/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./landing-ventas/
+          server-dir: domains/suito.pro/public_html/ 
+          state-name: .ftp-deploy-sync-state-dom.json
+
+      - name: 🚩 Subir Marcadores de Texto
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
-          server-dir: ./ 
-          # Este subirá los 3 a la raíz actual para ver dónde caen.
+          server-dir: ./
+          exclude: |
+            **
+            !RAÍZ_TEST.txt
+            !PUBLIC_HTML_TEST.txt
+            !DOMAINS_TEST.txt
