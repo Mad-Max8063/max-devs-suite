@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/ # ⚠️ Solo subimos la carpeta del admin-panel
-          server-dir: /public_html/admin/
+          server-dir: public_html/admin/
           exclude: |
             **/.git*
             **/.git*/**

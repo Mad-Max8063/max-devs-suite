@@ -24,4 +24,4 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./tarjeta-virtual/
-        server-dir: /public_html/card-app/
+        server-dir: public_html/card-app/
