@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'tarjeta-virtual/**'
+      - '.github/workflows/deploy-suito-tarjetas.yml'
   workflow_dispatch:
 
 jobs:
