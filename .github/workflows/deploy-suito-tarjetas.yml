@@ -19,8 +19,8 @@ jobs:
     - name: Deploy to Hostinger via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.MAIN_FTP_SERVER }}
-        username: ${{ secrets.MAIN_FTP_USERNAME }}
-        password: ${{ secrets.MAIN_FTP_PASSWORD }}
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./tarjeta-virtual/
         server-dir: /public_html/card-app/
