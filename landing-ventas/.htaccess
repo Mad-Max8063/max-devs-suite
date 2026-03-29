@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Si la gente entra a la raiz, mostramos la landing
+  RewriteRule ^index\.html$ - [L]
+
+  # Si la peticion es para un archivo que SI existe (imagenes, css, js), se muestra normal
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  # Se exceptua la carpeta card-app porque ya existe fisicamente, asi que las reglas anteriores lo cubren.
+  # Pero evitamos que las reglas de abajo se metan con los JS y CSS.
+  RewriteRule ^ - [L]
+
+  # Si la URL arranca con /card/ (ejemplo suito.pro/card/peluqueria) 
+  # redirigimos silenciosamente la peticion al archivo index.html de la Tarjeta Virtual
+  RewriteRule ^card/(.*)$ /card-app/index.html [L]
+  
+  # Si la URL arranca con /edit/ (edicion de tarjeta)
+  RewriteRule ^edit/(.*)$ /card-app/index.html [L]
+
+  # Si la URL es /preview (previsualizacion)
+  RewriteRule ^preview$ /card-app/index.html [L]
+
+</IfModule>
