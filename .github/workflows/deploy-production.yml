@@ -21,6 +21,8 @@ jobs:
           local-dir: ./landing-ventas/
           server-dir: public_html/
           port: 21
+          protocol: ftp
+          timeout: 90000
 
   # 2. Virtual Card (/card)
   deploy-card:
@@ -38,6 +40,8 @@ jobs:
           local-dir: ./tarjeta-virtual/
           server-dir: public_html/card/
           port: 21
+          protocol: ftp
+          timeout: 90000
 
   # 3. Gestor de Turnos (/turnos)
   deploy-turnos:
@@ -69,6 +73,8 @@ jobs:
           local-dir: ./gestor-de-turnos/dist/
           server-dir: public_html/turnos/
           port: 21
+          protocol: ftp
+          timeout: 120000
 
   # 4. Shared Assets (/assets)
   deploy-assets:
@@ -86,3 +92,5 @@ jobs:
           local-dir: ./assets/
           server-dir: public_html/assets/
           port: 21
+          protocol: ftp
+          timeout: 90000
