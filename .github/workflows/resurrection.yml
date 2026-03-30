@@ -26,39 +26,47 @@ jobs:
           npm install
           npm run build
 
-      - name: 🌐 Landing (suito.pro)
+      - name: 🌐 Landing (Triple Disparo)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: ./ 
-          # NO USAMOS EXCLUDE para no borrar nada por error
+          server-dir: domains/suito.pro/public_html/
 
-      - name: ⚙️ Admin (suito.pro/admin)
+      - name: 🌐 Landing (Fallback public_html)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./landing-ventas/
+          server-dir: public_html/
+
+      - name: ⚙️ Admin (Triple Disparo)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/
-          server-dir: admin/ 
+          server-dir: domains/suito.pro/public_html/admin/
 
-      - name: 💳 Tarjetas (suito.pro/card-app)
+      - name: 💳 Tarjetas (Triple Disparo)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./tarjeta-virtual/
-          server-dir: card-app/ 
+          server-dir: domains/suito.pro/public_html/card-app/
 
-      - name: 📅 Turnos (suito.pro/turnos)
+      - name: 📅 Turnos (Triple Disparo)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./gestor-de-turnos/dist/
-          server-dir: turnos/ 
+          server-dir: domains/suito.pro/public_html/turnos/
