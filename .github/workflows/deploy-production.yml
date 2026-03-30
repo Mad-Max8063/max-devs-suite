@@ -1,15 +1,9 @@
-name: 🚀 Producción - Despliegue Unificado Suito
+name: PROD - Suito Unified Deployment
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'admin-panel/**'
-      - 'landing-ventas/**'
-      - 'tarjeta-virtual/**'
-      - 'gestor-de-turnos/**'
-      - '.github/workflows/deploy-production.yml'
   workflow_dispatch:
 
 jobs:
