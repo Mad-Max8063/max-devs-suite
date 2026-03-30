@@ -23,7 +23,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
           server-dir: ../domains/suito.pro/public_html/
-          dangerous-clean-slate: true
 
   # ---------------------------------------------------------
   # JOB 2: Admin Panel (suito.pro/admin)
@@ -42,4 +41,3 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/
           server-dir: ../domains/suito.pro/public_html/admin/
-          dangerous-clean-slate: true
