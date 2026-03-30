@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: ./ # Raíz del FTP (suito.pro)
+          server-dir: domains/suito.pro/public_html/
 
   # ---------------------------------------------------------
   # JOB 2: Admin Panel (suito.pro/admin)
@@ -46,4 +46,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/
-          server-dir: admin/ # Subcarpeta suito.pro/admin/
+          server-dir: domains/suito.pro/public_html/admin/
