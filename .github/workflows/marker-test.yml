@@ -17,7 +17,7 @@ jobs:
           echo "Este archivo está en PUBLIC_HTML" > PUBLIC_HTML_TEST.txt
           echo "Este archivo está en DOMAINS" > DOMAINS_TEST.txt
 
-      - name: 🌐 Intento 1: Raíz (./)
+      - name: "🌐 Intento 1: Raíz (./)"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -27,7 +27,7 @@ jobs:
           server-dir: ./ 
           state-name: .ftp-deploy-sync-state-root.json
 
-      - name: 🌐 Intento 2: public_html/
+      - name: "🌐 Intento 2: public_html/"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -37,7 +37,7 @@ jobs:
           server-dir: public_html/ 
           state-name: .ftp-deploy-sync-state-pub.json
 
-      - name: 🌐 Intento 3: domains/suito.pro/public_html/
+      - name: "🌐 Intento 3: domains/suito.pro/public_html/"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
