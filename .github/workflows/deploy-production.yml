@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 🚀 Preparar Diagnóstico
-        run: cp donde_estoy.php ./landing-ventas/
       - name: 🚀 FTP Deploy - Landing
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
