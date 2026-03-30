@@ -1,47 +1,88 @@
-name: PROD - Suito Unified Deployment
+name: PROD - Max Devs Unified Deployment
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  # ---------------------------------------------------------
-  # JOB 1: Landing Page (suito.pro)
-  # ---------------------------------------------------------
+  # 1. Landing Page (Root)
   deploy-landing:
-    name: 🌐 Landing Page
+    name: 🌐 Landing Page (Root)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 🚀 FTP Deploy - Landing
+      - name: 🚀 FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: ../domains/suito.pro/public_html/
+          server-dir: public_html/
           port: 21
-          timeout: 120000
 
-  # ---------------------------------------------------------
-  # JOB 2: Admin Panel (suito.pro/admin)
-  # ---------------------------------------------------------
-  deploy-admin:
-    name: ⚙️ Admin Panel
+  # 2. Virtual Card (/card)
+  deploy-card:
+    name: 🃏 Virtual Card (/card)
     needs: deploy-landing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 🚀 FTP Deploy - Admin
+      - name: 🚀 FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./admin-panel/
-          server-dir: ../domains/suito.pro/public_html/admin/
+          local-dir: ./tarjeta-virtual/
+          server-dir: public_html/card/
           port: 21
-          timeout: 120000
+
+  # 3. Gestor de Turnos (/turnos)
+  deploy-turnos:
+    name: 📆 Gestor de Turnos (/turnos)
+    needs: deploy-landing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: './gestor-de-turnos/package-lock.json'
+          
+      - name: 🏗️ Build Gestor
+        working-directory: ./gestor-de-turnos
+        run: |
+          npm install
+          npm run build
+          
+      - name: 🚀 FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./gestor-de-turnos/dist/
+          server-dir: public_html/turnos/
+          port: 21
+
+  # 4. Shared Assets (/assets)
+  deploy-assets:
+    name: 🖼️ Shared Assets (/assets)
+    needs: deploy-landing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🚀 FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./assets/
+          server-dir: public_html/assets/
+          port: 21

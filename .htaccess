@@ -1,0 +1,32 @@
+# ==========================================
+# Suito Unified Routing - maxdevssolutions.com
+# ==========================================
+
+RewriteEngine On
+RewriteBase /
+
+# 1. Redirecciones de carpetas (asegurar slash final)
+# ------------------------------------------
+RewriteRule ^card$ /card/ [R=301,L]
+RewriteRule ^turnos$ /turnos/ [R=301,L]
+
+# 2. Manejo de React Router (SPA) en /turnos/
+# ------------------------------------------
+RewriteCond %{REQUEST_URI} ^/turnos/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^turnos/(.*)$ /turnos/index.html [L]
+
+# 3. Cache Control para Assets compartidos
+# ------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
