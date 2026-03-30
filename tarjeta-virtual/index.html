@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<!-- Triggering deployment with relative paths fix - v1.0.2 -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#fff3fe">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>Max Devs Solutions | Tarjeta Digital</title>
+  <meta name="description" content="Agencia de Software & Transformación Digital. Conectá con nosotros y elevá tu negocio al siguiente nivel.">
+
+  <link rel="icon" href="assets/maxdevs-logo.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Stitch / Tailwind Dependencies -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind Config from Stitch -->
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface": "#3d2549",
+            "surface-container": "#f9e0ff",
+            "surface-variant": "#f4d1ff",
+            "background": "#fff3fe",
+            "primary": "#8200e8",
+            "primary-container": "#be86ff",
+            "on-primary": "#faefff",
+            "surface-container-low": "#fdebff",
+            "surface-container-highest": "#f4d1ff"
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
+      min-height: max(884px, 100dvh);
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+  </style>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-background font-body text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container">
+  
+  <div id="app" class="app-container w-full relative pb-40"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirigiendo...</title>
+  <script>
+    // SPA redirect for Cloudflare Pages
+    // Redirects all 404s to index.html with the path stored in sessionStorage
+    sessionStorage.setItem('redirect', location.pathname + location.search + location.hash);
+    location.replace('/');
+  </script>
+</head>
+
+<body>
+  <p>Redirigiendo...</p>
+</body>
+
+</html>

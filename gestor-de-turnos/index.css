@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@config "./tailwind.config.js";
+
+@theme {
+  /* Luminous Curator Palette */
+  --color-primary: #8B5CF6;
+  --color-secondary: #3B82F6;
+  --color-tertiary: #10B981;
+  --color-surface: #F9F9F9;
+  --color-background: #FFFFFF;
+  --color-on-surface: #1A1C1C;
+  --color-on-surface-variant: #494454;
+
+  /* Fonts */
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+/* Global styles */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #FFFFFF;
+}
+
+h1, h2, h3, .font-extrabold, .font-display {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Luminous Curator Decoratives */
+.glass-card { 
+    background: rgba(255, 255, 255, 0.4); 
+    backdrop-filter: blur(24px); 
+    -webkit-backdrop-filter: blur(24px); 
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.mesh-gradient-bg {
+    background-image: 
+      radial-gradient(at 0% 0%, #8B5CF6 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #3B82F6 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #10B981 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #A78BFA 0px, transparent 50%);
+}
+
+.ambient-shadow { 
+    box-shadow: 0 40px 80px rgba(139, 92, 246, 0.08); 
+}
+
+.gradient-text { 
+    background: linear-gradient(135deg, #8B5CF6, #3B82F6); 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+}
+
+/* Material Symbols settings */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-outlined.fill {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* Hide scrollbar for clean UI */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================
+   UX ANIMATIONS
+   ============================================ */
+
+/* Fade in from below */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale in (for modals, cards) */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Success checkmark circle */
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  70% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Toast notification */
+@keyframes toastIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Utility classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out both;
+}
+
+.animate-success-pop {
+  animation: successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-toast-in {
+  animation: toastIn 0.3s ease-out both;
+}

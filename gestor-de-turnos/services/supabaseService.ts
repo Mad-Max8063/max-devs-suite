@@ -1,0 +1,667 @@
+/**
+ * Supabase Service — Drop-in replacement for sheetsService
+ * 
+ * Same interface, same exports. Consumers don't need to change.
+ * Uses Supabase PostgreSQL instead of Google Apps Script + Sheets.
+ */
+import { supabase } from './supabaseClient';
+import { logger } from '../utils/logger';
+
+// ============================================
+// TYPES (same as sheetsService)
+// ============================================
+export interface Profile {
+    Slug: string;
+    Email: string;
+    NombreNegocio: string;
+    Telefono: string;
+    ValorSena: number;
+    AliasMP: string;
+    LinkPago?: string;
+    QrImageUrl?: string;
+    ModoSandbox?: boolean;
+    FotoURL: string;
+    NotificacionesEmail?: boolean;
+    RecordatoriosActivos?: boolean;
+    FechaVencimiento?: string;
+    ColorPrimario?: string;
+    IsPremium?: boolean;
+    Profession?: string;
+    Description?: string;
+    Location?: string;
+    Facebook?: string;
+    Instagram?: string;
+    Website?: string;
+    CoverURL?: string;
+    GalleryImages?: { image_url: string; caption?: string }[];
+    ActiveModules?: string[];
+}
+
+export interface Appointment {
+    ID: string;
+    Slug: string;
+    Fecha: string;
+    Hora: string;
+    Estado: 'Pendiente' | 'Confirmado' | 'Cancelado';
+    NombreCliente: string;
+    TelefonoCliente: string;
+    EmailCliente?: string;
+    Servicio: string;
+    PrecioTotal: number;
+    MontoSena: number;
+    CreatedAt: string;
+}
+
+export interface CreateAppointmentData {
+    Slug: string;
+    Fecha: string;
+    Hora: string;
+    NombreCliente: string;
+    TelefonoCliente: string;
+    EmailCliente?: string;
+    Servicio?: string;
+    PrecioTotal?: number;
+    MontoSena?: number;
+}
+
+export interface ScheduleConfig {
+    duracionTurno: number;
+    horariosPorDia: Record<number, string[]>;
+}
+
+export interface ServicesData {
+    categoriaId: string | null;
+    services: Array<{
+        id: string;
+        nombre: string;
+        duracion: number;
+        precio: number;
+        sena: number;
+        activo: boolean;
+        orden: number;
+    }>;
+}
+
+export interface BlockedDate {
+    Fecha: string;
+    Motivo: string;
+}
+
+export interface AuthResult {
+    user: {
+        email: string;
+        slug: string;
+        createdAt: string;
+    };
+    token: string;
+}
+
+// ============================================
+// HELPERS
+// ============================================
+
+/** Cache slug → business_id to avoid repeated lookups */
+const businessCache = new Map<string, string>();
+
+async function getBusinessId(slug: string): Promise<string | null> {
+    if (businessCache.has(slug)) return businessCache.get(slug)!;
+
+    const { data, error } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('slug', slug)
+        .single();
+
+    if (error || !data) return null;
+    businessCache.set(slug, data.id);
+    return data.id;
+}
+
+function clearBusinessCache(slug?: string) {
+    if (slug) businessCache.delete(slug);
+    else businessCache.clear();
+}
+
+// ============================================
+// PROFILE OPERATIONS
+// ============================================
+export async function getProfile(slug: string): Promise<Profile | null> {
+    const { data, error } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+    if (error || !data) return null;
+
+    return {
+        Slug: data.slug,
+        Email: data.email || '',
+        NombreNegocio: data.nombre_negocio,
+        Telefono: data.telefono || '',
+        ValorSena: data.valor_sena || 2000,
+        AliasMP: data.alias_mp || '',
+        LinkPago: data.link_pago || '',
+        QrImageUrl: data.qr_image_url || '',
+        ModoSandbox: data.modo_sandbox || false,
+        FotoURL: data.foto_url || '',
+        NotificacionesEmail: data.notificaciones_email !== false,
+        RecordatoriosActivos: data.recordatorios_activos !== false,
+        FechaVencimiento: data.fecha_vencimiento || '',
+        ColorPrimario: data.color_primario || '',
+        IsPremium: data.is_premium || false,
+        Profession: data.profession || '',
+        Description: data.description || '',
+        Location: data.location || '',
+        Facebook: data.facebook || '',
+        Instagram: data.instagram || '',
+        Website: data.website || '',
+        CoverURL: data.cover_url || '',
+        GalleryImages: data.gallery_images || [],
+        ActiveModules: data.active_modules || ['appointments', 'card'],
+    };
+}
+
+export async function saveProfile(profile: Profile): Promise<{ slug: string }> {
+    const { error } = await supabase
+        .from('businesses')
+        .update({
+            nombre_negocio: profile.NombreNegocio,
+            telefono: profile.Telefono,
+            email: profile.Email,
+            valor_sena: profile.ValorSena,
+            alias_mp: profile.AliasMP,
+            link_pago: profile.LinkPago || '',
+            qr_image_url: profile.QrImageUrl || '',
+            modo_sandbox: profile.ModoSandbox || false,
+            foto_url: profile.FotoURL || '',
+            color_primario: profile.ColorPrimario || '',
+            notificaciones_email: profile.NotificacionesEmail !== false,
+            recordatorios_activos: profile.RecordatoriosActivos !== false,
+            is_premium: profile.IsPremium || false,
+            profession: profile.Profession || '',
+            description: profile.Description || '',
+            location: profile.Location || '',
+            facebook: profile.Facebook || '',
+            instagram: profile.Instagram || '',
+            website: profile.Website || '',
+            cover_url: profile.CoverURL || '',
+            gallery_images: profile.GalleryImages || [],
+            active_modules: profile.ActiveModules || ['appointments', 'card'],
+            updated_at: new Date().toISOString(),
+        })
+        .eq('slug', profile.Slug);
+
+    if (error) throw new Error(error.message);
+    return { slug: profile.Slug };
+}
+
+// ============================================
+// APPOINTMENT OPERATIONS
+// ============================================
+export async function getAppointments(
+    slug: string,
+    status?: 'Pendiente' | 'Confirmado' | 'Cancelado' | 'all'
+): Promise<Appointment[]> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) return [];
+
+    let query = supabase
+        .from('appointments')
+        .select('*')
+        .eq('business_id', businessId)
+        .order('fecha', { ascending: true })
+        .order('hora', { ascending: true });
+
+    if (status && status !== 'all') {
+        query = query.eq('estado', status);
+    }
+
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+
+    return (data || []).map(row => ({
+        ID: row.id,
+        Slug: slug,
+        Fecha: row.fecha,
+        Hora: row.hora,
+        Estado: row.estado,
+        NombreCliente: row.nombre_cliente,
+        TelefonoCliente: row.telefono_cliente,
+        EmailCliente: row.email_cliente || '',
+        Servicio: row.servicio || '',
+        PrecioTotal: row.precio_total || 0,
+        MontoSena: row.monto_sena || 0,
+        CreatedAt: row.created_at,
+    }));
+}
+
+export async function getAppointmentById(id: string): Promise<Appointment | null> {
+    const { data, error } = await supabase
+        .from('appointments')
+        .select('*, businesses!inner(slug)')
+        .eq('id', id)
+        .single();
+
+    if (error || !data) return null;
+
+    return {
+        ID: data.id,
+        Slug: (data.businesses as any).slug,
+        Fecha: data.fecha,
+        Hora: data.hora,
+        Estado: data.estado,
+        NombreCliente: data.nombre_cliente,
+        TelefonoCliente: data.telefono_cliente,
+        EmailCliente: data.email_cliente || '',
+        Servicio: data.servicio || '',
+        PrecioTotal: data.precio_total || 0,
+        MontoSena: data.monto_sena || 0,
+        CreatedAt: data.created_at,
+    };
+}
+
+export async function createAppointment(
+    aptData: CreateAppointmentData
+): Promise<{ id: string }> {
+    const businessId = await getBusinessId(aptData.Slug);
+    if (!businessId) throw new Error('Negocio no encontrado');
+
+    const { data, error } = await supabase
+        .from('appointments')
+        .insert({
+            business_id: businessId,
+            fecha: aptData.Fecha,
+            hora: aptData.Hora,
+            nombre_cliente: aptData.NombreCliente,
+            telefono_cliente: aptData.TelefonoCliente,
+            email_cliente: aptData.EmailCliente || '',
+            servicio: aptData.Servicio || '',
+            precio_total: aptData.PrecioTotal || 0,
+            monto_sena: aptData.MontoSena || 0,
+        })
+        .select('id')
+        .single();
+
+    if (error) {
+        // Handle unique constraint violation (double booking)
+        if (error.code === '23505') {
+            throw new Error('Este horario ya está reservado. Por favor selecciona otro.');
+        }
+        throw new Error(error.message);
+    }
+
+    return { id: data.id };
+}
+
+export async function updateAppointmentStatus(
+    id: string,
+    status: 'Pendiente' | 'Confirmado' | 'Cancelado'
+): Promise<{ id: string; status: string }> {
+    const { error } = await supabase
+        .from('appointments')
+        .update({ estado: status })
+        .eq('id', id);
+
+    if (error) throw new Error(error.message);
+    return { id, status };
+}
+
+export async function deleteAppointment(id: string): Promise<{ success: boolean }> {
+    const { error } = await supabase
+        .from('appointments')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw new Error(error.message);
+    return { success: true };
+}
+
+// ============================================
+// SCHEDULE OPERATIONS
+// ============================================
+export async function getSchedule(slug: string): Promise<ScheduleConfig> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) return { duracionTurno: 60, horariosPorDia: {} };
+
+    const { data, error } = await supabase
+        .from('schedules')
+        .select('*')
+        .eq('business_id', businessId);
+
+    if (error || !data || data.length === 0) {
+        return { duracionTurno: 60, horariosPorDia: {} };
+    }
+
+    const schedule: ScheduleConfig = {
+        duracionTurno: data[0].duracion_turno || 60,
+        horariosPorDia: {},
+    };
+
+    data.forEach(row => {
+        if (row.horarios && row.horarios.length > 0) {
+            schedule.horariosPorDia[row.dia_semana] = row.horarios;
+        }
+    });
+
+    logger.debug('[supabaseService] getSchedule:', {
+        slug,
+        days: Object.keys(schedule.horariosPorDia),
+    });
+
+    return schedule;
+}
+
+export async function saveSchedule(
+    slug: string,
+    config: ScheduleConfig
+): Promise<{ success: boolean }> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) throw new Error('Negocio no encontrado');
+
+    // Delete existing schedule
+    await supabase
+        .from('schedules')
+        .delete()
+        .eq('business_id', businessId);
+
+    // Insert new rows
+    const rows = Object.entries(config.horariosPorDia)
+        .filter(([, slots]) => slots && slots.length > 0)
+        .map(([day, slots]) => ({
+            business_id: businessId,
+            dia_semana: parseInt(day, 10),
+            horarios: slots,
+            duracion_turno: config.duracionTurno || 60,
+        }));
+
+    if (rows.length > 0) {
+        const { error } = await supabase.from('schedules').insert(rows);
+        if (error) throw new Error(error.message);
+    }
+
+    return { success: true };
+}
+
+export async function getAvailableSlots(
+    slug: string,
+    date: string
+): Promise<string[]> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) return [];
+
+    // Get day of week
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    const dayOfWeek = dateObj.getDay();
+
+    // Get schedule for this day
+    const { data: scheduleData } = await supabase
+        .from('schedules')
+        .select('horarios')
+        .eq('business_id', businessId)
+        .eq('dia_semana', dayOfWeek)
+        .single();
+
+    if (!scheduleData || !scheduleData.horarios) return [];
+    const daySlots: string[] = scheduleData.horarios;
+
+    // Check if date is blocked
+    const { data: blockedData } = await supabase
+        .from('blocked_dates')
+        .select('id')
+        .eq('business_id', businessId)
+        .eq('fecha', date)
+        .limit(1);
+
+    if (blockedData && blockedData.length > 0) return [];
+
+    // Get booked slots
+    const { data: bookedData } = await supabase
+        .from('appointments')
+        .select('hora')
+        .eq('business_id', businessId)
+        .eq('fecha', date);
+
+    const bookedSlots = (bookedData || []).map(a => a.hora);
+
+    return daySlots.filter(slot => !bookedSlots.includes(slot));
+}
+
+export async function getBlockedDates(slug: string): Promise<BlockedDate[]> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) return [];
+
+    const { data, error } = await supabase
+        .from('blocked_dates')
+        .select('*')
+        .eq('business_id', businessId);
+
+    if (error || !data) return [];
+
+    return data.map(row => ({
+        Fecha: row.fecha,
+        Motivo: row.motivo || '',
+    }));
+}
+
+export async function saveBlockedDates(
+    slug: string,
+    fechas: BlockedDate[]
+): Promise<{ success: boolean }> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) throw new Error('Negocio no encontrado');
+
+    // Delete existing
+    await supabase
+        .from('blocked_dates')
+        .delete()
+        .eq('business_id', businessId);
+
+    // Insert new
+    if (fechas.length > 0) {
+        const rows = fechas.map(f => ({
+            business_id: businessId,
+            fecha: f.Fecha,
+            motivo: f.Motivo || '',
+        }));
+        const { error } = await supabase.from('blocked_dates').insert(rows);
+        if (error) throw new Error(error.message);
+    }
+
+    return { success: true };
+}
+
+// ============================================
+// SERVICE OPERATIONS
+// ============================================
+export async function getServices(slug: string): Promise<ServicesData> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) return { categoriaId: null, services: [] };
+
+    const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('business_id', businessId)
+        .order('orden', { ascending: true });
+
+    if (error || !data) return { categoriaId: null, services: [] };
+
+    return {
+        categoriaId: data.length > 0 ? (data[0].categoria_id || null) : null,
+        services: data.map(row => ({
+            id: row.id,
+            nombre: row.nombre,
+            duracion: row.duracion || 60,
+            precio: row.precio || 0,
+            sena: row.sena || 0,
+            activo: row.activo !== false,
+            orden: row.orden || 0,
+        })),
+    };
+}
+
+export async function saveServices(
+    slug: string,
+    services: ServicesData['services'],
+    categoriaId: string | null
+): Promise<{ success: boolean }> {
+    const businessId = await getBusinessId(slug);
+    if (!businessId) throw new Error('Negocio no encontrado');
+
+    // Delete existing services
+    await supabase
+        .from('services')
+        .delete()
+        .eq('business_id', businessId);
+
+    // Insert new services
+    if (services.length > 0) {
+        const rows = services.map(s => ({
+            business_id: businessId,
+            nombre: s.nombre,
+            duracion: s.duracion || 60,
+            precio: s.precio || 0,
+            sena: s.sena || 0,
+            activo: s.activo !== false,
+            orden: s.orden || 0,
+            categoria_id: categoriaId || '',
+        }));
+        const { error } = await supabase.from('services').insert(rows);
+        if (error) throw new Error(error.message);
+    }
+
+    return { success: true };
+}
+
+// ============================================
+// AUTHENTICATION OPERATIONS
+// ============================================
+export async function registerUser(
+    email: string,
+    _passwordHash: string,  // Ignored — Supabase Auth handles hashing
+    slug: string,
+    businessName?: string,
+    rawPassword?: string
+): Promise<AuthResult> {
+    // Use raw password for Supabase Auth (the hash is ignored)
+    const password = rawPassword || _passwordHash;
+
+    // Sign up with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: { slug, business_name: businessName || slug },
+        },
+    });
+
+    if (authError) {
+        if (authError.message.includes('already registered')) {
+            throw new Error('Email ya registrado');
+        }
+        throw new Error(authError.message);
+    }
+
+    if (!authData.user) throw new Error('Error al crear usuario');
+
+    // Create business profile with 30-day trial
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() + 30);
+
+    const { error: bizError } = await supabase
+        .from('businesses')
+        .insert({
+            user_id: authData.user.id,
+            slug,
+            nombre_negocio: businessName || slug,
+            email,
+            valor_sena: 2000,
+            notificaciones_email: true,
+            recordatorios_activos: true,
+            fecha_vencimiento: trialEnd.toISOString().split('T')[0],
+            is_premium: false,
+        });
+
+    if (bizError) {
+        if (bizError.code === '23505') {
+            throw new Error('Este identificador ya está en uso. Por favor elige otro.');
+        }
+        throw new Error(bizError.message);
+    }
+
+    return {
+        user: {
+            email,
+            slug,
+            createdAt: new Date().toISOString(),
+        },
+        token: authData.session?.access_token || '',
+    };
+}
+
+export async function loginUser(
+    email: string,
+    _passwordHash: string,  // Ignored in Supabase mode
+    rawPassword?: string
+): Promise<AuthResult> {
+    const password = rawPassword || _passwordHash;
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+
+    if (error) {
+        throw new Error('Credenciales inválidas');
+    }
+
+    // Get the user's business slug
+    const { data: bizData } = await supabase
+        .from('businesses')
+        .select('slug')
+        .eq('user_id', data.user.id)
+        .single();
+
+    return {
+        user: {
+            email: data.user.email || email,
+            slug: bizData?.slug || '',
+            createdAt: data.user.created_at,
+        },
+        token: data.session.access_token,
+    };
+}
+
+// ============================================
+// EXPORT — same interface as sheetsService
+// ============================================
+export const sheetsService = {
+    // Profile
+    getProfile,
+    saveProfile,
+
+    // Appointments
+    getAppointments,
+    getAppointmentById,
+    createAppointment,
+    updateAppointmentStatus,
+    deleteAppointment,
+
+    // Schedule
+    getAvailableSlots,
+    getSchedule,
+    saveSchedule,
+    getBlockedDates,
+    saveBlockedDates,
+
+    // Services
+    getServices,
+    saveServices,
+
+    // Auth
+    registerUser,
+    loginUser,
+};
+
+export default sheetsService;

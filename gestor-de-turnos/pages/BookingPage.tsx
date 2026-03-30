@@ -1,0 +1,383 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { logger } from '../utils/logger';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useApp, useProfile, useServices } from '../context/AppContext';
+import { useCreateAppointment, useAvailableSlots } from '../hooks/useAppointments';
+import { useScheduleInfo } from '../hooks/useSchedule';
+import { Service } from '../constants';
+import ViralFooter from '../components/ViralFooter';
+
+const BookingPage: React.FC = () => {
+    const navigate = useNavigate();
+    const { slug: urlSlug } = useParams<{ slug: string }>();
+    const { setSlug, slug: contextSlug } = useApp();
+    const { profile, loading: profileLoading } = useProfile();
+    const { create, loading: creating, error: createError } = useCreateAppointment();
+    const { slots, fetchSlots } = useAvailableSlots();
+
+    const slug = urlSlug || contextSlug || undefined;
+
+    const {
+        isDateAvailable,
+        loading: scheduleLoading
+    } = useScheduleInfo(slug || '');
+
+    const { activeServices } = useServices();
+
+    const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [clientName, setClientName] = useState('');
+    const [clientPhone, setClientPhone] = useState('');
+    const [clientEmail, setClientEmail] = useState('');
+    const [formError, setFormError] = useState<string | null>(null);
+
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+
+    useEffect(() => {
+        if (slug) {
+            setSlug(slug);
+        }
+    }, [slug, setSlug]);
+
+    useEffect(() => {
+        if (slug && selectedDate) {
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            fetchSlots(slug, dateStr);
+        }
+    }, [slug, selectedDate, fetchSlots]);
+
+    const generateCalendarDays = useCallback(() => {
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDayOfWeek = firstDay.getDay();
+
+        const days: (Date | null)[] = [];
+
+        for (let i = 0; i < startDayOfWeek; i++) {
+            days.push(null);
+        }
+
+        for (let d = 1; d <= lastDay.getDate(); d++) {
+            days.push(new Date(year, month, d));
+        }
+
+        return days;
+    }, [currentMonth]);
+
+    const days = generateCalendarDays();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const monthName = currentMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+
+    const toggleService = useCallback((service: Service) => {
+        setSelectedServices(prev => {
+            const exists = prev.find(s => s.id === service.id);
+            if (exists) {
+                return prev.filter(s => s.id !== service.id);
+            }
+            return [...prev, service];
+        });
+    }, []);
+
+    const serviceNames = selectedServices.map(s => s.nombre).join(' + ') || 'Servicio General';
+    const hasServices = selectedServices.length > 0;
+    const servicePrice = hasServices ? selectedServices.reduce((sum, s) => sum + s.precio, 0) : 0;
+    const totalDeposit = selectedServices.reduce((sum, s) => sum + s.sena, 0) || profile?.ValorSena || 0;
+
+    const handleSubmit = async () => {
+        if (!selectedDate || !selectedTime || !clientName || !clientPhone || !slug) {
+            setFormError('Completá todos los campos para continuar');
+            return;
+        }
+
+        if (activeServices.length > 0 && selectedServices.length === 0) {
+            setFormError('Elegí al menos un servicio para seguir');
+            return;
+        }
+
+        setFormError(null);
+
+        try {
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+
+            const result = await create({
+                Slug: slug,
+                Fecha: dateStr,
+                Hora: selectedTime,
+                NombreCliente: clientName,
+                TelefonoCliente: clientPhone.replace(/\D/g, ''),
+                EmailCliente: clientEmail || undefined,
+                Servicio: serviceNames,
+                PrecioTotal: servicePrice,
+                MontoSena: totalDeposit,
+            });
+
+            navigate(`/${slug}/confirmation/${result}`);
+        } catch (error) {
+            logger.error('Booking failed:', error);
+        }
+    };
+
+    return (
+        <div className="flex flex-col min-h-screen bg-white text-on-surface font-sans relative overflow-hidden">
+            
+            {/* Mesh Background Decorative */}
+            <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
+
+            {/* Top Bar */}
+            <header className="fixed top-0 w-full z-40 bg-white/40 backdrop-blur-xl border-b border-black/5 px-6 py-4 flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="size-10 rounded-2xl bg-white border border-black/5 ambient-shadow flex items-center justify-center active:scale-95 transition-all"
+                    >
+                        <span className="material-symbols-outlined text-primary text-[20px]">arrow_back</span>
+                    </button>
+                    <div>
+                        <h1 className="text-sm font-black tracking-tight text-on-surface leading-none">
+                            {profileLoading ? 'Cargando...' : (profile?.NombreNegocio || 'Reservar Turno')}
+                        </h1>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-primary/60 mt-1">
+                            Reserva Online
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <main className="flex-1 pt-24 pb-40 px-6 overflow-y-auto no-scrollbar">
+                <div className="max-w-md mx-auto space-y-12">
+                    
+                    {/* Step 1: Services */}
+                    {activeServices.length > 0 && (
+                        <section className="animate-fade-in-up">
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-black tracking-tighter text-on-surface leading-none mb-2">
+                                    Elegí tu <span className="text-primary italic">Servicio</span>
+                                </h2>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">
+                                    Paso 01 / Seleccioná tus opciones
+                                </p>
+                            </div>
+
+                            <div className="space-y-3">
+                                {activeServices.map(s => {
+                                    const isSelected = selectedServices.some(sel => sel.id === s.id);
+                                    return (
+                                        <button
+                                            key={s.id}
+                                            onClick={() => toggleService(s)}
+                                            className={`
+                                                w-full text-left p-5 rounded-[2rem] border transition-all relative overflow-hidden
+                                                ${isSelected 
+                                                    ? 'bg-primary/5 border-primary ambient-shadow' 
+                                                    : 'bg-white/40 border-black/5 ambient-shadow hover:bg-white'
+                                                }
+                                            `}
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-base text-on-surface">{s.nombre}</h3>
+                                                    <div className="flex items-center gap-3 mt-1.5">
+                                                        <div className="flex items-center gap-1 opacity-40">
+                                                            <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest">{s.duracion} min</span>
+                                                        </div>
+                                                        {s.precio > 0 && (
+                                                            <span className="text-xs font-black text-primary">${s.precio.toLocaleString('es-AR')}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className={`
+                                                    size-8 rounded-full border-2 flex items-center justify-center transition-all
+                                                    ${isSelected ? 'bg-primary border-primary' : 'border-black/5'}
+                                                `}>
+                                                    {isSelected && <span className="material-symbols-outlined text-white text-[18px]">check</span>}
+                                                </div>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Step 2: Calendar */}
+                    <section className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                        <div className="mb-6 flex justify-between items-end">
+                            <div>
+                                <h2 className="text-2xl font-black tracking-tighter text-on-surface leading-none mb-2">
+                                    Buscá una <span className="text-primary italic">Fecha</span>
+                                </h2>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">
+                                    Paso 02 / Disponibilidad en tiempo real
+                                </p>
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary italic capitalize">
+                                {monthName}
+                            </span>
+                        </div>
+
+                        <div className="glass-card ambient-shadow rounded-[2.5rem] p-6 border-white/60">
+                            <div className="flex justify-between items-center mb-6 px-2">
+                                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="size-8 rounded-xl bg-black/5 flex items-center justify-center hover:bg-black/10 transition-colors">
+                                    <span className="material-symbols-outlined text-on-surface-variant text-[18px]">west</span>
+                                </button>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Seleccioná un día</p>
+                                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="size-8 rounded-xl bg-black/5 flex items-center justify-center hover:bg-black/10 transition-colors">
+                                    <span className="material-symbols-outlined text-on-surface-variant text-[18px]">east</span>
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-7 gap-y-2 text-center">
+                                {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(d => (
+                                    <span key={d} className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-20 pb-4">{d}</span>
+                                ))}
+                                {days.map((day, idx) => {
+                                    const available = day ? isDateAvailable(day) : false;
+                                    const isSelected = day && selectedDate && day.toDateString() === selectedDate.toDateString();
+                                    
+                                    return (
+                                        <button
+                                            key={idx}
+                                            disabled={!day || !available}
+                                            onClick={() => day && available && setSelectedDate(day)}
+                                            className={`
+                                                relative h-11 w-full rounded-2xl text-xs font-black transition-all flex flex-col items-center justify-center
+                                                ${!day ? 'invisible' : ''}
+                                                ${!available && day ? 'opacity-10 cursor-not-allowed' : ''}
+                                                ${isSelected 
+                                                    ? 'bg-primary text-white shadow-lg shadow-primary/30 active:scale-95' 
+                                                    : available ? 'hover:bg-primary/5 text-on-surface' : 'text-on-surface'
+                                                }
+                                            `}
+                                        >
+                                            {day?.getDate()}
+                                            {available && !isSelected && (
+                                                <span className="absolute bottom-1.5 size-1 rounded-full bg-primary/30"></span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Timeslots */}
+                        {selectedDate && (
+                            <div className="mt-8 space-y-4 animate-fade-in-up">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40 ml-1">
+                                    Horarios para el {selectedDate.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })}
+                                </p>
+                                {slots.length === 0 ? (
+                                    <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center">
+                                        <p className="text-xs font-bold text-primary opacity-60 italic">No hay horarios disponibles para este día.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {slots.map((time, idx) => {
+                                            const isSelected = selectedTime === time;
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => setSelectedTime(time)}
+                                                    className={`
+                                                        py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border
+                                                        ${isSelected 
+                                                            ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30' 
+                                                            : 'bg-white/40 border-black/5 ambient-shadow hover:bg-white'
+                                                        }
+                                                    `}
+                                                >
+                                                    {time}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Step 3: Client Details */}
+                    {selectedDate && selectedTime && (
+                        <section className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-black tracking-tighter text-on-surface leading-none mb-2">
+                                    Tus <span className="text-primary italic">Datos</span>
+                                </h2>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">
+                                    Paso 03 / Completá tu reserva
+                                </p>
+                            </div>
+
+                            <div className="glass-card ambient-shadow rounded-[2.5rem] p-7 border-white/60 space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-black uppercase tracking-widest opacity-30 ml-4">Nombre Completo</label>
+                                    <input
+                                        type="text"
+                                        value={clientName}
+                                        onChange={(e) => setClientName(e.target.value)}
+                                        className="w-full rounded-[1.25rem] border border-black/5 bg-white/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:opacity-20"
+                                        placeholder="Ej: Max Power"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-black uppercase tracking-widest opacity-30 ml-4">Teléfono de Contacto</label>
+                                    <input
+                                        type="tel"
+                                        value={clientPhone}
+                                        onChange={(e) => setClientPhone(e.target.value.replace(/[^0-9]/g, ''))}
+                                        className="w-full rounded-[1.25rem] border border-black/5 bg-white/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:opacity-20"
+                                        placeholder="Ej: 1123456789"
+                                    />
+                                </div>
+                            </div>
+
+                            {formError && (
+                                <div className="mt-6 bg-red-50 border border-red-100 rounded-2xl px-5 py-4 text-xs text-red-600 font-bold animate-toast-in flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-[18px]">error</span>
+                                    {formError}
+                                </div>
+                            )}
+                        </section>
+                    )}
+
+                    <div className="pt-10">
+                        <ViralFooter />
+                    </div>
+                </div>
+            </main>
+
+            {/* Sticky Action Button */}
+            {(selectedDate && selectedTime && clientName && clientPhone) && (
+                <div className="fixed bottom-10 left-0 right-0 z-50 px-6 flex justify-center animate-fade-in-up">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={creating || !selectedDate || !selectedTime || !clientName || !clientPhone}
+                        className="group w-full max-w-md bg-primary text-white font-black py-5 rounded-full shadow-2xl shadow-primary/40 active:scale-95 transition-all text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+                    >
+                        {creating ? (
+                            <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <>
+                                <span>Confirmar Reserva {servicePrice > 0 ? `· $${servicePrice.toLocaleString('es-AR')}` : ''}</span>
+                                <span className="material-symbols-outlined text-[18px] group-hover:translate-x-2 transition-transform">check_circle</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default BookingPage;
