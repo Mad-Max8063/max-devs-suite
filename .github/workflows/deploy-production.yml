@@ -22,7 +22,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: domains/suito.pro/public_html/
+          server-dir: ../domains/suito.pro/public_html/
           dangerous-clean-slate: true
 
   # ---------------------------------------------------------
@@ -41,5 +41,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/
-          server-dir: domains/suito.pro/public_html/admin/
+          server-dir: ../domains/suito.pro/public_html/admin/
           dangerous-clean-slate: true
