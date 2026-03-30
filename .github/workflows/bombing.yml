@@ -15,7 +15,7 @@ jobs:
       # 🎯 DESPLIEGUE A TODAS LAS RUTAS POSIBLES
       # ---------------------------------------------------------
 
-      - name: 🏠 Intento 1: Raíz (./)
+      - name: "🏠 Intento 1: Raíz (./)"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -25,7 +25,7 @@ jobs:
           server-dir: ./
           only-newer: false
 
-      - name: 🌐 Intento 2: public_html/
+      - name: "🌐 Intento 2: public_html/"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -35,7 +35,7 @@ jobs:
           server-dir: public_html/
           only-newer: false
 
-      - name: 📦 Intento 3: public_html/public_html/
+      - name: "📦 Intento 3: public_html/public_html/"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -45,7 +45,7 @@ jobs:
           server-dir: public_html/public_html/
           only-newer: false
 
-      - name: 🎯 Intento 4: domains/suito.pro/public_html/
+      - name: "🎯 Intento 4: domains/suito.pro/public_html/"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -55,7 +55,7 @@ jobs:
           server-dir: domains/suito.pro/public_html/
           only-newer: false
 
-      - name: 🚀 Intento 5: domains/suito.pro/
+      - name: "🚀 Intento 5: domains/suito.pro/"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
