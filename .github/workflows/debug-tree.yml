@@ -1,0 +1,59 @@
+name: 🔍 Diagnóstico - Escaneo Profundo FTP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛰️ Escaneando Estructura de Carpetas
+        env:
+          FTP_HOST: ${{ secrets.FTP_SERVER }}
+          FTP_USER: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          # Usamos un script de Python simple para listar todo recursivamente
+          cat << 'EOF' > scanner.py
+          import ftplib
+          import os
+
+          def list_dirs(ftp, path, depth=0, max_depth=3):
+              if depth > max_depth:
+                  return
+              try:
+                  items = ftp.nlst(path)
+              except Exception:
+                  return
+
+              for item in items:
+                  # Ignorar los mismos archivos de configuración
+                  if "node_modules" in item or ".git" in item:
+                      continue
+                  
+                  indent = "  " * depth
+                  print(f"{indent}📂 {item}")
+                  
+                  # Intentamos entrar para ver si es carpeta
+                  try:
+                      ftp.cwd(item)
+                      list_dirs(ftp, ".", depth + 1, max_depth)
+                      ftp.cwd("..")
+                  except:
+                      # Si falla el CWD, es un archivo
+                      pass
+
+          try:
+              ftp = ftplib.FTP(os.environ['FTP_HOST'])
+              ftp.login(os.environ['FTP_USER'], os.environ['FTP_PASS'])
+              print("✅ Conexión FTP Exitosa")
+              print("--- ESTRUCTURA DE DIRECTORIOS ---")
+              list_dirs(ftp, "/", 0, 3)
+              ftp.quit()
+          except Exception as e:
+              print(f"❌ Error: {e}")
+          EOF
+          
+          python3 scanner.py
