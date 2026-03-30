@@ -115,7 +115,7 @@ form.addEventListener('submit', async (e) => {
         let prof = '', ig = '', address = '', bname = '', bdep = '', bserv = '';
 
         // Construcción del mensaje estructurado para WhatsApp
-        let payload = `⚡ *Hola Max Devs* ⚡\nMe interesa contratar el servicio: *${service}*\n\n`;
+        let payload = `⚡ *Hola Suito* ⚡\nMe interesa contratar el servicio: *${service}*\n\n`;
         payload += `*Mis datos de contacto:*\n👤 Nombre: ${name}\n📱 WhatsApp: ${phone}\n🔗 Origen: ${origin}\n\n`;
 
         if (service === 'TARJETA' || service === 'COMBO') {
