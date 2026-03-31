@@ -28,7 +28,7 @@ jobs:
           local-dir: ./landing-ventas/
           server-dir: public_html/
           port: 21
-          protocol: ftp
+          protocol: ftps
           timeout: 180000
 
   # 2. Virtual Card (/card)
@@ -47,7 +47,7 @@ jobs:
           local-dir: ./tarjeta-virtual/
           server-dir: public_html/card/
           port: 21
-          protocol: ftp
+          protocol: ftps
           timeout: 180000
 
   # 3. Gestor de Turnos (/turnos)
@@ -80,7 +80,7 @@ jobs:
           local-dir: ./gestor-de-turnos/dist/
           server-dir: public_html/turnos/
           port: 21
-          protocol: ftp
+          protocol: ftps
           timeout: 180000
 
   # 4. Shared Assets (/assets)
@@ -99,5 +99,5 @@ jobs:
           local-dir: ./assets/
           server-dir: public_html/assets/
           port: 21
-          protocol: ftp
+          protocol: ftps
           timeout: 180000
