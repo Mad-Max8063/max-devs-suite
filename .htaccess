@@ -5,6 +5,12 @@
 RewriteEngine On
 RewriteBase /
 
+# Asegurar que index.html sea el archivo por defecto
+DirectoryIndex index.html
+
+# Prevenir el listado de directorios (evita el 403 si el servidor se confunde)
+Options -Indexes
+
 # 1. Redirecciones de carpetas (asegurar slash final)
 # ------------------------------------------
 RewriteRule ^card$ /card/ [R=301,L]
