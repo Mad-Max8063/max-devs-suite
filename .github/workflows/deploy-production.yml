@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Silenciar advertencias de Node 20
+
 jobs:
   # 1. Landing Page (Root)
   deploy-landing:
@@ -22,7 +25,7 @@ jobs:
           server-dir: public_html/
           port: 21
           protocol: ftp
-          timeout: 90000
+          timeout: 180000
 
       - name: 🚀 Upload Root Config (.htaccess)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -37,7 +40,7 @@ jobs:
             ! .htaccess
           port: 21
           protocol: ftp
-          timeout: 60000
+          timeout: 180000
 
   # 2. Virtual Card (/card)
   deploy-card:
