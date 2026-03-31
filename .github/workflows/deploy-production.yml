@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: public_html/
+          server-dir: ./
           port: 21
           protocol: ftps
           timeout: 180000
@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./tarjeta-virtual/
-          server-dir: public_html/card/
+          server-dir: card/
           port: 21
           protocol: ftps
           timeout: 180000
@@ -78,7 +78,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./gestor-de-turnos/dist/
-          server-dir: public_html/turnos/
+          server-dir: turnos/
           port: 21
           protocol: ftps
           timeout: 180000
@@ -97,7 +97,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./assets/
-          server-dir: public_html/assets/
+          server-dir: assets/
           port: 21
           protocol: ftps
           timeout: 180000
