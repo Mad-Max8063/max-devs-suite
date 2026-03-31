@@ -24,6 +24,21 @@ jobs:
           protocol: ftp
           timeout: 90000
 
+      - name: 🚀 Upload Root Config (.htaccess)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: public_html/
+          exclude: |
+            **/*
+            ! .htaccess
+          port: 21
+          protocol: ftp
+          timeout: 60000
+
   # 2. Virtual Card (/card)
   deploy-card:
     name: 🃏 Virtual Card (/card)
