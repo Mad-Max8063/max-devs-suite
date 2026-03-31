@@ -56,12 +56,12 @@ jobs:
           server-dir: public_html/card/
           port: 21
           protocol: ftp
-          timeout: 90000
+          timeout: 180000
 
   # 3. Gestor de Turnos (/turnos)
   deploy-turnos:
     name: 📆 Gestor de Turnos (/turnos)
-    needs: deploy-landing
+    needs: deploy-card # Cambio a secuencial
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,12 +89,12 @@ jobs:
           server-dir: public_html/turnos/
           port: 21
           protocol: ftp
-          timeout: 120000
+          timeout: 180000
 
   # 4. Shared Assets (/assets)
   deploy-assets:
     name: 🖼️ Shared Assets (/assets)
-    needs: deploy-landing
+    needs: deploy-turnos # Cambio a secuencial
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -108,4 +108,4 @@ jobs:
           server-dir: public_html/assets/
           port: 21
           protocol: ftp
-          timeout: 90000
+          timeout: 180000
