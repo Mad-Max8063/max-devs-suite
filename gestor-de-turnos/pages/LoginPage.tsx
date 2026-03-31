@@ -10,7 +10,6 @@ const features = [
 ];
 
 const LoginPage: React.FC = () => {
-    console.log('[LoginPage] Rendering LoginPage component...');
     const navigate = useNavigate();
     const { login, error, isLoading } = useAuth();
     const [tab, setTab] = useState<'login' | 'register'>('login');
