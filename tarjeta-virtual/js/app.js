@@ -15,17 +15,17 @@ function navigate() {
     app.className = 'app-container';
     app.classList.remove('landing-mode');
 
-    // Parse route
-    const cardMatch = path.match(/^\/card\/([A-Za-z0-9]+)$/);
-    const editMatch = path.match(/^\/edit\/([A-Za-z0-9]+)$/);
+    // Parse route - compatible with subfolders
+    const cardMatch = path.match(/\/card\/([A-Za-z0-9]+)$/);
+    const editMatch = path.match(/\/edit\/([A-Za-z0-9]+)$/);
 
     if (editMatch) {
         // — Gallery edit mode —
         const cardId = editMatch[1];
         const params = new URLSearchParams(search);
         const token = params.get('token') || '';
-        // Remember this page for PWA home screen launch (full edit URL with token)
-        localStorage.setItem('last_card_url', `/edit/${cardId}?token=${token}`);
+        // Remember this page for PWA home screen launch (relative URL)
+        localStorage.setItem('last_card_url', `edit/${cardId}?token=${token}`);
 
         app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><p>Cargando...</p></div>';
 
@@ -61,8 +61,8 @@ function navigate() {
     } else if (cardMatch) {
         // — Landing mode: fetch card from Supabase (fullscreen) —
         const cardId = cardMatch[1];
-        // Remember this card for PWA home screen launch
-        localStorage.setItem('last_card_url', `/card/${cardId}`);
+        // Remember this card for PWA home screen launch (relative URL)
+        localStorage.setItem('last_card_url', `card/${cardId}`);
         app.classList.add('landing-mode');
 
         app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><p>Cargando tarjeta...</p></div>';
@@ -146,8 +146,8 @@ function showPasswordGate() {
             <button type="submit" class="btn btn-primary">Ingresar</button>
           </form>
           <div class="gate-footer">
-            <a href="https://wa.me/5491162621406?text=${encodeURIComponent('Hola! Quiero mi tarjeta virtual profesional')}" target="_blank" rel="noopener">
-              ¿Querés tu tarjeta? Contactanos
+            <a href="https://wa.me/5491162621406?text=${encodeURIComponent('Hola! Me interesa sumarme al ecosistema Suito y crear mi propia Suite.')}" target="_blank" rel="noopener">
+              ¿Querés tu Suite? Contactanos
             </a>
           </div>
         </div>

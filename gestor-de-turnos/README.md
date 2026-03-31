@@ -1,4 +1,4 @@
-# 📅 Gestor de Turnos Pro
+# 📅 Gestor de Turnos
 <!-- Triggering deployment with relative paths fix - v1.0.3 -->
 
 Sistema de gestión de turnos multi-tenant para emprendedores. Permite a profesionales independientes (peluquerías, barberías, consultorios, etc.) gestionar su agenda y recibir reservas de clientes con seña integrada.

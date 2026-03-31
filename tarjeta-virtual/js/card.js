@@ -17,7 +17,7 @@ const CARD_DATA = {
     contact: {
         whatsapp: "5491162621406", 
         email: "max@maxdevssolutions.com",
-        website: "https://maxdevssolutions.com",
+        website: "https://suito.pro",
         instagram: "maxdevs.solutions"
     },
     services: [
@@ -87,7 +87,7 @@ function renderCard() {
                 <!-- Services Section -->
                 <div class="card-section">
                     <div class="section-header">
-                        <h2 class="section-title">Servicios Pro</h2>
+                        <h2 class="section-title">Servicios</h2>
                         <span class="section-badge">Premium</span>
                     </div>
                     <div class="services-grid">

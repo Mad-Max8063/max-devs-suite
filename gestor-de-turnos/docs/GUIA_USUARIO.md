@@ -1,4 +1,4 @@
-# 📅 Gestor de Turnos Pro
+# 📅 Gestor de Turnos
 ## Guía Rápida para Emprendedores
 
 ---
@@ -7,7 +7,7 @@
 
 ### 1. Crear tu cuenta
 
-1. Ingresá a: **https://mad-max8063.github.io/gestor-de-turnos/#/register**
+1. Ingresá a: **https://turnos.suito.pro/#/register**
 2. Completá los datos:
    - **Nombre del negocio**: Ej: "Peluquería María"
    - **Slug**: Tu identificador único (ej: `peluqueria-maria`)
@@ -52,12 +52,12 @@ Para bloquear fechas específicas (vacaciones, feriados):
 ### Tu link de reservas:
 
 ```
-https://mad-max8063.github.io/gestor-de-turnos/#/TU-SLUG/booking
+https://turnos.suito.pro/#/TU-SLUG/booking
 ```
 
 Reemplazá `TU-SLUG` por tu identificador. Ejemplo:
 ```
-https://mad-max8063.github.io/gestor-de-turnos/#/peluqueria-maria/booking
+https://turnos.suito.pro/#/peluqueria-maria/booking
 ```
 
 ### Cómo compartirlo:
@@ -107,4 +107,4 @@ No, los clientes solo completan nombre y teléfono para reservar.
 
 ---
 
-*Gestor de Turnos Pro - Simplificá tu agenda* ✨
+*Gestor de Turnos - Simplificá tu agenda* ✨

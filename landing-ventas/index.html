@@ -199,6 +199,23 @@
                     </div>
                 </div>
 
+                <div class="glass-card p-8 rounded-3xl border border-white/40 ambient-shadow space-y-6">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">photo_camera</span>
+                        Tu Logo o Foto
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold uppercase tracking-widest opacity-50">Perfil (Logo)</label>
+                            <input type="file" id="img-profile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold uppercase tracking-widest opacity-50">Portada / Banner</label>
+                            <input type="file" id="img-cover" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Secciones Dinámicas al estilo Stitch -->
                 <div id="section-tarjeta" style="display: none;" class="glass-card p-8 rounded-3xl border border-white/40 ambient-shadow space-y-6">
                     <h3 class="text-lg font-bold text-secondary flex items-center gap-2">
@@ -208,6 +225,7 @@
                     <div class="space-y-4">
                         <input type="text" id="card-prof" placeholder="Tu Profesión" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-secondary outline-none">
                         <input type="text" id="card-ig" placeholder="Instagram (@usuario)" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-secondary outline-none">
+                        <input type="text" id="card-address" placeholder="Ubicación / Dirección" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-secondary outline-none">
                     </div>
                 </div>
 
@@ -219,6 +237,7 @@
                     <div class="space-y-4">
                         <input type="text" id="biz-name" placeholder="Nombre de tu Marca" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-tertiary outline-none">
                         <input type="text" id="biz-service" placeholder="Servicio Principal" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-tertiary outline-none">
+                        <input type="number" id="biz-deposit" placeholder="Valor de Seña (Opcional)" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-tertiary outline-none">
                     </div>
                 </div>
 
