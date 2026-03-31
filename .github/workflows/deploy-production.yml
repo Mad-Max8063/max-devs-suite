@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: 🛠️ Prepare Landing with Root Config
+        run: cp .htaccess ./landing-ventas/.htaccess # Copiar el maestro a la carpeta de despliegue
+
       - name: 🚀 FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -23,21 +27,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
           server-dir: public_html/
-          port: 21
-          protocol: ftp
-          timeout: 180000
-
-      - name: 🚀 Upload Root Config (.htaccess)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: public_html/
-          exclude: |
-            **/*
-            ! .htaccess
           port: 21
           protocol: ftp
           timeout: 180000
