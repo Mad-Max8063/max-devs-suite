@@ -55,6 +55,7 @@ const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => 
  * /:slug/confirmation  - Confirmación y pago
  */
 const App: React.FC = () => {
+  console.log('[App] Rendering App component...');
   return (
     <ErrorBoundary>
       <AuthProvider>
