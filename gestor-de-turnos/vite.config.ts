@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
 
   // Base path - subfolder for Hostinger deployment
-  base: '/turnos/',
+  base: './',
 
   // PWA: Include public directory with manifest, icons, and service worker
   publicDir: 'public',
