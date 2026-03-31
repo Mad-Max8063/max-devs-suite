@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -60,7 +60,7 @@ const App: React.FC = () => {
       <AuthProvider>
         <AppProvider>
           <ThemeApplier>
-            <HashRouter>
+            <BrowserRouter basename="/turnos">
               <div className="min-h-screen w-full max-w-md mx-auto bg-surface dark:bg-background-dark overflow-hidden relative">
                 <Routes>
                   {/* Auth Routes - Public */}
@@ -140,7 +140,7 @@ const App: React.FC = () => {
                   <Route path="*" element={<Navigate to="/demo" replace />} />
                 </Routes>
               </div>
-            </HashRouter>
+            </BrowserRouter>
           </ThemeApplier>
         </AppProvider>
       </AuthProvider>
