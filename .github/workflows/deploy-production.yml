@@ -83,10 +83,29 @@ jobs:
           protocol: ftps
           timeout: 180000
 
-  # 4. Shared Assets (/assets)
+  # 4. Admin Panel (/admin)
+  deploy-admin:
+    name: 🛡️ Admin Panel (/admin)
+    needs: deploy-turnos # Secuencial para evitar saturación FTP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🚀 FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./admin-panel/
+          server-dir: admin/
+          port: 21
+          protocol: ftps
+          timeout: 180000
+
+  # 5. Shared Assets (/assets)
   deploy-assets:
     name: 🖼️ Shared Assets (/assets)
-    needs: deploy-turnos # Cambio a secuencial
+    needs: deploy-admin # Cambio a secuencial
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

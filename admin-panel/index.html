@@ -29,6 +29,9 @@
                 <li data-section="clients">
                     <a href="#"><i class="fa-solid fa-users"></i> <span>Clientes</span></a>
                 </li>
+                <li data-section="leads">
+                    <a href="#"><i class="fa-solid fa-envelope-open-text"></i> <span>Solicitudes</span> <span class="badge-new" id="leadsBadge" style="display:none">0</span></a>
+                </li>
                 <li data-section="pricing">
                     <a href="#"><i class="fa-solid fa-tags"></i> <span>Planes y Precios</span></a>
                 </li>
@@ -143,6 +146,22 @@
                 <div class="empty-state" id="emptyClients" style="display:none;">
                     <i class="fa-solid fa-users-slash"></i>
                     <p>No hay clientes con este filtro.</p>
+                </div>
+            </div>
+
+            <!-- ============ SECTION: Leads (Solicitudes) ============ -->
+            <div class="content-wrapper section-content" id="section-leads" style="display:none;">
+                <div class="page-title">
+                    <h1>Solicitudes de Onboarding</h1>
+                    <p>Clientes potenciales que completaron el formulario en la web.</p>
+                </div>
+
+                <div class="leads-grid" id="leadsGrid">
+                    <!-- Populated by JS from Supabase -->
+                </div>
+                <div class="empty-state" id="emptyLeads" style="display:none;">
+                    <i class="fa-solid fa- inbox"></i>
+                    <p>No hay solicitudes pendientes.</p>
                 </div>
             </div>
 
@@ -346,6 +365,10 @@
                             <i class="fa-solid fa-star" style="color:var(--accent-purple); margin-right: 4px;"></i>
                             Es nivel Premium (sin marca de agua)
                         </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientFreeUntil">Periodo gratuito hasta</label>
+                        <input type="date" id="clientFreeUntil">
                     </div>
                 </div>
                 <div class="form-group full-width">

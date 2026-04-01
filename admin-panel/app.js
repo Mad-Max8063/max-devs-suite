@@ -10,14 +10,24 @@ let currentFilter = 'all';
 let editingClientId = null;
 
 // ——— Init ———
+let supabase;
+
 document.addEventListener('DOMContentLoaded', () => {
+    initSupabase();
     initNavigation();
     initModal();
     initFilters();
     initSearch();
     initMobile();
     renderDashboard();
+    checkNewLeads();
 });
+
+function initSupabase() {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
+    }
+}
 
 // ——— Navigation ———
 function initNavigation() {
@@ -62,6 +72,7 @@ function switchSection(section) {
     // Re-render section
     if (section === 'dashboard') renderDashboard();
     if (section === 'clients') renderClients();
+    if (section === 'leads') renderLeads();
     if (section === 'pricing') renderPricing();
 }
 
@@ -217,14 +228,20 @@ function renderClients() {
                 ${c.email ? `<div class="client-detail"><i class="fa-solid fa-envelope"></i> ${c.email}</div>` : ''}
                 <div class="client-detail"><i class="fa-solid fa-link"></i> /${c.slug}</div>
                 ${c.isPremium ? `<div class="client-detail" style="color:var(--accent-purple);font-weight:600;"><i class="fa-solid fa-star"></i> Nivel Premium</div>` : `<div class="client-detail text-muted"><i class="fa-regular fa-star"></i> Nivel Gratuito</div>`}
+                ${c.freeUntil ? `<div class="client-detail highlight-text"><i class="fa-solid fa-gift"></i> Bonificado hasta: ${new Date(c.freeUntil).toLocaleDateString()}</div>` : ''}
                 ${c.notes ? `<div class="client-detail notes"><i class="fa-solid fa-sticky-note"></i> ${c.notes}</div>` : ''}
             </div>
             <div class="client-card-footer">
-                ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/card/${c.cardId || c.slug}" target="_blank" class="action-link"><i class="fa-solid fa-address-card"></i> Tarjeta</a>` : ''}
-                ${c.plan !== 'tarjeta' ? `<a href="${CONFIG.products.gestorTurnos}/#/${c.slug}" target="_blank" class="action-link"><i class="fa-solid fa-calendar"></i> Turnos</a>` : ''}
-                ${c.whatsapp ? `<a href="https://wa.me/549${c.whatsapp}" target="_blank" class="action-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
-                <button class="action-btn" onclick="window._editClient('${c.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                <button class="action-btn danger" onclick="window._deleteClient('${c.id}', '${(c.business || c.name).replace(/'/g, "\\'")}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                <div class="card-footer-actions">
+                    ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/card/${c.cardId || c.slug}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
+                    ${c.plan !== 'tarjeta' ? `<a href="${CONFIG.products.gestorTurnos}/#/${c.slug}" target="_blank" class="action-btn-link" title="Ver Turnos"><i class="fa-solid fa-calendar"></i></a>` : ''}
+                    <button class="action-btn-link purple" onclick="window._deliverClient('${c.id}')" title="Entregar por WhatsApp"><i class="fa-solid fa-paper-plane"></i></button>
+                    <button class="action-btn-link silver" onclick="window._copyLink('${c.id}')" title="Copiar Link"><i class="fa-solid fa-copy"></i></button>
+                </div>
+                <div class="card-footer-manage">
+                    <button class="action-btn" onclick="window._editClient('${c.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                    <button class="action-btn danger" onclick="window._deleteClient('${c.id}', '${(c.business || c.name).replace(/'/g, "\\'")}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                </div>
             </div>
         </div>
     `).join('');
@@ -325,6 +342,7 @@ function initModal() {
             slug: document.getElementById('clientSlug').value,
             plan: document.getElementById('clientPlan').value,
             isPremium: document.getElementById('clientPremium').checked,
+            freeUntil: document.getElementById('clientFreeUntil').value || null,
             notes: document.getElementById('clientNotes').value,
         };
 
@@ -356,6 +374,7 @@ function openModal(client = null) {
     document.getElementById('clientSlug').value = client?.slug || '';
     document.getElementById('clientPlan').value = client?.plan || 'tarjeta';
     document.getElementById('clientPremium').checked = client?.isPremium || false;
+    document.getElementById('clientFreeUntil').value = client?.freeUntil || '';
     document.getElementById('clientNotes').value = client?.notes || '';
 
     modal.classList.add('active');
@@ -408,6 +427,123 @@ function showToast(message) {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+
+// ——— Leads Section (Supabase) ———
+async function renderLeads() {
+    const grid = document.getElementById('leadsGrid');
+    const empty = document.getElementById('emptyLeads');
+    
+    if (!supabase) {
+        grid.innerHTML = '<p class="error-text">Supabase no está configurado. Verificá config.js.</p>';
+        return;
+    }
+
+    grid.innerHTML = '<div class="loading">Cargando solicitudes...</div>';
+
+    const { data: leads, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        grid.innerHTML = `<p class="error-text">Error: ${error.message}</p>`;
+        return;
+    }
+
+    if (!leads || leads.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'flex';
+        return;
+    }
+
+    empty.style.display = 'none';
+    grid.innerHTML = leads.map(l => `
+        <div class="lead-card animate-fade-in">
+            <div class="lead-header">
+                <div class="lead-user">
+                    <img src="${l.profile_img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=6366f1&color=fff`}" alt="${l.name}">
+                    <div>
+                        <h4>${l.name}</h4>
+                        <span class="lead-date">${new Date(l.created_at).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                <span class="badge-service ${l.service_type.toLowerCase()}">${l.service_type}</span>
+            </div>
+            <div class="lead-body">
+                <div class="lead-info"><strong>WhatsApp:</strong> ${l.phone}</div>
+                <div class="lead-info"><strong>Negocio:</strong> ${l.details?.business_name || 'No especificado'}</div>
+                <div class="lead-info"><strong>Profesión:</strong> ${l.details?.profession || 'No especificada'}</div>
+                <div class="lead-info"><strong>Origen:</strong> ${l.details?.origin || 'Directo'}</div>
+            </div>
+            <div class="lead-footer">
+                <button class="primary-btn sm" onclick="window._convertLead(${JSON.stringify(l).replace(/"/g, '&quot;')})">
+                    <i class="fa-solid fa-user-plus"></i> Convertir a Cliente
+                </button>
+                <a href="https://wa.me/549${l.phone}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function checkNewLeads() {
+    if (!supabase) return;
+    const { count, error } = await supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true });
+    
+    if (!error && count > 0) {
+        const badge = document.getElementById('leadsBadge');
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
+    }
+}
+
+// ——— Global External Actions ———
+window._deliverClient = function(id) {
+    const client = getClients().find(c => c.id === id);
+    if (!client) return;
+
+    const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
+    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.cardId || client.slug}`;
+    
+    let message = `¡Hola ${client.name}! 👋 Te escribo de *Max Devs Solutions*.\n\n`;
+    message += `Tengo el gusto de informarte que tu *${getPlanLabel(client.plan)}* ya está lista para usar y compartir. 🚀\n\n`;
+    message += `🔗 Podés verla acá: ${fullUrl}\n\n`;
+    message += `¡Cualquier duda que tengas avisame!`;
+
+    const waUrl = `https://wa.me/549${client.whatsapp}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+};
+
+window._copyLink = function(id) {
+    const client = getClients().find(c => c.id === id);
+    if (!client) return;
+
+    const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
+    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.cardId || client.slug}`;
+    
+    navigator.clipboard.writeText(fullUrl).then(() => {
+        showToast('Enlace copiado al portapapeles 📋');
+    });
+};
+
+window._convertLead = function(lead) {
+    const clientData = {
+        name: lead.name,
+        business: lead.details?.business_name || '',
+        whatsapp: lead.phone,
+        email: '',
+        slug: (lead.details?.business_name || lead.name).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+        plan: lead.service_type.toLowerCase(),
+        isPremium: false,
+        notes: `Lead recibido desde Onboarding Web (${lead.details?.profession || 'Sin profesión'}).`
+    };
+    
+    switchSection('clients');
+    openModal(clientData);
+};
 
 // ——— Helpers ———
 function getPlanColor(plan) {

@@ -143,7 +143,10 @@ form.addEventListener('submit', async (e) => {
         }
 
         if (profileUrl || coverUrl) {
-            payload += `*🖼️ Recursos Gráficos:*\nTe adjunté mis logos/fotos en la base de datos para agilizar todo.\n`;
+            payload += `*🖼️ Recursos Gráficos:*\n`;
+            if (profileUrl) payload += `- Foto Perfil: ${profileUrl}\n`;
+            if (coverUrl) payload += `- Portada: ${coverUrl}\n`;
+            payload += `\n`;
         }
 
         payload += `\n_¿Me confirmas por favor disponibilidad y precios para arrancar?_`;

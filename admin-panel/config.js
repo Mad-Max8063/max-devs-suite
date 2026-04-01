@@ -11,8 +11,8 @@ export const CONFIG = {
     },
     // Base URLs for deployed products (update when deployed to Hostinger)
     products: {
-        tarjetaVirtual: 'https://tarjeta.tuusuario.hostinger.app',
-        gestorTurnos: 'https://turnos.tuusuario.hostinger.app',
+        tarjetaVirtual: 'https://tarjetas.suito.pro',
+        gestorTurnos: 'https://turnos.suito.pro',
     },
     // Pricing in ARS (editable from the panel)
     pricing: {

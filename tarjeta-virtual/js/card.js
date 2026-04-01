@@ -12,7 +12,8 @@ const CARD_DATA = {
         avatar: "../assets/logo.png", 
         cover: "../assets/cover.png",
         location: "Buenos Aires, Argentina",
-        verified: true
+        verified: true,
+        isPremium: false // Si es true, oculta el branding de Suito
     },
     contact: {
         whatsapp: "5491162621406", 
@@ -70,6 +71,12 @@ function renderCard() {
                     </div>
                     <p class="card-title">${CARD_DATA.profile.title}</p>
                     <p class="card-bio">${CARD_DATA.profile.bio}</p>
+                    ${CARD_DATA.profile.location ? `
+                        <div class="card-location">
+                            <span class="material-symbols-outlined">location_on</span>
+                            <span>${CARD_DATA.profile.location}</span>
+                        </div>
+                    ` : ''}
                 </div>
 
                 <!-- Quick Actions -->
@@ -125,7 +132,12 @@ function renderCard() {
             <!-- Footer / System Link -->
             <footer class="card-footer">
                 <div class="footer-divider"></div>
-                <p class="footer-text">Powered by</p>
+                ${!CARD_DATA.profile.isPremium ? `
+                    <div class="suito-referral">
+                        <p class="referral-text">¿Querés una tarjeta como esta?</p>
+                        <a href="https://suito.pro?ref=card" target="_blank" class="referral-link">Obtené la tuya en Suito.pro</a>
+                    </div>
+                ` : ''}
                 <div class="footer-brand">
                     <span class="text-primary italic font-black">Suito</span>
                     <span class="text-on-surface-variant opacity-40 font-bold ml-1 text-[10px] uppercase tracking-widest">Luminous</span>

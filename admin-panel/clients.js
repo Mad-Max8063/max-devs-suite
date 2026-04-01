@@ -35,6 +35,7 @@ export function addClient(clientData) {
         notes: clientData.notes || '',
         createdAt: new Date().toISOString(),
         paidUntil: null,
+        freeUntil: clientData.freeUntil || null,
     };
     clients.unshift(newClient);
     saveClients(clients);
