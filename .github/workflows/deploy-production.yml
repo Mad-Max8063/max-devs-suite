@@ -1,4 +1,4 @@
-name: PROD - Max Devs Unified Deployment
+name: PROD - Suito Unified Deployment
 
 on:
   push:
@@ -30,6 +30,7 @@ jobs:
           port: 21
           protocol: ftps
           timeout: 180000
+          dangerous-clean-slate: true
 
   # 2. Virtual Card (/card)
   deploy-card:
@@ -49,11 +50,12 @@ jobs:
           port: 21
           protocol: ftps
           timeout: 180000
+          dangerous-clean-slate: true
 
   # 3. Gestor de Turnos (/turnos)
   deploy-turnos:
     name: 📆 Gestor de Turnos (/turnos)
-    needs: deploy-card # Cambio a secuencial
+    needs: deploy-card
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -82,11 +84,12 @@ jobs:
           port: 21
           protocol: ftps
           timeout: 180000
+          dangerous-clean-slate: true
 
   # 4. Admin Panel (/admin)
   deploy-admin:
     name: 🛡️ Admin Panel (/admin)
-    needs: deploy-turnos # Secuencial para evitar saturación FTP
+    needs: deploy-turnos
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,11 +104,12 @@ jobs:
           port: 21
           protocol: ftps
           timeout: 180000
+          dangerous-clean-slate: true
 
   # 5. Shared Assets (/assets)
   deploy-assets:
     name: 🖼️ Shared Assets (/assets)
-    needs: deploy-admin # Cambio a secuencial
+    needs: deploy-admin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -120,3 +124,4 @@ jobs:
           port: 21
           protocol: ftps
           timeout: 180000
+          dangerous-clean-slate: true
