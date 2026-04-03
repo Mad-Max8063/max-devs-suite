@@ -286,7 +286,7 @@ const VirtualCardConfigPage: React.FC = () => {
                   type="text"
                   value={instagram}
                   onChange={(e) => setInstagram(e.target.value)}
-                  placeholder="maxdevs.solutions"
+                  placeholder="suito.pro"
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 />
              </div>

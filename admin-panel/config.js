@@ -1,5 +1,5 @@
 // ============================================
-// config.js — Max Devs Admin Configuration
+// config.js — Suito Admin Panel Configuration
 // ============================================
 // NOTE: The Supabase anon key is public by design.
 // Real security is enforced via Row Level Security (RLS) policies.

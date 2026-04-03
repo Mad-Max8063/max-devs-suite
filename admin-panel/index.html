@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Max Devs Solutions</title>
-    <meta name="description" content="Panel de administración interno de Max Devs Solutions">
+    <title>Suito Admin | Dashboard</title>
+    <meta name="description" content="Panel de administración de Suito. Gestioná clientes, servicios y productos.">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,8 +16,8 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fa-solid fa-code"></i>
-                    <span>Max Devs</span>
+                    <i class="fas fa-rocket"></i>
+                    <span>Suito</span>
                 </div>
                 <button class="mobile-toggle" id="sidebarClose"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -42,12 +42,15 @@
 
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Max+Devs&background=6366f1&color=fff&bold=true" alt="Admin">
+                    <img src="https://ui-avatars.com/api/?name=Suito+Admin&background=8b5cf6&color=fff&size=40" alt="Admin">
                     <div class="user-info">
-                        <strong>Administrador</strong>
-                        <span>Max Devs Solutions</span>
+                        <strong>Admin Suito</strong>
+                        <span>Administrator</span>
                     </div>
                 </div>
+                <button id="btn-logout" onclick="handleLogout()" style="margin-top:12px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
             </div>
         </aside>
 
@@ -71,8 +74,8 @@
             <!-- ============ SECTION: Dashboard ============ -->
             <div class="content-wrapper section-content" id="section-dashboard">
                 <div class="page-title">
-                    <h1>Resumen de Operaciones</h1>
-                    <p>Monitoreo unificado de servicios Max Devs Solutions.</p>
+                    <h1>Dashboard</h1>
+                    <p>Bienvenido al centro de control de Suito</p>
                 </div>
 
                 <!-- Stats Cards -->
@@ -160,7 +163,7 @@
                     <!-- Populated by JS from Supabase -->
                 </div>
                 <div class="empty-state" id="emptyLeads" style="display:none;">
-                    <i class="fa-solid fa- inbox"></i>
+                    <i class="fa-solid fa-inbox"></i>
                     <p>No hay solicitudes pendientes.</p>
                 </div>
             </div>
@@ -388,7 +391,100 @@
     <!-- ============ TOAST ============ -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-rocket"></i>
+                <span>Suito</span>
+            </div>
+            <h2>Iniciar sesión</h2>
+            <p>Accedé al panel de administración</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="login-field">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="admin@suito.pro" required>
+                </div>
+                <div class="login-field">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <div id="login-error" class="login-error" style="display:none;"></div>
+                <button type="submit" id="login-btn" class="login-submit">
+                    <span id="login-btn-text">Ingresar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script type="module" src="app.js"></script>
+
+    <!-- Auth Script -->
+    <script>
+        // Reutilizar el cliente de app.js si existe, o crear uno con las keys correctas
+        let _authClient = null;
+        function getAuthClient() {
+            if (!_authClient) {
+                _authClient = window.supabase.createClient(
+                    'https://bfsttdiokdqyvwjuvcbp.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmc3R0ZGlva2RxeXZ3anV2Y2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNzc1NDUsImV4cCI6MjA4Nzk1MzU0NX0.TqmEpfSlN25f9eZjw3ULIhJ0PiHAH3NuNCQEoESPD-w'
+                );
+            }
+            return _authClient;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const sb = getAuthClient();
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        });
+
+        function showDashboard() {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.querySelector('.dashboard-container').style.display = 'flex';
+        }
+
+        function showLogin() {
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.querySelector('.dashboard-container').style.display = 'none';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('login-btn-text');
+
+            errEl.style.display = 'none';
+            btn.disabled = true;
+            btnText.textContent = 'Verificando...';
+
+            const sb = getAuthClient();
+            const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+            if (error) {
+                errEl.textContent = 'Credenciales inválidas. Verificá email y contraseña.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btnText.textContent = 'Ingresar';
+                return;
+            }
+            showDashboard();
+        }
+
+        async function handleLogout() {
+            const sb = getAuthClient();
+            await sb.auth.signOut();
+            showLogin();
+        }
+    </script>
 </body>
 </html>

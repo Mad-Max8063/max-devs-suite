@@ -34,16 +34,51 @@ WITH CHECK (
 -- Evita que las APIs devuelvan la lista de turnos de un negocio que ya no paga.
 -- ==============================================================================
 
--- Política de SELECT para dueños o admins:
-DROP POLICY IF EXISTS "Duenos pueden ver turnos solo si tienen modulo activo" ON public.appointments;
-CREATE POLICY "Duenos pueden ver turnos solo si tienen modulo activo"
+-- 3. Política: SOLO lectura de turnos propios
+DROP POLICY IF EXISTS "Solo dueños ven sus propios turnos" ON public.appointments;
+CREATE POLICY "Solo dueños ven sus propios turnos"
 ON public.appointments
 FOR SELECT
 USING (
   EXISTS (
-    SELECT 1 
-    FROM public.businesses b 
-    WHERE b.id = business_id 
+    SELECT 1 FROM public.businesses b
+    WHERE b.id = business_id
+    AND b.user_id = auth.uid()
+    AND 'appointments' = ANY(b.active_modules)
+  )
+);
+
+-- 4. Política: SOLO actualizar turnos propios
+DROP POLICY IF EXISTS "Solo dueños pueden actualizar sus turnos" ON public.appointments;
+CREATE POLICY "Solo dueños pueden actualizar sus turnos"
+ON public.appointments
+FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.businesses b
+    WHERE b.id = business_id
+    AND b.user_id = auth.uid()
+    AND 'appointments' = ANY(b.active_modules)
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.businesses b
+    WHERE b.id = business_id
+    AND b.user_id = auth.uid()
+    AND 'appointments' = ANY(b.active_modules)
+  )
+);
+
+-- 5. Política: SOLO eliminar turnos propios
+DROP POLICY IF EXISTS "Solo dueños pueden eliminar sus turnos" ON public.appointments;
+CREATE POLICY "Solo dueños pueden eliminar sus turnos"
+ON public.appointments
+FOR DELETE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.businesses b
+    WHERE b.id = business_id
     AND b.user_id = auth.uid()
     AND 'appointments' = ANY(b.active_modules)
   )

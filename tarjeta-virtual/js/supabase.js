@@ -77,23 +77,23 @@ export async function updateCard(cardId, updates) {
 }
 
 export async function getCard(slug) {
-    // 🛡️ Fallback Hardcoded para la Agencia (Max Devs Solutions)
-    if (slug === 'max-devs' || slug === 'agency') {
+    // 🛡️ Fallback Hardcoded para la Agencia (Suito)
+    if (slug === 'suito' || slug === 'agency') {
         return {
-            name: 'Max Devs Solutions',
-            profession: 'Agencia de Software & Transformación Digital',
+            name: 'Suito',
+            profession: 'Plataforma de Soluciones Digitales',
             description: 'Expertos en crear soluciones digitales de alto impacto. Desarrollamos tu ecosistema de ventas con Suito.',
             phone: '5491162621406',
-            email: 'hola@maxdevs.solutions',
+            email: 'hola@suito.pro',
             location: 'Buenos Aires, Argentina',
             photo: 'assets/maxdevs-logo.png',
             coverPhoto: 'assets/maxdevs-cover.jpg',
-            primary_color: '#8B5CF6', // Violeta Tech / Premium
-            instagram: 'maxdevs.solutions',
+            primary_color: '#8B5CF6',
+            instagram: 'suito.pro',
             website: 'https://suito.pro',
             bookingUrl: 'https://turnos.suito.pro/#/demo/booking',
             isPremium: true,
-            _id: 'max-devs',
+            _id: 'suito',
             gallery: []
         };
     }
@@ -139,7 +139,7 @@ export async function getCard(slug) {
         instagram: business.instagram || '',
         facebook: business.facebook || '',
         website: business.website || '',
-        bookingUrl: hasAppointments ? `https://turnos.maxdevs.solutions/#/${business.slug}/booking` : '',
+        bookingUrl: hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : '',
         isPremium: isPremium,
         _id: business.slug,
         gallery: gallery

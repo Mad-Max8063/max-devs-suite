@@ -1,8 +1,8 @@
 // ==========================================
-// Lógica Comercial de Max Devs Solutions Onboarding
+// Lógica Comercial de Suito Onboarding
 // ==========================================
 
-const waNumber = "5491162621406"; // Tu teléfono (Max Devs)
+const waNumber = "5491162621406"; // Suito WhatsApp
 
 // Manejo de Vistas (SPA cruda)
 const landingView = document.getElementById('landing-view');

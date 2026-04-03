@@ -6,7 +6,7 @@
 const CARD_DATA = {
     profile: {
         name: "Matías Maximiliano (Max) Bernal",
-        title: "Max Devs Solutions",
+        title: "Suito",
         bio: "Innovando soluciones digitales con Suito",
         // Usamos los assets locales de /assets
         avatar: "../assets/logo.png", 
@@ -17,9 +17,9 @@ const CARD_DATA = {
     },
     contact: {
         whatsapp: "5491162621406", 
-        email: "max@maxdevssolutions.com",
+        email: "hola@suito.pro",
         website: "https://suito.pro",
-        instagram: "maxdevs.solutions"
+        instagram: "suito.pro"
     },
     services: [
         {

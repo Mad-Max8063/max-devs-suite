@@ -1,5 +1,5 @@
 /* ============================================
-   Max Devs Admin Dashboard — Design System
+   Suito Admin Dashboard — Design System
    ============================================ */
 
 /* ——— Design Tokens ——— */
@@ -1230,4 +1230,145 @@ body {
 
 @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ——— Login Overlay ——— */
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.login-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 40px 36px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    animation: fadeSlideIn 0.4s ease-out;
+}
+
+.login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+.login-logo i {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-purple);
+    border-radius: var(--radius-sm);
+    font-size: 20px;
+    color: white;
+}
+
+.login-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.login-card > p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+
+.login-field {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.login-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.login-field input {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.login-field input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+    box-shadow: var(--shadow-glow-purple);
+}
+
+.login-field input::placeholder {
+    color: var(--text-muted);
+}
+
+.login-error {
+    background: rgba(239,68,68,0.1);
+    color: var(--accent-red);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(239,68,68,0.2);
+}
+
+.login-submit {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--gradient-purple);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.login-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow-purple);
+}
+
+.login-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Dashboard hidden by default (shown by JS after auth) */
+.dashboard-container {
+    display: none;
 }

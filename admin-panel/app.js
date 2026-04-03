@@ -1,5 +1,5 @@
 // ============================================
-// app.js — Max Devs Admin Dashboard
+// Suito Admin Dashboard — Master Controller
 // ============================================
 import { CONFIG } from './config.js';
 import { getClients, addClient, updateClient, deleteClient, getClientStats } from './clients.js';
@@ -508,7 +508,7 @@ window._deliverClient = function(id) {
     const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
     const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.cardId || client.slug}`;
     
-    let message = `¡Hola ${client.name}! 👋 Te escribo de *Max Devs Solutions*.\n\n`;
+    let message = `¡Hola ${client.name}! 👋 Te escribo de *Suito*.\n\n`;
     message += `Tengo el gusto de informarte que tu *${getPlanLabel(client.plan)}* ya está lista para usar y compartir. 🚀\n\n`;
     message += `🔗 Podés verla acá: ${fullUrl}\n\n`;
     message += `¡Cualquier duda que tengas avisame!`;

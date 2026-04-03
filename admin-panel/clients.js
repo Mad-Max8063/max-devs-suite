@@ -4,7 +4,13 @@
 // Uses localStorage for immediate functionality.
 // Ready to migrate to Supabase table `admin_clients` when created.
 
-const STORAGE_KEY = 'maxdevs_clients';
+const STORAGE_KEY = 'suito_clients';
+
+// Auto-migrate from old key if exists
+if (!localStorage.getItem('suito_clients') && localStorage.getItem('maxdevs_clients')) {
+    localStorage.setItem('suito_clients', localStorage.getItem('maxdevs_clients'));
+    localStorage.removeItem('maxdevs_clients');
+}
 
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
