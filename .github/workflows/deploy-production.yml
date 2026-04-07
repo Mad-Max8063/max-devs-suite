@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: public_html/
+          server-dir: domains/suito.pro/public_html/
           port: 21
           protocol: ftps
           timeout: 180000
@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./tarjeta-virtual/
-          server-dir: public_html/card/
+          server-dir: domains/suito.pro/public_html/card/
           port: 21
           protocol: ftps
           timeout: 180000
@@ -80,7 +80,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./gestor-de-turnos/dist/
-          server-dir: public_html/turnos/
+          server-dir: domains/suito.pro/public_html/turnos/
           port: 21
           protocol: ftps
           timeout: 180000
@@ -100,7 +100,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/
-          server-dir: public_html/admin/
+          server-dir: domains/suito.pro/public_html/admin/
           port: 21
           protocol: ftps
           timeout: 180000
@@ -120,7 +120,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./assets/
-          server-dir: public_html/assets/
+          server-dir: domains/suito.pro/public_html/assets/
           port: 21
           protocol: ftps
           timeout: 180000

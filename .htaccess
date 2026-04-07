@@ -16,8 +16,13 @@ Options -Indexes
 RewriteRule ^card$ /card/ [R=301,L]
 RewriteRule ^turnos$ /turnos/ [R=301,L]
 
-# 2. Manejo de React Router (SPA) en /turnos/
+# 2. Manejo de React Router (SPA) en /turnos/ y /card/
 # ------------------------------------------
+RewriteCond %{REQUEST_URI} ^/card/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^card/(.*)$ /card/index.html [L]
+
 RewriteCond %{REQUEST_URI} ^/turnos/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
