@@ -1,76 +1,167 @@
 // ============================================
-// clients.js — Client Management (localStorage)
+// clients.js — Client Management (Supabase)
 // ============================================
-// Uses localStorage for immediate functionality.
-// Ready to migrate to Supabase table `admin_clients` when created.
+// Migration: localStorage -> Supabase table `admin_clients`
+// Enforces security via Row Level Security (RLS).
+
+import { CONFIG } from './config.js';
 
 const STORAGE_KEY = 'suito_clients';
+let supabase;
 
-// Auto-migrate from old key if exists
-if (!localStorage.getItem('suito_clients') && localStorage.getItem('maxdevs_clients')) {
-    localStorage.setItem('suito_clients', localStorage.getItem('maxdevs_clients'));
-    localStorage.removeItem('maxdevs_clients');
+function getClient() {
+    if (!supabase) {
+        supabase = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
+    }
+    return supabase;
 }
 
-function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+async function getUserId() {
+    const sb = getClient();
+    const { data: { session } } = await sb.auth.getSession();
+    return session ? session.user.id : null;
 }
 
-export function getClients() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+/**
+ * Migrates local data to Supabase if exists and user is logged in.
+ * Internal function, called on initial load.
+ */
+async function performMigration() {
+    const localData = localStorage.getItem(STORAGE_KEY);
+    if (!localData) return;
+
+    try {
+        const clients = JSON.parse(localData);
+        if (!Array.isArray(clients) || clients.length === 0) {
+            localStorage.removeItem(STORAGE_KEY);
+            return;
+        }
+
+        const userId = await getUserId();
+        if (!userId) return; // Need to be logged in to migrate
+
+        console.log(`Migrating ${clients.length} clients to Supabase...`);
+
+        const sb = getClient();
+        const clientsToUpload = clients.map(c => ({
+            user_id: userId,
+            name: c.name,
+            business: c.business || '',
+            whatsapp: c.whatsapp || '',
+            email: c.email || '',
+            slug: c.slug || '',
+            plan: c.plan || 'tarjeta',
+            status: c.status || 'active',
+            is_premium: c.is_premium || false,
+            card_id: c.card_id || '',
+            notes: c.notes || '',
+            free_until: c.free_until || null,
+            paid_until: c.paid_until || null
+        }));
+
+        const { error } = await sb.from('admin_clients').insert(clientsToUpload);
+
+        if (!error) {
+            console.log('Migration successful!');
+            localStorage.removeItem(STORAGE_KEY);
+        } else {
+            console.error('Migration error:', error);
+        }
+    } catch (e) {
+        console.error('Error parsing local clients for migration:', e);
+    }
 }
 
-function saveClients(clients) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+// Perform migration check on load
+// (Wrapped in a self-invoking async function or called explicitly)
+window.addEventListener('load', () => {
+    setTimeout(performMigration, 1000); // Wait for auth to settle
+});
+
+export async function getClients() {
+    const userId = await getUserId();
+    if (!userId) return [];
+
+    const sb = getClient();
+    const { data, error } = await sb
+        .from('admin_clients')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching clients:', error);
+        return [];
+    }
+    return data;
 }
 
-export function addClient(clientData) {
-    const clients = getClients();
-    const newClient = {
-        id: generateId(),
-        name: clientData.name,
-        business: clientData.business || '',
-        whatsapp: clientData.whatsapp || '',
-        email: clientData.email || '',
-        plan: clientData.plan || 'tarjeta', // tarjeta | turnos | combo
-        status: 'active',
-        slug: clientData.slug || clientData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        isPremium: clientData.isPremium || false,
-        cardId: clientData.cardId || null,
-        notes: clientData.notes || '',
-        createdAt: new Date().toISOString(),
-        paidUntil: null,
-        freeUntil: clientData.freeUntil || null,
-    };
-    clients.unshift(newClient);
-    saveClients(clients);
-    return newClient;
+export async function addClient(clientData) {
+    const userId = await getUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const sb = getClient();
+    const { data, error } = await sb
+        .from('admin_clients')
+        .insert({
+            user_id: userId,
+            ...clientData
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error adding client:', error);
+        throw error;
+    }
+    return data;
 }
 
-export function updateClient(id, updates) {
-    const clients = getClients();
-    const index = clients.findIndex(c => c.id === id);
-    if (index === -1) return null;
-    clients[index] = { ...clients[index], ...updates };
-    saveClients(clients);
-    return clients[index];
+export async function updateClient(id, updates) {
+    const userId = await getUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const sb = getClient();
+    const { data, error } = await sb
+        .from('admin_clients')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating client:', error);
+        throw error;
+    }
+    return data;
 }
 
-export function deleteClient(id) {
-    const clients = getClients();
-    const filtered = clients.filter(c => c.id !== id);
-    saveClients(filtered);
+export async function deleteClient(id) {
+    const userId = await getUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const sb = getClient();
+    const { error } = await sb
+        .from('admin_clients')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId);
+
+    if (error) {
+        console.error('Error deleting client:', error);
+        throw error;
+    }
+    return true;
 }
 
-export function getClientStats() {
-    const clients = getClients();
-    const active = clients.filter(c => c.status === 'active');
+export async function getClientStats() {
+    const clients = await getClients();
     return {
         total: clients.length,
-        active: active.length,
-        tarjeta: active.filter(c => c.plan === 'tarjeta').length,
-        turnos: active.filter(c => c.plan === 'turnos').length,
-        combo: active.filter(c => c.plan === 'combo').length,
+        active: clients.filter(c => c.status === 'active').length,
+        tarjeta: clients.filter(c => c.plan === 'tarjeta').length,
+        turnos: clients.filter(c => c.plan === 'turnos').length,
+        combo: clients.filter(c => c.plan === 'combo').length,
     };
 }

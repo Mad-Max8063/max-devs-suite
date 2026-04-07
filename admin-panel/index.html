@@ -421,70 +421,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script type="module" src="app.js"></script>
 
-    <!-- Auth Script -->
-    <script>
-        // Reutilizar el cliente de app.js si existe, o crear uno con las keys correctas
-        let _authClient = null;
-        function getAuthClient() {
-            if (!_authClient) {
-                _authClient = window.supabase.createClient(
-                    'https://bfsttdiokdqyvwjuvcbp.supabase.co',
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmc3R0ZGlva2RxeXZ3anV2Y2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNzc1NDUsImV4cCI6MjA4Nzk1MzU0NX0.TqmEpfSlN25f9eZjw3ULIhJ0PiHAH3NuNCQEoESPD-w'
-                );
-            }
-            return _authClient;
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const sb = getAuthClient();
-            const { data: { session } } = await sb.auth.getSession();
-            if (session) {
-                showDashboard();
-            } else {
-                showLogin();
-            }
-        });
-
-        function showDashboard() {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.querySelector('.dashboard-container').style.display = 'flex';
-        }
-
-        function showLogin() {
-            document.getElementById('login-overlay').style.display = 'flex';
-            document.querySelector('.dashboard-container').style.display = 'none';
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            const errEl = document.getElementById('login-error');
-            const btn = document.getElementById('login-btn');
-            const btnText = document.getElementById('login-btn-text');
-
-            errEl.style.display = 'none';
-            btn.disabled = true;
-            btnText.textContent = 'Verificando...';
-
-            const sb = getAuthClient();
-            const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-
-            if (error) {
-                errEl.textContent = 'Credenciales inválidas. Verificá email y contraseña.';
-                errEl.style.display = 'block';
-                btn.disabled = false;
-                btnText.textContent = 'Ingresar';
-                return;
-            }
-            showDashboard();
-        }
-
-        async function handleLogout() {
-            const sb = getAuthClient();
-            await sb.auth.signOut();
-            showLogin();
-        }
-    </script>
+    <!-- Auth Script Modularizado -->
+    <script type="module" src="auth.js"></script>
 </body>
 </html>

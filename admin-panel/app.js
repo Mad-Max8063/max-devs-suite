@@ -12,14 +12,14 @@ let editingClientId = null;
 // ——— Init ———
 let supabase;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initSupabase();
     initNavigation();
     initModal();
     initFilters();
     initSearch();
     initMobile();
-    renderDashboard();
+    await renderDashboard();
     checkNewLeads();
 });
 
@@ -48,7 +48,7 @@ function initNavigation() {
     });
 }
 
-function switchSection(section) {
+async function switchSection(section) {
     currentSection = section;
     
     // Update nav
@@ -70,21 +70,21 @@ function switchSection(section) {
     document.getElementById('sidebar').classList.remove('open');
 
     // Re-render section
-    if (section === 'dashboard') renderDashboard();
-    if (section === 'clients') renderClients();
-    if (section === 'leads') renderLeads();
+    if (section === 'dashboard') await renderDashboard();
+    if (section === 'clients') await renderClients();
+    if (section === 'leads') await renderLeads();
     if (section === 'pricing') renderPricing();
 }
 
 // ——— Dashboard ———
-function renderDashboard() {
-    renderStats();
+async function renderDashboard() {
+    await renderStats();
     renderPricingQuick();
-    renderRecentClients();
+    await renderRecentClients();
 }
 
-function renderStats() {
-    const stats = getClientStats();
+async function renderStats() {
+    const stats = await getClientStats();
     const grid = document.getElementById('statsGrid');
     grid.innerHTML = `
         <div class="stat-card">
@@ -152,8 +152,9 @@ function renderPricingQuick() {
     `;
 }
 
-function renderRecentClients() {
-    const clients = getClients().slice(0, 5);
+async function renderRecentClients() {
+    const clientsData = await getClients();
+    const clients = clientsData.slice(0, 5);
     const tbody = document.getElementById('recentClientsTable');
     const empty = document.getElementById('emptyDashboard');
 
@@ -187,8 +188,8 @@ function renderRecentClients() {
 }
 
 // ——— Clients Section ———
-function renderClients() {
-    let clients = getClients();
+async function renderClients() {
+    let clients = await getClients();
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
     if (currentFilter !== 'all') {
@@ -227,13 +228,13 @@ function renderClients() {
                 ${c.whatsapp ? `<div class="client-detail"><i class="fa-brands fa-whatsapp"></i> ${c.whatsapp}</div>` : ''}
                 ${c.email ? `<div class="client-detail"><i class="fa-solid fa-envelope"></i> ${c.email}</div>` : ''}
                 <div class="client-detail"><i class="fa-solid fa-link"></i> /${c.slug}</div>
-                ${c.isPremium ? `<div class="client-detail" style="color:var(--accent-purple);font-weight:600;"><i class="fa-solid fa-star"></i> Nivel Premium</div>` : `<div class="client-detail text-muted"><i class="fa-regular fa-star"></i> Nivel Gratuito</div>`}
-                ${c.freeUntil ? `<div class="client-detail highlight-text"><i class="fa-solid fa-gift"></i> Bonificado hasta: ${new Date(c.freeUntil).toLocaleDateString()}</div>` : ''}
+                ${c.is_premium ? `<div class="client-detail" style="color:var(--accent-purple);font-weight:600;"><i class="fa-solid fa-star"></i> Nivel Premium</div>` : `<div class="client-detail text-muted"><i class="fa-regular fa-star"></i> Nivel Gratuito</div>`}
+                ${c.free_until ? `<div class="client-detail highlight-text"><i class="fa-solid fa-gift"></i> Bonificado hasta: ${new Date(c.free_until).toLocaleDateString()}</div>` : ''}
                 ${c.notes ? `<div class="client-detail notes"><i class="fa-solid fa-sticky-note"></i> ${c.notes}</div>` : ''}
             </div>
             <div class="client-card-footer">
                 <div class="card-footer-actions">
-                    ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/card/${c.cardId || c.slug}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
+                    ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/card/${c.card_id || c.slug}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
                     ${c.plan !== 'tarjeta' ? `<a href="${CONFIG.products.gestorTurnos}/#/${c.slug}" target="_blank" class="action-btn-link" title="Ver Turnos"><i class="fa-solid fa-calendar"></i></a>` : ''}
                     <button class="action-btn-link purple" onclick="window._deliverClient('${c.id}')" title="Entregar por WhatsApp"><i class="fa-solid fa-paper-plane"></i></button>
                     <button class="action-btn-link silver" onclick="window._copyLink('${c.id}')" title="Copiar Link"><i class="fa-solid fa-copy"></i></button>
@@ -332,7 +333,7 @@ function initModal() {
         }
     });
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const data = {
             name: document.getElementById('clientName').value,
@@ -341,22 +342,27 @@ function initModal() {
             email: document.getElementById('clientEmail').value,
             slug: document.getElementById('clientSlug').value,
             plan: document.getElementById('clientPlan').value,
-            isPremium: document.getElementById('clientPremium').checked,
-            freeUntil: document.getElementById('clientFreeUntil').value || null,
+            is_premium: document.getElementById('clientPremium').checked,
+            free_until: document.getElementById('clientFreeUntil').value || null,
             notes: document.getElementById('clientNotes').value,
         };
 
-        if (editingClientId) {
-            updateClient(editingClientId, data);
-            showToast('Cliente actualizado ✅');
-        } else {
-            addClient(data);
-            showToast('Cliente creado exitosamente 🎉');
-        }
+        try {
+            if (editingClientId) {
+                await updateClient(editingClientId, data);
+                showToast('Cliente actualizado ✅');
+            } else {
+                await addClient(data);
+                showToast('Cliente creado exitosamente 🎉');
+            }
 
-        closeModal();
-        renderDashboard();
-        if (currentSection === 'clients') renderClients();
+            closeModal();
+            await renderDashboard();
+            if (currentSection === 'clients') await renderClients();
+        } catch (error) {
+            showToast('Error al guardar cliente ❌');
+            console.error(error);
+        }
     });
 }
 
@@ -373,8 +379,8 @@ function openModal(client = null) {
     document.getElementById('clientEmail').value = client?.email || '';
     document.getElementById('clientSlug').value = client?.slug || '';
     document.getElementById('clientPlan').value = client?.plan || 'tarjeta';
-    document.getElementById('clientPremium').checked = client?.isPremium || false;
-    document.getElementById('clientFreeUntil').value = client?.freeUntil || '';
+    document.getElementById('clientPremium').checked = client?.is_premium || false;
+    document.getElementById('clientFreeUntil').value = client?.free_until || '';
     document.getElementById('clientNotes').value = client?.notes || '';
 
     modal.classList.add('active');
@@ -388,17 +394,18 @@ function closeModal() {
 }
 
 // ——— Global Actions (called from onclick in rendered HTML) ———
-window._editClient = function(id) {
-    const client = getClients().find(c => c.id === id);
+window._editClient = async function(id) {
+    const clients = await getClients();
+    const client = clients.find(c => c.id === id);
     if (client) openModal(client);
 };
 
-window._deleteClient = function(id, name) {
+window._deleteClient = async function(id, name) {
     if (confirm(`¿Eliminar a "${name}"? Esta acción no se puede deshacer.`)) {
-        deleteClient(id);
+        await deleteClient(id);
         showToast('Cliente eliminado');
-        renderDashboard();
-        if (currentSection === 'clients') renderClients();
+        await renderDashboard();
+        if (currentSection === 'clients') await renderClients();
     }
 };
 
@@ -501,12 +508,13 @@ async function checkNewLeads() {
 }
 
 // ——— Global External Actions ———
-window._deliverClient = function(id) {
-    const client = getClients().find(c => c.id === id);
+window._deliverClient = async function(id) {
+    const clients = await getClients();
+    const client = clients.find(c => c.id === id);
     if (!client) return;
 
     const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
-    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.cardId || client.slug}`;
+    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.card_id || client.slug}`;
     
     let message = `¡Hola ${client.name}! 👋 Te escribo de *Suito*.\n\n`;
     message += `Tengo el gusto de informarte que tu *${getPlanLabel(client.plan)}* ya está lista para usar y compartir. 🚀\n\n`;
@@ -517,12 +525,13 @@ window._deliverClient = function(id) {
     window.open(waUrl, '_blank');
 };
 
-window._copyLink = function(id) {
-    const client = getClients().find(c => c.id === id);
+window._copyLink = async function(id) {
+    const clients = await getClients();
+    const client = clients.find(c => c.id === id);
     if (!client) return;
 
     const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
-    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.cardId || client.slug}`;
+    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.card_id || client.slug}`;
     
     navigator.clipboard.writeText(fullUrl).then(() => {
         showToast('Enlace copiado al portapapeles 📋');

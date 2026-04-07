@@ -1,7 +1,7 @@
 {
-  "name": "Tarjeta Virtual Profesional",
-  "short_name": "Mi Tarjeta",
-  "description": "Tu tarjeta de presentación digital profesional",
+  "name": "Suito | Tarjeta Virtual",
+  "short_name": "Suito",
+  "description": "Tu tarjeta de presentación digital profesional con Suito",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0a0d14",

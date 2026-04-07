@@ -83,3 +83,55 @@ USING (
     AND 'appointments' = ANY(b.active_modules)
   )
 );
+
+-- ==============================================================================
+-- PROTECCIÓN PARA OTRAS TABLAS DEL ECOSISTEMA
+-- Solo el dueño de un negocio puede editar su configuración.
+-- ==============================================================================
+
+-- 6. Schedules (Habilitar RLS y proteger)
+ALTER TABLE public.schedules ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Solo dueños gestionan sus horarios" ON public.schedules;
+CREATE POLICY "Solo dueños gestionan sus horarios"
+ON public.schedules FOR ALL
+USING (EXISTS (SELECT 1 FROM public.businesses b WHERE b.id = business_id AND b.user_id = auth.uid()))
+WITH CHECK (EXISTS (SELECT 1 FROM public.businesses b WHERE b.id = business_id AND b.user_id = auth.uid()));
+
+-- 7. Services (Habilitar RLS y proteger)
+ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Solo dueños gestionan sus servicios" ON public.services;
+CREATE POLICY "Solo dueños gestionan sus servicios"
+ON public.services FOR ALL
+USING (EXISTS (SELECT 1 FROM public.businesses b WHERE b.id = business_id AND b.user_id = auth.uid()))
+WITH CHECK (EXISTS (SELECT 1 FROM public.businesses b WHERE b.id = business_id AND b.user_id = auth.uid()));
+
+-- 8. Blocked Dates (Habilitar RLS y proteger)
+ALTER TABLE public.blocked_dates ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Solo dueños gestionan sus bloqueos" ON public.blocked_dates;
+CREATE POLICY "Solo dueños gestionan sus bloqueos"
+ON public.blocked_dates FOR ALL
+USING (EXISTS (SELECT 1 FROM public.businesses b WHERE b.id = business_id AND b.user_id = auth.uid()))
+WITH CHECK (EXISTS (SELECT 1 FROM public.businesses b WHERE b.id = business_id AND b.user_id = auth.uid()));
+
+-- 9. Businesses (Seguridad en la tabla principal)
+ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
+
+-- SELECT público (necesario para que las tarjetas virtuales y el sistema de turnos funcionen sin login)
+DROP POLICY IF EXISTS "Lectura pública de negocios" ON public.businesses;
+CREATE POLICY "Lectura pública de negocios"
+ON public.businesses FOR SELECT
+USING (true);
+
+-- UPDATE solo por el dueño
+DROP POLICY IF EXISTS "Solo dueños editan su negocio" ON public.businesses;
+CREATE POLICY "Solo dueños editan su negocio"
+ON public.businesses FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+-- INSERT (Solo el admin/dueño por ahora)
+DROP POLICY IF EXISTS "Solo usuarios autenticados crean negocios" ON public.businesses;
+CREATE POLICY "Solo usuarios autenticados crean negocios"
+ON public.businesses FOR INSERT
+WITH CHECK (auth.uid() IS NOT NULL);
+
