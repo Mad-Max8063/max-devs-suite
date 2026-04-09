@@ -1,55 +1,61 @@
 # Resumen de Sesión — Suito Platform
-**Fecha:** 2026-04-07 01:20 local
+**Fecha:** 2026-04-09
 **Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Completar el hardening del Admin Panel migrando el CRM local a Supabase, y diagnosticar y solucionar el cuello de botella persistente de despliegue en Hostinger, incluyendo errores 404 y rutas relativas en aplicaciones embebidas.
+Completar la Arquitectura Multi-Tenant (Fase A) asegurando el backend con RLS en Supabase, y diagnosticar/arreglar los bugs de enrutamiento y el severo problema de sincronización FTP de producción en Hostinger.
 
 ---
 
 ## ✅ Lo que se hizo
-1. **Migración CRM a Supabase:** Se eliminó el uso de `localStorage` en `admin-panel/clients.js` reescribiendo la lógica con sentencias asíncronas de Supabase sobre la tabla `admin_clients`.
-2. **Corrección de Bugs Visuales (Naming Convention):** Identificamos una discrepancia entre `camelCase` (frontend) y `snake_case` (DB). Se actualizó `app.js` para usar `is_premium`, `free_until`, `card_id`, etc.
-3. **Módulo de Autenticación Central:** Extraído del `index.html` y colocado en `auth.js` de Admin Panel.
-4. **Desbloqueo de Github Actions -> Hostinger:**
-   - La ruta en `.github/workflows/deploy-production.yml` estaba apuntando a `public_html/`, desplegando directo en la raíz de toda la cuenta. Lo volvimos a redirigir al Addon Domain: `domains/suito.pro/public_html/`.
-5. **Solución a SPA Routing y Strict MIME Type ("text/html"):**
-   - Se añadió `<base href="/card/">` al `tarjeta-virtual/index.html` para resolver referencias relativas como `js/app.js` ante URL variables como `/card/suito`.
-   - Se actualizó `base: '/turnos/'` en `gestor-de-turnos/vite.config.ts`.
-   - Se aplicó la misma redirección `.htaccess` para `/card/` que la que existía para `/turnos/`.
+1. **Multi-Tenant y Zero Trust:**
+   - Se crearon migraciones SLQ (`admin_clients_migration.sql` y `suito_super_admin_migration.sql`).
+   - Se aplicaron Row Level Security (RLS) policies en la tabla `admin_clients` permitiendo acceso vía `user_id` o `is_super_admin()`.
+   - Se actualizó el Admin Panel (`clients.js`, `auth.js`) para usar autenticación real de Supabase y eliminar lógica Insecure (localStorage y Service Role Keys en cliente).
+   - Se añadió el soporte nativo para `transfer_email` (campo en base de datos y modal frontend).
+
+2. **Fix de Enrutamiento y Slugs:**
+   - Se reparó el bug visual de duplicación de URL (`/card/card/`).
+   - Se ajustó el RegExp en la Tarjeta Virtual (`app.js`) para soportar guiones medios en los nombres de los negocios (ej. `max-devs-solutions`).
+
+3. **Despliegue a Producción (Resolución de FTP):**
+   - Se descubrió que la acción FTP de GitHub subía exitosamente los archivos a carpetas fantasma (`domains/suito.pro/public_html/...`) debido al root jail del usuario FTP.
+   - Hostinger seguía entregando archivos congelados de caché/servidor del 30 de marzo (LiteSpeed).
+   - Se parchó `.github/workflows/deploy-production.yml` obligando a sincronizar contra el root `public_html/`. Se hizo commit y push.
+   - Se investigó la anomalía visual de "Dominio Conectando" del hPanel de Hostinger (descartado como falso positivo).
+   - Se teorizó un posible cambio de servidor de Hostinger / desactualización de secreto `FTP_SERVER`.
 
 ---
 
 ## ❌ Problemas encontrados
-- **Hostinger "Enjaulado" o Ruta Errónea:** GitHub Action reportaba "Success", pero los assets en `suito.pro` seguían apuntando al branding antiguo ("Max Devs"). Se debía a que al eliminar `domains/suito.pro/` en el `server-dir`, FTP guardaba el output en el domain pointer root y no en el addon domain real.
-- **Rutas variables destruyen Assets SPA:** Cargar `suito.pro/card/suito` forzaba solicitudes relativas `/card/suito/js/app.js`. El RewriteRule servía HTML para ese path, induciendo el error `MIME type of text/html` en los logs del navegador.
+- **Hostinger FTP Ghosting:** GitHub Actions completaba el `FTP-Deploy-Action` de forma impecable sin errores, pero los ficheros no se servían. Causa: Path offset con el root (`domains/suito.pro/` vs `public_html/`) y potencial desactualización de la clave secreta `FTP_SERVER` tras cambios en la cuenta (el servidor contestaba `Last-Modified: 30 Mar 2026` para `suito.pro`).
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Verificación en Vivo
-1. Validar si los últimos despliegues llegaron bien a `/admin/` (verificar persistencia en login).
-2. Validar que la SPA de Tarjetas corre estable al hacer `F5` sobre `suito.pro/card/suito`.
-3. Validar `suito.pro/turnos/` (y subrutas).
+### Prioridad 1 — Despliegue en Producción
+1. Que el Humano confirme la `IP de FTP` actual en el panel de Hostinger.
+2. Actualizar el Secret `FTP_SERVER` en GitHub.
+3. Volver a correr el despliegue del Admin Panel.
+4. Validar que al fin abra `suito.pro/admin` con la versión lila de Suito.
 
-### Prioridad 2 — Rebrand & QA Restante
-1. Testear creación de cliente real a través del Supabase en producción para el Admin Dashboard.
-2. Confirmar propagación en Cloudflare/DNS si hay cambios (en principio solo limpieza de caché de navegador).
+### Prioridad 2 — Fase B (Multi-Tenant Autogestionado)
+1. Desarrollar el flujo del usuario cliente (donde Max Devs transfiere la autoría del registro `admin_clients` a la nueva cuenta del cliente vía `transfer_email`).
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repositorio:** `Mad-Max8063/max-devs-suite`
-- **Carpeta Local Activa:** `c:\Users\domin\.gemini\antigravity\scratch\MiSuite`
-- **Supabase Project:** `bfsttdiokdqyvwjuvcbp`
-- **Commit Desbloqueo Github Actions:** `53d8830`
-- **Commit Solución SPA (text/html issue):** `cf253ef`
+- Repo: `Mad-Max8063/max-devs-suite`
+- Dominios evaluados: `admin.suito.pro`, `suito.pro/admin/`
+- IP actual Hostinger DNS (`suito.pro`): `147.93.14.107`
+- Último commit de fix: `c251ee1`
+- Función Helper SQL: `is_super_admin(uuid)`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Usar Base Tag sobre Vite Plugin en Cards:** Como `tarjeta-virtual` no usaba Bundler (solo HTML plano y JS module), la mejor y más elegante solución técnica era inyectar un HTML Base Tag (`<base href="/card/">`) en lugar de refactorizar todo el javascript local para detectar subrutas o migrarlo a Vite. 
-- **Mantener `dangerous-clean-slate`:** Ahora que el directorio apunta correctamente a `domains/suito.pro/public_html`, la limpieza del directorio Hostinger funciona a favor nuestro previniendo archivos zombi.
+- Se limpió el prefijo redundante "domains/suito.pro" de la Acción GitHub para prevenir fallos por enjaulamiento FTP genérico a nivel root de cuenta de Hostinger (`public_html/`).
+- Las políticas de seguridad confían 100% en la validación RLS, por lo que se removieron filtros de UI del lado cliente previniendo fugas de datos.
