@@ -16,8 +16,8 @@ function navigate() {
     app.classList.remove('landing-mode');
 
     // Parse route - compatible with subfolders
-    const cardMatch = path.match(/\/card\/([A-Za-z0-9]+)$/);
-    const editMatch = path.match(/\/edit\/([A-Za-z0-9]+)$/);
+    const cardMatch = path.match(/\/card\/([A-Za-z0-9-]+)$/);
+    const editMatch = path.match(/\/edit\/([A-Za-z0-9-]+)$/);
 
     if (editMatch) {
         // — Gallery edit mode —

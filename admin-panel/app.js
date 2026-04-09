@@ -234,7 +234,7 @@ async function renderClients() {
             </div>
             <div class="client-card-footer">
                 <div class="card-footer-actions">
-                    ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/card/${c.card_id || c.slug}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
+                    ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/${c.card_id || c.slug}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
                     ${c.plan !== 'tarjeta' ? `<a href="${CONFIG.products.gestorTurnos}/#/${c.slug}" target="_blank" class="action-btn-link" title="Ver Turnos"><i class="fa-solid fa-calendar"></i></a>` : ''}
                     <button class="action-btn-link purple" onclick="window._deliverClient('${c.id}')" title="Entregar por WhatsApp"><i class="fa-solid fa-paper-plane"></i></button>
                     <button class="action-btn-link silver" onclick="window._copyLink('${c.id}')" title="Copiar Link"><i class="fa-solid fa-copy"></i></button>
@@ -344,6 +344,7 @@ function initModal() {
             plan: document.getElementById('clientPlan').value,
             is_premium: document.getElementById('clientPremium').checked,
             free_until: document.getElementById('clientFreeUntil').value || null,
+            transfer_email: document.getElementById('clientTransferEmail').value || null,
             notes: document.getElementById('clientNotes').value,
         };
 
@@ -381,6 +382,7 @@ function openModal(client = null) {
     document.getElementById('clientPlan').value = client?.plan || 'tarjeta';
     document.getElementById('clientPremium').checked = client?.is_premium || false;
     document.getElementById('clientFreeUntil').value = client?.free_until || '';
+    document.getElementById('clientTransferEmail').value = client?.transfer_email || '';
     document.getElementById('clientNotes').value = client?.notes || '';
 
     modal.classList.add('active');
@@ -514,8 +516,8 @@ window._deliverClient = async function(id) {
     if (!client) return;
 
     const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
-    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.card_id || client.slug}`;
-    
+    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : ''}${client.card_id || client.slug}`;
+
     let message = `¡Hola ${client.name}! 👋 Te escribo de *Suito*.\n\n`;
     message += `Tengo el gusto de informarte que tu *${getPlanLabel(client.plan)}* ya está lista para usar y compartir. 🚀\n\n`;
     message += `🔗 Podés verla acá: ${fullUrl}\n\n`;
@@ -531,8 +533,8 @@ window._copyLink = async function(id) {
     if (!client) return;
 
     const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
-    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : 'card/'}${client.card_id || client.slug}`;
-    
+    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : ''}${client.card_id || client.slug}`;
+
     navigator.clipboard.writeText(fullUrl).then(() => {
         showToast('Enlace copiado al portapapeles 📋');
     });

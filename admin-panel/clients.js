@@ -79,14 +79,10 @@ window.addEventListener('load', () => {
 });
 
 export async function getClients() {
-    const userId = await getUserId();
-    if (!userId) return [];
-
     const sb = getClient();
     const { data, error } = await sb
         .from('admin_clients')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -104,8 +100,8 @@ export async function addClient(clientData) {
     const { data, error } = await sb
         .from('admin_clients')
         .insert({
-            user_id: userId,
-            ...clientData
+            user_id: userId,      // RLS WITH CHECK requiere user_id explícito
+            ...clientData         // incluye transfer_email si viene del formulario
         })
         .select()
         .single();
@@ -118,15 +114,11 @@ export async function addClient(clientData) {
 }
 
 export async function updateClient(id, updates) {
-    const userId = await getUserId();
-    if (!userId) throw new Error('User not authenticated');
-
     const sb = getClient();
     const { data, error } = await sb
         .from('admin_clients')
         .update(updates)
         .eq('id', id)
-        .eq('user_id', userId)
         .select()
         .single();
 
@@ -138,15 +130,11 @@ export async function updateClient(id, updates) {
 }
 
 export async function deleteClient(id) {
-    const userId = await getUserId();
-    if (!userId) throw new Error('User not authenticated');
-
     const sb = getClient();
     const { error } = await sb
         .from('admin_clients')
         .delete()
-        .eq('id', id)
-        .eq('user_id', userId);
+        .eq('id', id);
 
     if (error) {
         console.error('Error deleting client:', error);
