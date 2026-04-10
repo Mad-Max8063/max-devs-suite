@@ -4,6 +4,7 @@
 
 import { getCard } from './supabase.js';
 
+window.__appRouterActive = true;
 const app = document.getElementById('app');
 
 function navigate() {
