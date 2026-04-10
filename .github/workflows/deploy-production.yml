@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Silenciar advertencias de Node 20
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # 1. Landing Page (Root)
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 🛠️ Prepare Landing with Root Config
-        run: cp .htaccess ./landing-ventas/.htaccess # Copiar el maestro a la carpeta de despliegue
+        run: cp .htaccess ./landing-ventas/.htaccess
 
       - name: 🚀 FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -26,11 +26,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./landing-ventas/
-          server-dir: public_html/
+          server-dir: ./
           port: 21
           protocol: ftp
           timeout: 180000
-          dangerous-clean-slate: true
 
   # 2. Virtual Card (/card)
   deploy-card:
@@ -46,11 +45,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./tarjeta-virtual/
-          server-dir: public_html/card/
+          server-dir: card/
           port: 21
           protocol: ftp
           timeout: 180000
-          dangerous-clean-slate: true
 
   # 3. Gestor de Turnos (/turnos)
   deploy-turnos:
@@ -80,11 +78,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./gestor-de-turnos/dist/
-          server-dir: public_html/turnos/
+          server-dir: turnos/
           port: 21
           protocol: ftp
           timeout: 180000
-          dangerous-clean-slate: true
 
   # 4. Admin Panel (/admin)
   deploy-admin:
@@ -100,11 +97,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./admin-panel/
-          server-dir: public_html/admin/
+          server-dir: admin/
           port: 21
           protocol: ftp
           timeout: 180000
-          dangerous-clean-slate: true
 
   # 5. Shared Assets (/assets)
   deploy-assets:
@@ -120,8 +116,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./assets/
-          server-dir: public_html/assets/
+          server-dir: assets/
           port: 21
           protocol: ftp
           timeout: 180000
-          dangerous-clean-slate: true
