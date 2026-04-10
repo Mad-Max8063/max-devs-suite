@@ -9,17 +9,32 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # 1. Landing Page (Root)
-  deploy-landing:
-    name: 🌐 Landing Page (Root)
+  deploy-all:
+    name: 🚀 Deploy All Modules
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      # ---- Build Turnos (React/Vite) ----
+      - name: 📦 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './gestor-de-turnos/package-lock.json'
+
+      - name: 🏗️ Build Gestor de Turnos
+        working-directory: ./gestor-de-turnos
+        run: |
+          npm install
+          npm run build
+
+      # ---- Prepare Landing ----
       - name: 🛠️ Prepare Landing with Root Config
         run: cp .htaccess ./landing-ventas/.htaccess
 
-      - name: 🚀 FTP Deploy
+      # ---- 1. Deploy Landing (Root) ----
+      - name: 🌐 Deploy Landing Page
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -32,14 +47,11 @@ jobs:
           timeout: 180000
           dangerous-clean-slate: true
 
-  # 2. Virtual Card (/card)
-  deploy-card:
-    name: 🃏 Virtual Card (/card)
-    needs: deploy-landing
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: 🚀 FTP Deploy
+      - name: ⏳ Cooldown (avoid rate limit)
+        run: sleep 15
+
+      # ---- 2. Deploy Virtual Card (/card) ----
+      - name: 🃏 Deploy Virtual Card
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -52,28 +64,11 @@ jobs:
           timeout: 180000
           dangerous-clean-slate: true
 
-  # 3. Gestor de Turnos (/turnos)
-  deploy-turnos:
-    name: 📆 Gestor de Turnos (/turnos)
-    needs: deploy-card
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: 📦 Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: './gestor-de-turnos/package-lock.json'
-          
-      - name: 🏗️ Build Gestor
-        working-directory: ./gestor-de-turnos
-        run: |
-          npm install
-          npm run build
-          
-      - name: 🚀 FTP Deploy
+      - name: ⏳ Cooldown (avoid rate limit)
+        run: sleep 15
+
+      # ---- 3. Deploy Gestor de Turnos (/turnos) ----
+      - name: 📆 Deploy Gestor de Turnos
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -86,14 +81,11 @@ jobs:
           timeout: 180000
           dangerous-clean-slate: true
 
-  # 4. Admin Panel (/admin)
-  deploy-admin:
-    name: 🛡️ Admin Panel (/admin)
-    needs: deploy-turnos
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: 🚀 FTP Deploy
+      - name: ⏳ Cooldown (avoid rate limit)
+        run: sleep 15
+
+      # ---- 4. Deploy Admin Panel (/admin) ----
+      - name: 🛡️ Deploy Admin Panel
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -106,14 +98,11 @@ jobs:
           timeout: 180000
           dangerous-clean-slate: true
 
-  # 5. Shared Assets (/assets)
-  deploy-assets:
-    name: 🖼️ Shared Assets (/assets)
-    needs: deploy-admin
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: 🚀 FTP Deploy
+      - name: ⏳ Cooldown (avoid rate limit)
+        run: sleep 15
+
+      # ---- 5. Deploy Shared Assets (/assets) ----
+      - name: 🖼️ Deploy Shared Assets
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
