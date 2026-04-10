@@ -28,7 +28,7 @@ jobs:
           local-dir: ./landing-ventas/
           server-dir: public_html/
           port: 21
-          protocol: ftps
+          protocol: ftp
           timeout: 180000
           dangerous-clean-slate: true
 
@@ -48,7 +48,7 @@ jobs:
           local-dir: ./tarjeta-virtual/
           server-dir: public_html/card/
           port: 21
-          protocol: ftps
+          protocol: ftp
           timeout: 180000
           dangerous-clean-slate: true
 
@@ -82,7 +82,7 @@ jobs:
           local-dir: ./gestor-de-turnos/dist/
           server-dir: public_html/turnos/
           port: 21
-          protocol: ftps
+          protocol: ftp
           timeout: 180000
           dangerous-clean-slate: true
 
@@ -102,7 +102,7 @@ jobs:
           local-dir: ./admin-panel/
           server-dir: public_html/admin/
           port: 21
-          protocol: ftps
+          protocol: ftp
           timeout: 180000
           dangerous-clean-slate: true
 
@@ -122,6 +122,6 @@ jobs:
           local-dir: ./assets/
           server-dir: public_html/assets/
           port: 21
-          protocol: ftps
+          protocol: ftp
           timeout: 180000
           dangerous-clean-slate: true
