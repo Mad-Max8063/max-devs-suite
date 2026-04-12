@@ -47,4 +47,4 @@ export default defineConfig(({ command }) => ({
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
-});
+}));
