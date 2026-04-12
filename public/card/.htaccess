@@ -9,9 +9,15 @@
   RewriteRule . - [L]
 
   # Exclusión explícita para evitar que archivos estáticos faltantes devuelvan el HTML de la SPA
-  # Esto ayuda a diagnosticar 404 reales y evita errores 422 en CDN/Optimizadores
   RewriteCond %{REQUEST_URI} \.(manifest|json|png|jpg|jpeg|svg|css|js|webp|ico|webmanifest)$ [NC]
   RewriteRule . - [R=404,L]
+
+  # Forzar no-caché para el manifest
+  <Files "manifest.json">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+  </Files>
 
   # Redirección SPA: Todo lo demás va a index.html
   RewriteRule . /card/index.html [L]

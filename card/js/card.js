@@ -1,6 +1,7 @@
 /**
  * Suito Virtual Card - Luminous Curator Edition
  * Personalized for: Matías Maximiliano (Max) Bernal
+ * v1.0.4 - Cache Bust v4 - 2026-04-12
  */
 
 const CARD_DATA = {
