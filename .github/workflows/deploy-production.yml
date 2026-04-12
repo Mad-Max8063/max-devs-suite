@@ -29,20 +29,14 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: 🚀 Deploy → suito.pro (SFTP - Business Plan)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: 🚀 Deploy → suito.pro (SFTP Business)
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
-          server-dir: domains/suito.pro/public_html/
           port: 65002
-          protocol: sftp
-          timeout: 300000
-          dangerous-clean-slate: true
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.env*
+          local_path: './dist/*'
+          remote_path: 'domains/suito.pro/public_html/'
+          sftp_only: true
+          delete_remote_files: true
