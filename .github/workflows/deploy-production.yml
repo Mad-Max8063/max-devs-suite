@@ -36,7 +36,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 65002
-          local_path: './dist/*'
-          remote_path: 'domains/suito.pro/public_html/'
+          local_path: './dist/'
+          remote_path: '/home/u543991373/domains/suito.pro/public_html/'
           sftp_only: true
           delete_remote_files: true
