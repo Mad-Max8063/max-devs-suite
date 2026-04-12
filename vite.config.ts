@@ -6,8 +6,8 @@ import { resolve } from 'path';
 export default defineConfig(({ command }) => ({
   plugins: [react()],
 
-  // Base path absoluto para que los subdominios encuentren los assets en la raíz
-  base: command === 'build' ? 'https://suito.pro/' : '/',
+  // Base path relativo para compatibilidad con la estructura de subcarpetas en Hostinger
+  base: '/',
 
   build: {
     outDir: 'dist',
