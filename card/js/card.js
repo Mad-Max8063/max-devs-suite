@@ -229,7 +229,7 @@ function buildCardHTML(data) {
                             WhatsApp
                         </a>
                     ` : ''}
-                    <button class="btn-secondary" onclick="navigator.share ? navigator.share({title:'${name}',url:location.href}).catch(()=>{}) : navigator.clipboard.writeText(location.href)">
+                    <button class="btn-secondary" onclick="navigator.share ? navigator.share({title:'${name}',url:window.location.href}).catch(()=>{}) : navigator.clipboard.writeText(window.location.href)">
                         <span class="material-symbols-outlined">share</span>
                         Compartir
                     </button>
