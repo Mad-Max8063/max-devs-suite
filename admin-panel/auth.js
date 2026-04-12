@@ -1,20 +1,12 @@
 // ============================================
 // auth.js — Supabase Auth Management for Admin Panel
 // ============================================
-import { CONFIG } from './config.js';
-
-let _authClient = null;
-
-function getAuthClient() {
-    if (!_authClient) {
-        _authClient = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
-    }
-    return _authClient;
-}
+// Uses the singleton client from supabaseClient.js to prevent
+// session desynchronization with clients.js and app.js.
+import { supabase } from './supabaseClient.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const sb = getAuthClient();
-    const { data: { session } } = await sb.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     if (session) {
         showDashboard();
     } else {
@@ -44,8 +36,7 @@ window.handleLogin = async function(e) {
     btn.disabled = true;
     btnText.textContent = 'Verificando...';
 
-    const sb = getAuthClient();
-    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
 
     if (error) {
         errEl.textContent = 'Credenciales inválidas. Verificá email y contraseña.';
@@ -58,7 +49,6 @@ window.handleLogin = async function(e) {
 };
 
 window.handleLogout = async function() {
-    const sb = getAuthClient();
-    await sb.auth.signOut();
+    await supabase.auth.signOut();
     showLogin();
 };

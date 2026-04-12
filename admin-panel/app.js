@@ -2,6 +2,7 @@
 // Suito Admin Dashboard — Master Controller
 // ============================================
 import { CONFIG } from './config.js';
+import { supabase } from './supabaseClient.js';
 import { getClients, addClient, updateClient, deleteClient, getClientStats } from './clients.js';
 
 // ——— State ———
@@ -9,11 +10,11 @@ let currentSection = 'dashboard';
 let currentFilter = 'all';
 let editingClientId = null;
 
-// ——— Init ———
-let supabase;
+// In-memory cache for leads — avoids unsafe JSON serialization in onclick attrs
+const _leadsCache = new Map();
 
+// ——— Init ———
 document.addEventListener('DOMContentLoaded', async () => {
-    initSupabase();
     initNavigation();
     initModal();
     initFilters();
@@ -22,12 +23,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderDashboard();
     checkNewLeads();
 });
-
-function initSupabase() {
-    if (window.supabase) {
-        supabase = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
-    }
-}
 
 // ——— Navigation ———
 function initNavigation() {
@@ -50,7 +45,7 @@ function initNavigation() {
 
 async function switchSection(section) {
     currentSection = section;
-    
+
     // Update nav
     document.querySelectorAll('.nav-links li').forEach(li => {
         li.classList.toggle('active', li.dataset.section === section);
@@ -84,42 +79,48 @@ async function renderDashboard() {
 }
 
 async function renderStats() {
-    const stats = await getClientStats();
     const grid = document.getElementById('statsGrid');
-    grid.innerHTML = `
-        <div class="stat-card">
-            <div class="stat-icon purple"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-details">
-                <h3>Clientes Activos</h3>
-                <h2>${stats.active}</h2>
-                <p class="trend info">${stats.total} total registrados</p>
+    grid.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
+    try {
+        const stats = await getClientStats();
+        grid.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-details">
+                    <h3>Clientes Activos</h3>
+                    <h2>${stats.active}</h2>
+                    <p class="trend info">${stats.total} total registrados</p>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon blue"><i class="fa-solid fa-address-card"></i></div>
-            <div class="stat-details">
-                <h3>Tarjetas Virtuales</h3>
-                <h2>${stats.tarjeta + stats.combo}</h2>
-                <p class="trend info">${stats.tarjeta} solo + ${stats.combo} en combo</p>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa-solid fa-address-card"></i></div>
+                <div class="stat-details">
+                    <h3>Tarjetas Virtuales</h3>
+                    <h2>${stats.tarjeta + stats.combo}</h2>
+                    <p class="trend info">${stats.tarjeta} solo + ${stats.combo} en combo</p>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon green"><i class="fa-solid fa-calendar-check"></i></div>
-            <div class="stat-details">
-                <h3>Gestores de Turno</h3>
-                <h2>${stats.turnos + stats.combo}</h2>
-                <p class="trend info">${stats.turnos} solo + ${stats.combo} en combo</p>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-details">
+                    <h3>Gestores de Turno</h3>
+                    <h2>${stats.turnos + stats.combo}</h2>
+                    <p class="trend info">${stats.turnos} solo + ${stats.combo} en combo</p>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon gradient"><i class="fa-solid fa-layer-group"></i></div>
-            <div class="stat-details">
-                <h3>Combos Vendidos</h3>
-                <h2>${stats.combo}</h2>
-                <p class="trend info">${stats.active > 0 ? Math.round(stats.combo / stats.active * 100) : 0}% adopción combo</p>
+            <div class="stat-card">
+                <div class="stat-icon gradient"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="stat-details">
+                    <h3>Combos Vendidos</h3>
+                    <h2>${stats.combo}</h2>
+                    <p class="trend info">${stats.active > 0 ? Math.round(stats.combo / stats.active * 100) : 0}% adopción combo</p>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    } catch (err) {
+        console.error('[renderStats] error:', err);
+        grid.innerHTML = '<p class="error-text">Error al cargar estadísticas. Reintentá recargando la página.</p>';
+    }
 }
 
 function renderPricingQuick() {
@@ -153,99 +154,111 @@ function renderPricingQuick() {
 }
 
 async function renderRecentClients() {
-    const clientsData = await getClients();
-    const clients = clientsData.slice(0, 5);
     const tbody = document.getElementById('recentClientsTable');
     const empty = document.getElementById('emptyDashboard');
+    tbody.innerHTML = '<tr><td colspan="4" class="loading">Cargando clientes...</td></tr>';
+    try {
+        const clientsData = await getClients();
+        const clients = clientsData.slice(0, 5);
 
-    if (clients.length === 0) {
-        tbody.innerHTML = '';
-        empty.style.display = 'flex';
-        return;
-    }
-    empty.style.display = 'none';
+        if (clients.length === 0) {
+            tbody.innerHTML = '';
+            empty.style.display = 'flex';
+            return;
+        }
+        empty.style.display = 'none';
 
-    tbody.innerHTML = clients.map(c => `
-        <tr>
-            <td>
-                <div class="client-cell">
-                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.business || c.name)}&background=${getPlanColor(c.plan)}&color=fff&size=32" alt="${c.name}">
-                    <div>
-                        <strong>${c.business || c.name}</strong>
-                        <small style="display:block;color:var(--text-muted);font-size:12px">${c.name}</small>
+        tbody.innerHTML = clients.map(c => `
+            <tr>
+                <td>
+                    <div class="client-cell">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.business || c.name)}&background=${getPlanColor(c.plan)}&color=fff&size=32" alt="${escapeHtml(c.name)}">
+                        <div>
+                            <strong>${escapeHtml(c.business || c.name)}</strong>
+                            <small style="display:block;color:var(--text-muted);font-size:12px">${escapeHtml(c.name)}</small>
+                        </div>
                     </div>
-                </div>
-            </td>
-            <td><span class="badge-service ${c.plan}">${getPlanLabel(c.plan)}</span></td>
-            <td><span class="status ${c.status}">${c.status === 'active' ? 'Activo' : 'Inactivo'}</span></td>
-            <td>
-                <button class="action-btn" onclick="window._editClient('${c.id}')" title="Editar">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
+                </td>
+                <td><span class="badge-service ${escapeHtml(c.plan)}">${getPlanLabel(c.plan)}</span></td>
+                <td><span class="status ${escapeHtml(c.status)}">${c.status === 'active' ? 'Activo' : 'Inactivo'}</span></td>
+                <td>
+                    <button class="action-btn" onclick="window._editClient('${escapeHtml(c.id)}')" title="Editar">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('[renderRecentClients] error:', err);
+        tbody.innerHTML = '<tr><td colspan="4" class="error-text">Error al cargar clientes recientes.</td></tr>';
+    }
 }
 
 // ——— Clients Section ———
 async function renderClients() {
-    let clients = await getClients();
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-    if (currentFilter !== 'all') {
-        clients = clients.filter(c => c.plan === currentFilter);
-    }
-    if (searchTerm) {
-        clients = clients.filter(c =>
-            c.name.toLowerCase().includes(searchTerm) ||
-            (c.business && c.business.toLowerCase().includes(searchTerm)) ||
-            (c.email && c.email.toLowerCase().includes(searchTerm))
-        );
-    }
-
     const grid = document.getElementById('clientsGrid');
     const empty = document.getElementById('emptyClients');
-
-    if (clients.length === 0) {
-        grid.innerHTML = '';
-        empty.style.display = 'flex';
-        return;
-    }
+    grid.innerHTML = '<div class="loading">Cargando clientes...</div>';
     empty.style.display = 'none';
+    try {
+        let clients = await getClients();
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-    grid.innerHTML = clients.map(c => `
-        <div class="client-card" data-plan="${c.plan}">
-            <div class="client-card-header">
-                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.business || c.name)}&background=${getPlanColor(c.plan)}&color=fff&size=48" alt="${c.name}">
-                <div>
-                    <h4>${c.business || c.name}</h4>
-                    <span class="badge-service ${c.plan}">${getPlanLabel(c.plan)}</span>
+        if (currentFilter !== 'all') {
+            clients = clients.filter(c => c.plan === currentFilter);
+        }
+        if (searchTerm) {
+            clients = clients.filter(c =>
+                c.name.toLowerCase().includes(searchTerm) ||
+                (c.business && c.business.toLowerCase().includes(searchTerm)) ||
+                (c.email && c.email.toLowerCase().includes(searchTerm))
+            );
+        }
+
+        if (clients.length === 0) {
+            grid.innerHTML = '';
+            empty.style.display = 'flex';
+            return;
+        }
+        empty.style.display = 'none';
+
+        grid.innerHTML = clients.map(c => `
+            <div class="client-card" data-plan="${escapeHtml(c.plan)}">
+                <div class="client-card-header">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.business || c.name)}&background=${getPlanColor(c.plan)}&color=fff&size=48" alt="${escapeHtml(c.name)}">
+                    <div>
+                        <h4>${escapeHtml(c.business || c.name)}</h4>
+                        <span class="badge-service ${escapeHtml(c.plan)}">${getPlanLabel(c.plan)}</span>
+                    </div>
+                    <span class="status ${escapeHtml(c.status)}">${c.status === 'active' ? 'Activo' : 'Inactivo'}</span>
                 </div>
-                <span class="status ${c.status}">${c.status === 'active' ? 'Activo' : 'Inactivo'}</span>
-            </div>
-            <div class="client-card-body">
-                <div class="client-detail"><i class="fa-solid fa-user"></i> ${c.name}</div>
-                ${c.whatsapp ? `<div class="client-detail"><i class="fa-brands fa-whatsapp"></i> ${c.whatsapp}</div>` : ''}
-                ${c.email ? `<div class="client-detail"><i class="fa-solid fa-envelope"></i> ${c.email}</div>` : ''}
-                <div class="client-detail"><i class="fa-solid fa-link"></i> /${c.slug}</div>
-                ${c.is_premium ? `<div class="client-detail" style="color:var(--accent-purple);font-weight:600;"><i class="fa-solid fa-star"></i> Nivel Premium</div>` : `<div class="client-detail text-muted"><i class="fa-regular fa-star"></i> Nivel Gratuito</div>`}
-                ${c.free_until ? `<div class="client-detail highlight-text"><i class="fa-solid fa-gift"></i> Bonificado hasta: ${new Date(c.free_until).toLocaleDateString()}</div>` : ''}
-                ${c.notes ? `<div class="client-detail notes"><i class="fa-solid fa-sticky-note"></i> ${c.notes}</div>` : ''}
-            </div>
-            <div class="client-card-footer">
-                <div class="card-footer-actions">
-                    ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/${c.card_id || c.slug}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
-                    ${c.plan !== 'tarjeta' ? `<a href="${CONFIG.products.gestorTurnos}/#/${c.slug}" target="_blank" class="action-btn-link" title="Ver Turnos"><i class="fa-solid fa-calendar"></i></a>` : ''}
-                    <button class="action-btn-link purple" onclick="window._deliverClient('${c.id}')" title="Entregar por WhatsApp"><i class="fa-solid fa-paper-plane"></i></button>
-                    <button class="action-btn-link silver" onclick="window._copyLink('${c.id}')" title="Copiar Link"><i class="fa-solid fa-copy"></i></button>
+                <div class="client-card-body">
+                    <div class="client-detail"><i class="fa-solid fa-user"></i> ${escapeHtml(c.name)}</div>
+                    ${c.whatsapp ? `<div class="client-detail"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(c.whatsapp)}</div>` : ''}
+                    ${c.email ? `<div class="client-detail"><i class="fa-solid fa-envelope"></i> ${escapeHtml(c.email)}</div>` : ''}
+                    <div class="client-detail"><i class="fa-solid fa-link"></i> /${escapeHtml(c.slug)}</div>
+                    ${c.is_premium ? `<div class="client-detail" style="color:var(--accent-purple);font-weight:600;"><i class="fa-solid fa-star"></i> Nivel Premium</div>` : `<div class="client-detail text-muted"><i class="fa-regular fa-star"></i> Nivel Gratuito</div>`}
+                    ${c.free_until ? `<div class="client-detail highlight-text"><i class="fa-solid fa-gift"></i> Bonificado hasta: ${new Date(c.free_until).toLocaleDateString()}</div>` : ''}
+                    ${c.notes ? `<div class="client-detail notes"><i class="fa-solid fa-sticky-note"></i> ${escapeHtml(c.notes)}</div>` : ''}
                 </div>
-                <div class="card-footer-manage">
-                    <button class="action-btn" onclick="window._editClient('${c.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    <button class="action-btn danger" onclick="window._deleteClient('${c.id}', '${(c.business || c.name).replace(/'/g, "\\'")}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                <div class="client-card-footer">
+                    <div class="card-footer-actions">
+                        ${c.plan !== 'turnos' ? `<a href="${CONFIG.products.tarjetaVirtual}/${escapeHtml(c.card_id || c.slug)}" target="_blank" class="action-btn-link" title="Ver Tarjeta"><i class="fa-solid fa-address-card"></i></a>` : ''}
+                        ${c.plan !== 'tarjeta' ? `<a href="${CONFIG.products.gestorTurnos}/#/${escapeHtml(c.slug)}" target="_blank" class="action-btn-link" title="Ver Turnos"><i class="fa-solid fa-calendar"></i></a>` : ''}
+                        <button class="action-btn-link purple" onclick="window._deliverClient('${escapeHtml(c.id)}')" title="Entregar por WhatsApp"><i class="fa-solid fa-paper-plane"></i></button>
+                        <button class="action-btn-link silver" onclick="window._copyLink('${escapeHtml(c.id)}')" title="Copiar Link"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                    <div class="card-footer-manage">
+                        <button class="action-btn" onclick="window._editClient('${escapeHtml(c.id)}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn danger" onclick="window._deleteClient('${escapeHtml(c.id)}', '${escapeHtml(c.business || c.name)}')" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    } catch (err) {
+        console.error('[renderClients] error:', err);
+        grid.innerHTML = '<p class="error-text">Error al cargar clientes. Reintentá recargando la página.</p>';
+    }
 }
 
 function initFilters() {
@@ -428,9 +441,9 @@ function showToast(message) {
     toast.className = 'toast';
     toast.textContent = message;
     container.appendChild(toast);
-    
+
     requestAnimationFrame(() => toast.classList.add('show'));
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -441,71 +454,76 @@ function showToast(message) {
 async function renderLeads() {
     const grid = document.getElementById('leadsGrid');
     const empty = document.getElementById('emptyLeads');
-    
-    if (!supabase) {
-        grid.innerHTML = '<p class="error-text">Supabase no está configurado. Verificá config.js.</p>';
-        return;
-    }
 
     grid.innerHTML = '<div class="loading">Cargando solicitudes...</div>';
+    _leadsCache.clear();
 
-    const { data: leads, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
+    try {
+        const { data: leads, error } = await supabase
+            .from('leads')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-    if (error) {
-        grid.innerHTML = `<p class="error-text">Error: ${error.message}</p>`;
-        return;
-    }
+        if (error) throw error;
 
-    if (!leads || leads.length === 0) {
-        grid.innerHTML = '';
-        empty.style.display = 'flex';
-        return;
-    }
+        if (!leads || leads.length === 0) {
+            grid.innerHTML = '';
+            empty.style.display = 'flex';
+            return;
+        }
 
-    empty.style.display = 'none';
-    grid.innerHTML = leads.map(l => `
-        <div class="lead-card animate-fade-in">
-            <div class="lead-header">
-                <div class="lead-user">
-                    <img src="${l.profile_img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=6366f1&color=fff`}" alt="${l.name}">
-                    <div>
-                        <h4>${l.name}</h4>
-                        <span class="lead-date">${new Date(l.created_at).toLocaleDateString()}</span>
+        empty.style.display = 'none';
+
+        // Populate cache keyed by id — avoids JSON serialization in onclick attrs
+        leads.forEach(l => _leadsCache.set(String(l.id), l));
+
+        grid.innerHTML = leads.map(l => `
+            <div class="lead-card animate-fade-in">
+                <div class="lead-header">
+                    <div class="lead-user">
+                        <img src="${l.profile_img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=6366f1&color=fff`}" alt="${escapeHtml(l.name)}">
+                        <div>
+                            <h4>${escapeHtml(l.name)}</h4>
+                            <span class="lead-date">${new Date(l.created_at).toLocaleDateString()}</span>
+                        </div>
                     </div>
+                    <span class="badge-service ${escapeHtml(l.service_type.toLowerCase())}">${escapeHtml(l.service_type)}</span>
                 </div>
-                <span class="badge-service ${l.service_type.toLowerCase()}">${l.service_type}</span>
+                <div class="lead-body">
+                    <div class="lead-info"><strong>WhatsApp:</strong> ${escapeHtml(l.phone)}</div>
+                    <div class="lead-info"><strong>Negocio:</strong> ${escapeHtml(l.details?.business_name || 'No especificado')}</div>
+                    <div class="lead-info"><strong>Profesión:</strong> ${escapeHtml(l.details?.profession || 'No especificada')}</div>
+                    <div class="lead-info"><strong>Origen:</strong> ${escapeHtml(l.details?.origin || 'Directo')}</div>
+                </div>
+                <div class="lead-footer">
+                    <button class="primary-btn sm" onclick="window._convertLead('${escapeHtml(String(l.id))}')">
+                        <i class="fa-solid fa-user-plus"></i> Convertir a Cliente
+                    </button>
+                    <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                </div>
             </div>
-            <div class="lead-body">
-                <div class="lead-info"><strong>WhatsApp:</strong> ${l.phone}</div>
-                <div class="lead-info"><strong>Negocio:</strong> ${l.details?.business_name || 'No especificado'}</div>
-                <div class="lead-info"><strong>Profesión:</strong> ${l.details?.profession || 'No especificada'}</div>
-                <div class="lead-info"><strong>Origen:</strong> ${l.details?.origin || 'Directo'}</div>
-            </div>
-            <div class="lead-footer">
-                <button class="primary-btn sm" onclick="window._convertLead(${JSON.stringify(l).replace(/"/g, '&quot;')})">
-                    <i class="fa-solid fa-user-plus"></i> Convertir a Cliente
-                </button>
-                <a href="https://wa.me/549${l.phone}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
-                    <i class="fa-brands fa-whatsapp"></i>
-                </a>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
+    } catch (err) {
+        console.error('[renderLeads] error:', err);
+        grid.innerHTML = `<p class="error-text">Error al cargar solicitudes: ${escapeHtml(err.message)}</p>`;
+    }
 }
 
 async function checkNewLeads() {
-    if (!supabase) return;
-    const { count, error } = await supabase
-        .from('leads')
-        .select('*', { count: 'exact', head: true });
-    
-    if (!error && count > 0) {
-        const badge = document.getElementById('leadsBadge');
-        badge.textContent = count;
-        badge.style.display = 'inline-flex';
+    try {
+        const { count, error } = await supabase
+            .from('leads')
+            .select('*', { count: 'exact', head: true });
+
+        if (!error && count > 0) {
+            const badge = document.getElementById('leadsBadge');
+            badge.textContent = count;
+            badge.style.display = 'inline-flex';
+        }
+    } catch (err) {
+        console.error('[checkNewLeads] error:', err);
     }
 }
 
@@ -540,7 +558,12 @@ window._copyLink = async function(id) {
     });
 };
 
-window._convertLead = function(lead) {
+// _convertLead now receives an id string and looks up from _leadsCache
+// to avoid unsafe JSON serialization in onclick attributes.
+window._convertLead = function(id) {
+    const lead = _leadsCache.get(id);
+    if (!lead) return;
+
     const clientData = {
         name: lead.name,
         business: lead.details?.business_name || '',
@@ -551,7 +574,7 @@ window._convertLead = function(lead) {
         isPremium: false,
         notes: `Lead recibido desde Onboarding Web (${lead.details?.profession || 'Sin profesión'}).`
     };
-    
+
     switchSection('clients');
     openModal(clientData);
 };
@@ -563,4 +586,15 @@ function getPlanColor(plan) {
 
 function getPlanLabel(plan) {
     return { tarjeta: 'Tarjeta Virtual', turnos: 'Gestor Turnos', combo: 'Pack Emprendedor' }[plan] || plan;
+}
+
+/** Escapes user-supplied strings before injecting into innerHTML. */
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }

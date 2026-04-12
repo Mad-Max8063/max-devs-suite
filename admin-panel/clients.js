@@ -1,121 +1,119 @@
 // ============================================
 // clients.js — Client Management (Supabase)
 // ============================================
-// Migration: localStorage -> Supabase table `admin_clients`
-// Enforces security via Row Level Security (RLS).
+// Persistence layer for the admin_clients table.
+// All Supabase calls are async with try/catch error propagation.
 
-import { CONFIG } from './config.js';
+import { supabase } from './supabaseClient.js';
 
 const STORAGE_KEY = 'suito_clients';
-let supabase;
 
-function getClient() {
-    if (!supabase) {
-        supabase = window.supabase.createClient(CONFIG.supabase.url, CONFIG.supabase.anonKey);
-    }
-    return supabase;
-}
-
+// ——— Auth helper ———
 async function getUserId() {
-    const sb = getClient();
-    const { data: { session } } = await sb.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     return session ? session.user.id : null;
 }
 
-/**
- * Migrates local data to Supabase if exists and user is logged in.
- * Internal function, called on initial load.
- */
+// ——— Migration: localStorage → Supabase ———
+// Guard prevents duplicate runs within the same page session.
+let migrationDone = false;
+
 async function performMigration() {
+    if (migrationDone) return;
+    migrationDone = true;
+
     const localData = localStorage.getItem(STORAGE_KEY);
     if (!localData) return;
 
+    let clients;
     try {
-        const clients = JSON.parse(localData);
-        if (!Array.isArray(clients) || clients.length === 0) {
-            localStorage.removeItem(STORAGE_KEY);
-            return;
-        }
-
-        const userId = await getUserId();
-        if (!userId) return; // Need to be logged in to migrate
-
-        console.log(`Migrating ${clients.length} clients to Supabase...`);
-
-        const sb = getClient();
-        const clientsToUpload = clients.map(c => ({
-            user_id: userId,
-            name: c.name,
-            business: c.business || '',
-            whatsapp: c.whatsapp || '',
-            email: c.email || '',
-            slug: c.slug || '',
-            plan: c.plan || 'tarjeta',
-            status: c.status || 'active',
-            is_premium: c.is_premium || false,
-            card_id: c.card_id || '',
-            notes: c.notes || '',
-            free_until: c.free_until || null,
-            paid_until: c.paid_until || null
-        }));
-
-        const { error } = await sb.from('admin_clients').insert(clientsToUpload);
-
-        if (!error) {
-            console.log('Migration successful!');
-            localStorage.removeItem(STORAGE_KEY);
-        } else {
-            console.error('Migration error:', error);
-        }
+        clients = JSON.parse(localData);
     } catch (e) {
-        console.error('Error parsing local clients for migration:', e);
+        console.error('[Migration] Error parsing localStorage data:', e);
+        return;
+    }
+
+    if (!Array.isArray(clients) || clients.length === 0) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+    }
+
+    const userId = await getUserId();
+    if (!userId) {
+        // Not authenticated yet; migration will retry on next load after login.
+        migrationDone = false;
+        return;
+    }
+
+    console.log(`[Migration] Migrating ${clients.length} client(s) to Supabase...`);
+
+    const clientsToUpload = clients.map(c => ({
+        user_id:        userId,
+        name:           c.name           || '',
+        business:       c.business       || '',
+        whatsapp:       c.whatsapp       || '',
+        email:          c.email          || '',
+        slug:           c.slug           || '',
+        plan:           c.plan           || 'tarjeta',
+        status:         c.status         || 'active',
+        is_premium:     c.is_premium     || false,
+        card_id:        c.card_id        || '',
+        notes:          c.notes          || '',
+        transfer_email: c.transfer_email || null,   // field previously missing from mapper
+        free_until:     c.free_until     || null,
+        paid_until:     c.paid_until     || null,
+    }));
+
+    const { error } = await supabase.from('admin_clients').insert(clientsToUpload);
+
+    if (!error) {
+        console.log('[Migration] Success — purging localStorage.');
+        localStorage.removeItem(STORAGE_KEY);
+    } else {
+        // Preserve localStorage on failure so no data is lost.
+        console.error('[Migration] Insert failed (localStorage preserved):', error);
+        migrationDone = false;  // Allow retry on next session
     }
 }
 
-// Perform migration check on load
-// (Wrapped in a self-invoking async function or called explicitly)
-window.addEventListener('load', () => {
-    setTimeout(performMigration, 1000); // Wait for auth to settle
-});
+// Trigger migration after auth has had time to settle.
+window.addEventListener('load', () => setTimeout(performMigration, 1200));
 
+// ——— DAO ———
 export async function getClients() {
-    const sb = getClient();
-    const { data, error } = await sb
-        .from('admin_clients')
-        .select('*')
-        .order('created_at', { ascending: false });
+    try {
+        const { data, error } = await supabase
+            .from('admin_clients')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error('Error fetching clients:', error);
+        if (error) throw error;
+        return data ?? [];
+    } catch (err) {
+        console.error('[clients] getClients error:', err);
         return [];
     }
-    return data;
 }
 
 export async function addClient(clientData) {
     const userId = await getUserId();
-    if (!userId) throw new Error('User not authenticated');
+    if (!userId) throw new Error('Usuario no autenticado');
 
-    const sb = getClient();
-    const { data, error } = await sb
+    const { data, error } = await supabase
         .from('admin_clients')
-        .insert({
-            user_id: userId,      // RLS WITH CHECK requiere user_id explícito
-            ...clientData         // incluye transfer_email si viene del formulario
-        })
+        .insert({ user_id: userId, ...clientData })
         .select()
         .single();
 
     if (error) {
-        console.error('Error adding client:', error);
+        console.error('[clients] addClient error:', error);
         throw error;
     }
     return data;
 }
 
 export async function updateClient(id, updates) {
-    const sb = getClient();
-    const { data, error } = await sb
+    const { data, error } = await supabase
         .from('admin_clients')
         .update(updates)
         .eq('id', id)
@@ -123,21 +121,20 @@ export async function updateClient(id, updates) {
         .single();
 
     if (error) {
-        console.error('Error updating client:', error);
+        console.error('[clients] updateClient error:', error);
         throw error;
     }
     return data;
 }
 
 export async function deleteClient(id) {
-    const sb = getClient();
-    const { error } = await sb
+    const { error } = await supabase
         .from('admin_clients')
         .delete()
         .eq('id', id);
 
     if (error) {
-        console.error('Error deleting client:', error);
+        console.error('[clients] deleteClient error:', error);
         throw error;
     }
     return true;
@@ -146,10 +143,10 @@ export async function deleteClient(id) {
 export async function getClientStats() {
     const clients = await getClients();
     return {
-        total: clients.length,
-        active: clients.filter(c => c.status === 'active').length,
+        total:   clients.length,
+        active:  clients.filter(c => c.status === 'active').length,
         tarjeta: clients.filter(c => c.plan === 'tarjeta').length,
-        turnos: clients.filter(c => c.plan === 'turnos').length,
-        combo: clients.filter(c => c.plan === 'combo').length,
+        turnos:  clients.filter(c => c.plan === 'turnos').length,
+        combo:   clients.filter(c => c.plan === 'combo').length,
     };
 }

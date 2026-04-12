@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { logger } from '../utils/logger';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp, useProfile } from '../context/AppContext';
+import { uploadBusinessImage } from '../services/supabaseService';
 import BottomNavigation from '../components/BottomNavigation';
 import DemoBanner from '../components/DemoBanner';
 import DemoSaveModal from '../components/DemoSaveModal';
@@ -122,10 +123,12 @@ const VirtualCardConfigPage: React.FC = () => {
         const base64 = reader.result as string;
         try {
           const compressed = await resizeImage(base64, isCover ? 1200 : 400, isCover ? 800 : 400, 0.7);
+          const folder = isCover ? 'cover' : 'photo';
+          const publicUrl = await uploadBusinessImage(compressed, folder, slug);
           if (isCover) {
-            await updateProfile({ CoverURL: compressed });
+            await updateProfile({ CoverURL: publicUrl });
           } else {
-            await updateProfile({ FotoURL: compressed });
+            await updateProfile({ FotoURL: publicUrl });
           }
           alert('¡Imagen guardada!');
         } catch (err) {
@@ -145,11 +148,12 @@ const VirtualCardConfigPage: React.FC = () => {
         const base64 = reader.result as string;
         try {
           const compressed = await resizeImage(base64, 800, 800, 0.7);
+          const publicUrl = await uploadBusinessImage(compressed, 'gallery', slug);
           const newGallery = [...galleryInfos];
           if (newGallery[index]) {
-            newGallery[index].image_url = compressed;
+            newGallery[index].image_url = publicUrl;
           } else {
-            newGallery[index] = { image_url: compressed, caption: '' };
+            newGallery[index] = { image_url: publicUrl, caption: '' };
           }
           setGalleryInfos(newGallery);
         } catch (err) {

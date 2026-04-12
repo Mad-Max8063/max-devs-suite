@@ -31,6 +31,7 @@ export {
     saveServices,
     registerUser,
     loginUser,
+    uploadBusinessImage,
     sheetsService,
 } from './supabaseService';
 

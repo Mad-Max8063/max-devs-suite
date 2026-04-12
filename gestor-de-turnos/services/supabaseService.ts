@@ -634,12 +634,54 @@ export async function loginUser(
 }
 
 // ============================================
+// STORAGE OPERATIONS
+// ============================================
+
+/**
+ * Converts a data URI produced by resizeImage() to a Blob, uploads it to
+ * the `images` bucket, and returns the public URL.
+ *
+ * Path structure: `${slug}/${folder}/${Date.now()}.jpg`
+ * Folders: 'photo' | 'cover' | 'gallery'
+ */
+export async function uploadBusinessImage(
+    dataUri: string,
+    folder: 'photo' | 'cover' | 'gallery',
+    slug: string
+): Promise<string> {
+    const [header, base64Data] = dataUri.split(',');
+    const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg';
+    const ext = mimeType === 'image/png' ? 'png' : 'jpg';
+
+    const byteChars = atob(base64Data);
+    const byteArray = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) {
+        byteArray[i] = byteChars.charCodeAt(i);
+    }
+    const blob = new Blob([byteArray], { type: mimeType });
+
+    const path = `${slug}/${folder}/${Date.now()}.${ext}`;
+
+    const { error } = await supabase.storage
+        .from('images')
+        .upload(path, blob, { contentType: mimeType, upsert: true });
+
+    if (error) throw new Error(error.message);
+
+    const { data } = supabase.storage.from('images').getPublicUrl(path);
+    return data.publicUrl;
+}
+
+// ============================================
 // EXPORT — same interface as sheetsService
 // ============================================
 export const sheetsService = {
     // Profile
     getProfile,
     saveProfile,
+
+    // Storage
+    uploadBusinessImage,
 
     // Appointments
     getAppointments,
