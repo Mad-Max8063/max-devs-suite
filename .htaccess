@@ -10,6 +10,13 @@
     </ifModule>
 </FilesMatch>
 
+# ——— CORS Assets (Para Subdominios) ———
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|json|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|ico)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
 # ——— Reescritura de rutas ———
 <IfModule mod_rewrite.c>
   RewriteEngine On

@@ -3,11 +3,11 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
 
-  // Base path para producción
-  base: '/',
+  // Base path absoluto para que los subdominios encuentren los assets en la raíz
+  base: command === 'build' ? 'https://suito.pro/' : '/',
 
   build: {
     outDir: 'dist',
