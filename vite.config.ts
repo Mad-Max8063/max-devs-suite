@@ -24,10 +24,10 @@ export default defineConfig(({ command }) => ({
         turnos: resolve(__dirname, 'turnos/index.html'),
       },
       output: {
-        // Hashes únicos garantizan que no haya colisiones de caché entre módulos
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // Hashes únicos más versionado forzado para evadir caché persistente de HCDN
+        entryFileNames: 'assets/[name]-[hash]-v2.js',
+        chunkFileNames: 'assets/[name]-[hash]-v2.js',
+        assetFileNames: 'assets/[name]-[hash]-v2.[ext]',
       },
     },
   },
