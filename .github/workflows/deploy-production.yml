@@ -1,119 +1,48 @@
-name: PROD - Suito Unified Deployment
+name: 🚀 PROD — Suito Unified Deploy
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Hostinger serves suito.pro from domains/suito.pro/public_html/
-  # FTP root is /home/u543991373/public_html/, so we need ../domains/suito.pro/public_html/
-  SUITO_ROOT: ../domains/suito.pro/public_html/
-
 jobs:
-  deploy-all:
-    name: 🚀 Deploy All Modules
+  build-and-deploy:
+    name: Build & Deploy Suito Platform
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      # ---- Build Turnos (React/Vite) ----
-      - name: 📦 Setup Node
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: './gestor-de-turnos/package-lock.json'
 
-      - name: 🏗️ Build Gestor de Turnos
-        working-directory: ./gestor-de-turnos
-        run: |
-          npm install
-          npm run build
+      - name: 📦 Install dependencies
+        run: npm ci
 
-      # ---- Prepare Landing ----
-      - name: 🛠️ Prepare Landing with Root Config
-        run: cp .htaccess ./landing-ventas/.htaccess
+      - name: 🔨 Build (Vite MPA)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      # ---- 1. Deploy Landing (Root) ----
-      - name: 🌐 Deploy Landing Page
+      - name: 🚀 Deploy → suito.pro (único paso atómico)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./landing-ventas/
-          server-dir: ../domains/suito.pro/public_html/
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
           port: 21
           protocol: ftp
-          timeout: 180000
+          timeout: 300000
           dangerous-clean-slate: true
-
-      - name: ⏳ Cooldown
-        run: sleep 15
-
-      # ---- 2. Deploy Virtual Card (/card) ----
-      - name: 🃏 Deploy Virtual Card
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./tarjeta-virtual/
-          server-dir: ../domains/suito.pro/public_html/card/
-          port: 21
-          protocol: ftp
-          timeout: 180000
-          dangerous-clean-slate: true
-
-      - name: ⏳ Cooldown
-        run: sleep 15
-
-      # ---- 3. Deploy Gestor de Turnos (/turnos) ----
-      - name: 📆 Deploy Gestor de Turnos
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./gestor-de-turnos/dist/
-          server-dir: ../domains/suito.pro/public_html/turnos/
-          port: 21
-          protocol: ftp
-          timeout: 180000
-          dangerous-clean-slate: true
-
-      - name: ⏳ Cooldown
-        run: sleep 15
-
-      # ---- 4. Deploy Admin Panel (/admin) ----
-      - name: 🛡️ Deploy Admin Panel
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./admin-panel/
-          server-dir: ../domains/suito.pro/public_html/admin/
-          port: 21
-          protocol: ftp
-          timeout: 180000
-          dangerous-clean-slate: true
-
-      - name: ⏳ Cooldown
-        run: sleep 15
-
-      # ---- 5. Deploy Shared Assets (/assets) ----
-      - name: 🖼️ Deploy Shared Assets
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./assets/
-          server-dir: ../domains/suito.pro/public_html/assets/
-          port: 21
-          protocol: ftp
-          timeout: 180000
-          dangerous-clean-slate: true
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env*

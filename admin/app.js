@@ -2,7 +2,7 @@
 // Suito Admin Dashboard — Master Controller
 // ============================================
 import { CONFIG } from './config.js';
-import { supabase } from './supabaseClient.js';
+import { supabase } from '../shared/supabase.js';
 import { getClients, addClient, updateClient, deleteClient, getClientStats } from './clients.js';
 
 // ——— State ———
@@ -496,8 +496,11 @@ async function renderLeads() {
                     <div class="lead-info"><strong>Origen:</strong> ${escapeHtml(l.details?.origin || 'Directo')}</div>
                 </div>
                 <div class="lead-footer">
-                    <button class="primary-btn sm" onclick="window._convertLead('${escapeHtml(String(l.id))}')">
-                        <i class="fa-solid fa-user-plus"></i> Convertir a Cliente
+                    <button class="primary-btn sm"
+                            data-lead-id="${escapeHtml(String(l.id))}"
+                            onclick="window._activateLead('${escapeHtml(String(l.id))}')"
+                            title="Activa al cliente y provisiona sus apps automáticamente">
+                        <i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente
                     </button>
                     <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
                         <i class="fa-brands fa-whatsapp"></i>
@@ -558,25 +561,96 @@ window._copyLink = async function(id) {
     });
 };
 
-// _convertLead now receives an id string and looks up from _leadsCache
-// to avoid unsafe JSON serialization in onclick attributes.
-window._convertLead = function(id) {
+// _activateLead — Activa el cliente con 1 click.
+// Crea el registro en admin_clients + businesses (para Tarjeta y/o Turnos).
+window._activateLead = async function(id) {
     const lead = _leadsCache.get(id);
-    if (!lead) return;
+    if (!lead) { showToast('❌ Lead no encontrado en caché'); return; }
 
-    const clientData = {
-        name: lead.name,
-        business: lead.details?.business_name || '',
-        whatsapp: lead.phone,
-        email: '',
-        slug: (lead.details?.business_name || lead.name).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        plan: lead.service_type.toLowerCase(),
-        isPremium: false,
-        notes: `Lead recibido desde Onboarding Web (${lead.details?.profession || 'Sin profesión'}).`
-    };
+    const btn = document.querySelector(`[data-lead-id="${id}"]`);
+    if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Activando...'; }
 
-    switchSection('clients');
-    openModal(clientData);
+    try {
+        const plan = lead.service_type.toLowerCase();
+        const slug = (lead.details?.business_name || lead.name)
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9-]/g, '');
+
+        // 1. Crear cliente en admin_clients (CRM)
+        const newClient = await addClient({
+            name:     lead.name,
+            business: lead.details?.business_name || lead.name,
+            whatsapp: lead.phone,
+            email:    lead.email || '',
+            slug:     slug,
+            plan:     plan,
+            status:   'active',
+            notes:    `Activado automáticamente desde lead #${lead.id}. Profesión: ${lead.details?.profession || '—'}. Origen: ${lead.details?.origin || '—'}.`,
+        });
+
+        // 2. Crear registro en businesses (usado por Tarjeta Virtual Y Gestor de Turnos)
+        //    Un único registro sirve para ambos módulos.
+        if (plan === 'tarjeta' || plan === 'turnos' || plan === 'combo') {
+            const trialEnd = new Date();
+            trialEnd.setDate(trialEnd.getDate() + 30);
+
+            const { error: bizError } = await supabase.from('businesses').insert({
+                slug:                 slug,
+                nombre_negocio:       lead.details?.business_name || lead.name,
+                email:                lead.email || '',
+                telefono:             lead.phone,
+                foto_url:             lead.profile_img_url || '',
+                cover_url:            lead.cover_img_url || '',
+                profession:           lead.details?.profession || '',
+                instagram:            lead.details?.instagram || '',
+                location:             lead.details?.address || '',
+                valor_sena:           lead.details?.deposit ? Number(lead.details.deposit) : 2000,
+                is_premium:           false,
+                fecha_vencimiento:    trialEnd.toISOString().split('T')[0],
+                notificaciones_email: true,
+                recordatorios_activos:true,
+                // Módulos activos según el plan
+                active_modules: plan === 'tarjeta' ? ['card'] :
+                                plan === 'turnos'  ? ['appointments'] :
+                                                    ['card', 'appointments'],
+            });
+
+            if (bizError && bizError.code !== '23505') {
+                // 23505 = unique constraint (el slug ya existe) — no es error fatal
+                console.error('[_activateLead] Error creando en businesses:', bizError);
+                showToast('⚠️ Cliente creado, pero hubo un error configurando las apps. Revisá la consola.');
+            }
+        }
+
+        // 3. Marcar lead como convertido
+        await supabase.from('leads')
+            .update({ status: 'converted', converted_at: new Date().toISOString() })
+            .eq('id', id);
+
+        // 4. Generar links y abrir WhatsApp para notificar al cliente
+        const baseUrl = 'https://suito.pro';
+        let msg = `¡Hola ${lead.name}! 🎉 Te escribo de *Suito*.\n\n`;
+        msg += `Tu suite ya está activa y lista para usar. 🚀\n\n`;
+        if (plan === 'tarjeta' || plan === 'combo')
+            msg += `📇 Tu Tarjeta Virtual: ${baseUrl}/card/${slug}\n`;
+        if (plan === 'turnos' || plan === 'combo')
+            msg += `📅 Tu Gestor de Turnos: ${baseUrl}/turnos/#/${slug}\n`;
+        msg += `\n¡Cualquier duda estoy acá! 💪`;
+
+        const waUrl = `https://wa.me/549${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, '_blank');
+
+        showToast(`✅ ${lead.name} activado exitosamente`);
+        await renderLeads();
+        await renderDashboard();
+
+    } catch (err) {
+        console.error('[_activateLead] error:', err);
+        showToast('❌ Error al activar cliente. Revisá la consola.');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente'; }
+    }
 };
 
 // ——— Helpers ———

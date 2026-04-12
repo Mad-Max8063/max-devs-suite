@@ -5,7 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Suito | Soluciones Digitales Premium</title>
     <meta name="description" content="Plataforma integral de soluciones digitales para tu negocio. Tarjeta Virtual + Gestor de Turnos.">
-    <link rel="icon" type="image/png" href="../assets/favicon.png">
+    <link rel="icon" type="image/png" href="/public/favicon.png">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -197,6 +197,11 @@
                             <label class="text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-widest">WhatsApp</label>
                             <input type="tel" id="user-phone" required placeholder="Ej. +54 9 11 1234 5678" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition-all">
                         </div>
+                        <div class="flex flex-col">
+                            <label class="text-xs font-bold text-on-surface-variant uppercase mb-2 tracking-widest">Email</label>
+                            <input type="email" id="user-email" required placeholder="Ej. hola@tunegocio.com" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 focus:border-primary outline-none transition-all">
+                            <span class="text-[10px] text-slate-400 mt-1">Lo usaremos para enviarte tus credenciales de acceso.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -243,12 +248,32 @@
                 </div>
 
                 <div class="text-center pt-8">
-                    <p class="text-xs text-on-surface-variant mb-6 font-medium">Serás redirigido a conversar con el equipo de Suito ⚡ para activar tu cuenta.</p>
-                    <button type="submit" class="w-full bg-primary text-white py-4 rounded-full font-black text-xl shadow-xl hover:brightness-110 transition-all">
-                        Pedir mi Activación 🚀
+                    <p class="text-xs text-on-surface-variant mb-6 font-medium">Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.</p>
+                    <button type="submit" id="submit-btn" class="w-full bg-primary text-white py-4 rounded-full font-black text-xl shadow-xl hover:brightness-110 transition-all">
+                        Enviar Solicitud 🚀
                     </button>
                 </div>
             </form>
+        </div>
+    </main>
+
+    <!-- Vista de Confirmación -->
+    <main id="success-view" class="view">
+        <div class="max-w-[600px] mx-auto px-6 py-40 text-center space-y-8">
+            <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <span class="material-symbols-outlined text-primary text-5xl">check_circle</span>
+            </div>
+            <h2 class="text-4xl font-black tracking-tighter">¡Solicitud recibida! 🎉</h2>
+            <p class="text-on-surface-variant font-medium text-lg leading-relaxed">
+                Tu solicitud fue enviada exitosamente. El equipo de <strong>Suito</strong> la está revisando y te vamos a contactar en las próximas <strong>24 horas</strong> para activar tu suite.
+            </p>
+            <div class="glass-card rounded-2xl p-6 border border-white/40 text-sm text-on-surface-variant">
+                <span class="material-symbols-outlined text-primary text-sm align-middle mr-1">mail</span>
+                ¿Tenés alguna duda? Escribinos a <a href="mailto:hola@suito.pro" class="text-primary font-bold">hola@suito.pro</a>
+            </div>
+            <button onclick="goBackToLanding()" class="text-primary font-bold hover:underline">
+                ← Volver al inicio
+            </button>
         </div>
     </main>
 
@@ -264,8 +289,6 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="config.js"></script>
-    <script src="app.js"></script>
+    <script type="module" src="/landing/app.js"></script>
 </body>
 </html>

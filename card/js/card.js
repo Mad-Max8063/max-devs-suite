@@ -287,7 +287,7 @@ function buildCardHTML(data) {
 }
 
 // Legacy: standalone render with hardcoded data
-function renderCard() {
+function renderCardLegacy() {
     const app = document.getElementById('app');
     if (!app) return;
     app.innerHTML = buildCardHTML({
@@ -308,5 +308,5 @@ function renderCard() {
 
 // Initial render (only when loaded standalone, not via dynamic import)
 if (!window.__appRouterActive) {
-    document.addEventListener('DOMContentLoaded', renderCard);
+    document.addEventListener('DOMContentLoaded', renderCardLegacy);
 }

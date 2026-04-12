@@ -2,14 +2,11 @@
 // supabase.js — Supabase client & API functions
 // ============================================
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+import { supabase } from '../../shared/supabase.js';
 
-// We'll use the Supabase CDN loaded in index.html
+// Compatibilidad: getClient() retorna el cliente compartido
 function getClient() {
-    if (!window._supabaseClient) {
-        window._supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-    return window._supabaseClient;
+    return supabase;
 }
 
 // ——————— ID Generation ———————

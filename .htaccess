@@ -1,43 +1,53 @@
-# ==========================================
-# Suito Unified Routing - maxdevssolutions.com
-# ==========================================
+# ============================================
+# Suito Platform — .htaccess
+# MPA Vite: todos los assets tienen hashes únicos, sin colisiones de caché.
+# ============================================
 
-RewriteEngine On
-RewriteBase /
-
-# Asegurar que index.html sea el archivo por defecto
-DirectoryIndex index.html
-
-# Prevenir el listado de directorios (evita el 403 si el servidor se confunde)
-Options -Indexes
-
-# 1. Redirecciones de carpetas (asegurar slash final)
-# ------------------------------------------
-RewriteRule ^card$ /card/ [R=301,L]
-RewriteRule ^turnos$ /turnos/ [R=301,L]
-
-# 2. Manejo de React Router (SPA) en /turnos/ y /card/
-# ------------------------------------------
-RewriteCond %{REQUEST_URI} ^/card/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^card/(.*)$ /card/index.html [L]
-
-RewriteCond %{REQUEST_URI} ^/turnos/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^turnos/(.*)$ /turnos/index.html [L]
-
-# 3. Cache Control para Assets compartidos
-# ------------------------------------------
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresDefault "access plus 1 month"
-    ExpiresByType image/x-icon "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 month"
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/jpg "access plus 1 month"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
+# ——— Compresión ———
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
 </IfModule>
+
+# ——— Caché agresiva para assets hasheados de Vite ———
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType image/png "access plus 6 months"
+  ExpiresByType image/jpeg "access plus 6 months"
+  ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType image/svg+xml "access plus 6 months"
+</IfModule>
+
+# ——— Reescritura de rutas ———
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1. Servir assets estáticos tal cual (Vite los genera con hash)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # 2. Carpeta admin/ → su propia SPA (Vanilla JS, no necesita reescritura)
+  RewriteRule ^admin/(.*)$ /admin/$1 [L]
+
+  # 3. Tarjeta Virtual — cualquier ruta bajo /card/ → card/index.html
+  #    El router Vanilla JS en card/js/app.js toma el path residual
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^card/(.*)$ /card/index.html [L]
+
+  # 4. Gestor de Turnos — HashRouter, todas las rutas bajo /turnos/ → turnos/index.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^turnos/(.*)$ /turnos/index.html [L]
+
+  # 5. Landing — root ya tiene su index.html, nada más necesario
+</IfModule>
+
+# ——— Seguridad básica ———
+<Files ".env">
+  Order allow,deny
+  Deny from all
+</Files>
+<Files "*.json">
+  Header set X-Content-Type-Options "nosniff"
+</Files>

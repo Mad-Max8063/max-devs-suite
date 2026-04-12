@@ -1,0 +1,50 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+
+  // Base path para producción
+  base: '/',
+
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        // Punto de entrada principal (Landing)
+        main:   resolve(__dirname, 'index.html'),
+        // Admin Panel (Vanilla JS)
+        admin:  resolve(__dirname, 'admin/index.html'),
+        // Tarjeta Virtual (Vanilla JS)
+        card:   resolve(__dirname, 'card/index.html'),
+        // Gestor de Turnos (React + TypeScript)
+        turnos: resolve(__dirname, 'turnos/index.html'),
+      },
+      output: {
+        // Hashes únicos garantizan que no haya colisiones de caché entre módulos
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+      },
+    },
+  },
+
+  // Dev server
+  server: {
+    port: 5173,
+    host: '0.0.0.0',
+  },
+
+  // Soporte TypeScript + React (para el módulo turnos/)
+  esbuild: {
+    target: 'es2020',
+  },
+
+  // Resolver extensiones para el módulo React
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  },
+});

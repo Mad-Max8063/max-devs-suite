@@ -1,5 +1,0 @@
-const SUPABASE_URL = 'https://bfsttdiokdqyvwjuvcbp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmc3R0ZGlva2RxeXZ3anV2Y2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNzc1NDUsImV4cCI6MjA4Nzk1MzU0NX0.TqmEpfSlN25f9eZjw3ULIhJ0PiHAH3NuNCQEoESPD-w';
-
-// Inicializar Supabase. El SDK se carga en index.html antes que este archivo.
-window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
