@@ -1,61 +1,49 @@
-# Resumen de Sesión — Suito Platform
-**Fecha:** 2026-04-09
+# Resumen de Sesión — MiSuite (Suito Platform)
+**Fecha:** 12 de Abril, 2026 (Local: 14:30)
 **Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Completar la Arquitectura Multi-Tenant (Fase A) asegurando el backend con RLS en Supabase, y diagnosticar/arreglar los bugs de enrutamiento y el severo problema de sincronización FTP de producción en Hostinger.
+Reparar el entorno de producción en Hostinger, resolviendo los errores 404 de los submódulos y venciendo la estricta caché de la CDN (HCDN) para que se reflejen los cambios y subdominios con CORS integrado.
 
 ---
 
 ## ✅ Lo que se hizo
-1. **Multi-Tenant y Zero Trust:**
-   - Se crearon migraciones SLQ (`admin_clients_migration.sql` y `suito_super_admin_migration.sql`).
-   - Se aplicaron Row Level Security (RLS) policies en la tabla `admin_clients` permitiendo acceso vía `user_id` o `is_super_admin()`.
-   - Se actualizó el Admin Panel (`clients.js`, `auth.js`) para usar autenticación real de Supabase y eliminar lógica Insecure (localStorage y Service Role Keys en cliente).
-   - Se añadió el soporte nativo para `transfer_email` (campo en base de datos y modal frontend).
-
-2. **Fix de Enrutamiento y Slugs:**
-   - Se reparó el bug visual de duplicación de URL (`/card/card/`).
-   - Se ajustó el RegExp en la Tarjeta Virtual (`app.js`) para soportar guiones medios en los nombres de los negocios (ej. `max-devs-solutions`).
-
-3. **Despliegue a Producción (Resolución de FTP):**
-   - Se descubrió que la acción FTP de GitHub subía exitosamente los archivos a carpetas fantasma (`domains/suito.pro/public_html/...`) debido al root jail del usuario FTP.
-   - Hostinger seguía entregando archivos congelados de caché/servidor del 30 de marzo (LiteSpeed).
-   - Se parchó `.github/workflows/deploy-production.yml` obligando a sincronizar contra el root `public_html/`. Se hizo commit y push.
-   - Se investigó la anomalía visual de "Dominio Conectando" del hPanel de Hostinger (descartado como falso positivo).
-   - Se teorizó un posible cambio de servidor de Hostinger / desactualización de secreto `FTP_SERVER`.
+1. **Resolución de Rutas Relativas:** Modificación en `vite.config.ts` (monorepo) para que el `base` apunte a la ruta absoluta `https://suito.pro/`, solucionando los errores 404 en los subdominios (`admin.suito.pro`, `card...`).
+2. **CORS para Subdominios:** Creación de reglas `Access-Control-Allow-Origin: "*"` en el archivo `.htaccess`.
+3. **Inclusión de `.htaccess` en Build:** Identificación de que Vite no compilaba `.htaccess`. Se movió a la carpeta `public/.htaccess` para que forme parte del `dist/` en GitHub Actions.
+4. **HCDN Cache Busting (Evadiendo Caché):** Múltiples estilos/scripts estaban estancados en los servidores Edge de Hostinger (HCDN). Se añadieron comentarios `/* cachebust */` en el código fuente (`admin/styles.css`, `admin/app.js`, `card/js/supabase.js`) para FORZAR a Vite a generar hashes nuevos y que la CDN asimile los últimos archivos originarios con las correctas cabeceras CORS.
 
 ---
 
 ## ❌ Problemas encontrados
-- **Hostinger FTP Ghosting:** GitHub Actions completaba el `FTP-Deploy-Action` de forma impecable sin errores, pero los ficheros no se servían. Causa: Path offset con el root (`domains/suito.pro/` vs `public_html/`) y potencial desactualización de la clave secreta `FTP_SERVER` tras cambios en la cuenta (el servidor contestaba `Last-Modified: 30 Mar 2026` para `suito.pro`).
+- **Hostinger HCDN:** Extremadamente agresivo (HIT/max-age=604800). No alcanzaba con arreglar `.htaccess` si la CDN tenía en caché los archivos viejos sin cabeceras. La estrategia final (Cache Busting de Vite) fue la clave definitiva.
+- Sintaxis en `vite.config.ts` truncó el build una vez (falta de paréntesis), pero se corrigió al instante.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Despliegue en Producción
-1. Que el Humano confirme la `IP de FTP` actual en el panel de Hostinger.
-2. Actualizar el Secret `FTP_SERVER` en GitHub.
-3. Volver a correr el despliegue del Admin Panel.
-4. Validar que al fin abra `suito.pro/admin` con la versión lila de Suito.
+### Prioridad 1 — Validación Funcional
+1. Verificar que el panel `admin.suito.pro` carga y rutea exitosamente al backend de Supabase.
+2. Hacer el flujo de creación de la "Tarjeta Virtual Suito" (Perfil/Profesión) para confirmar persistencia y lectura en base de datos.
+3. Crear el primer cliente real desde el panel para testear la RLS de Supabase.
 
-### Prioridad 2 — Fase B (Multi-Tenant Autogestionado)
-1. Desarrollar el flujo del usuario cliente (donde Max Devs transfiere la autoría del registro `admin_clients` a la nueva cuenta del cliente vía `transfer_email`).
+### Prioridad 2 — Limpieza / UI
+1. Ajustes menores en placeholders y variables de Entorno local vs Prod.
+2. Confirmar propagación en subdominio de turnos (`turnos.suito.pro`).
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- Repo: `Mad-Max8063/max-devs-suite`
-- Dominios evaluados: `admin.suito.pro`, `suito.pro/admin/`
-- IP actual Hostinger DNS (`suito.pro`): `147.93.14.107`
-- Último commit de fix: `c251ee1`
-- Función Helper SQL: `is_super_admin(uuid)`
+- **Repo:** Mad-Max8063/max-devs-suite (Rama: `main`)
+- **Flujo CI/CD:** `.github/workflows/deploy-production.yml`
+- **Path de Deploy Local:** `dist/`
+- **Path de Servidor:** `../domains/suito.pro/public_html/`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- Se limpió el prefijo redundante "domains/suito.pro" de la Acción GitHub para prevenir fallos por enjaulamiento FTP genérico a nivel root de cuenta de Hostinger (`public_html/`).
-- Las políticas de seguridad confían 100% en la validación RLS, por lo que se removieron filtros de UI del lado cliente previniendo fugas de datos.
+- **Vite Base Path Dinámico:** Se usa "https://suito.pro/" al empaquetar para garantizar compatibilidad transversal entre subdominios, rompiendo la atadura de rutas relativas puras.
+- **Cache Busting Manual:** Antes de pelear contra el panel de Hostinger, simplemente tocar los archivos fuerza un bypass 100% nativo.
