@@ -9,8 +9,8 @@ const CARD_DATA = {
         title: "Suito",
         bio: "Innovando soluciones digitales con Suito",
         // Usamos los assets locales de /assets
-        avatar: "../assets/logo.png", 
-        cover: "../assets/cover.png",
+        avatar: "/card/assets/suito-logo.png",
+        cover: "/card/assets/cover.png",
         location: "Buenos Aires, Argentina",
         verified: true,
         isPremium: false // Si es true, oculta el branding de Suito
@@ -38,8 +38,8 @@ const CARD_DATA = {
         }
     ],
     gallery: [
-        { url: "../assets/cover.png", title: "Suito Luminous Project" },
-        { url: "../assets/logo.png", title: "Brand Identity" }
+        { url: "/card/assets/cover.png", title: "Suito Luminous Project" },
+        { url: "/card/assets/suito-logo.png", title: "Brand Identity" }
     ]
 };
 
