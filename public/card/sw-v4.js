@@ -14,13 +14,12 @@ const PRECACHE_URLS = [
   '/card/assets/default-avatar.svg',
   // Icons — manifest-declared (paridad 1:1 con manifest-v4.webmanifest)
   '/card/assets/icon-192.svg',   // manifest: image/svg+xml 192x192
+  '/card/assets/icon-192.png',   // manifest: image/png 192x192 (NUEVO)
   '/card/assets/icon-512.png',   // manifest: image/png 512x512 (purpose: any + maskable)
   // Icons — vector present on disk, offline policy for Chromium/Android
   '/card/assets/icon-512.svg',   // vector 512x512, existe en public/card/assets/
   '/card/manifest-v4.webmanifest',
   '/favicon.png',
-  // OMITIDO INTENCIONALMENTE: icon-192.png — no existe en disco.
-  // cache.addAll() es transaccional: una URL fallida aborta toda la fase install.
 ];
 
 // ——— Install: precache stable static assets ———
