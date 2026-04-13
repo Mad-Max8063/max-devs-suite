@@ -140,8 +140,8 @@ function renderCard() {
                     </div>
                 ` : ''}
                 <div class="footer-brand">
-                    <span class="text-primary italic font-black">Suito</span>
-                    <span class="text-on-surface-variant opacity-40 font-bold ml-1 text-[10px] uppercase tracking-widest">Luminous</span>
+                    <span class="footer-brand-name">Suito</span>
+                    <span class="footer-brand-tagline">Luminous</span>
                 </div>
             </footer>
         </div>
@@ -279,8 +279,8 @@ function buildCardHTML(data) {
                     </div>
                 ` : ''}
                 <div class="footer-brand">
-                    <span class="text-primary italic font-black">Suito</span>
-                    <span class="text-on-surface-variant opacity-40 font-bold ml-1 text-[10px] uppercase tracking-widest">Luminous</span>
+                    <span class="footer-brand-name">Suito</span>
+                    <span class="footer-brand-tagline">Luminous</span>
                 </div>
             </footer>
         </div>

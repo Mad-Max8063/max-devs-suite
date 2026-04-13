@@ -563,7 +563,7 @@ window._copyLink = async function(id) {
 };
 
 // _activateLead — Activa el cliente con 1 click.
-// Crea el registro en admin_clients + businesses (para Tarjeta y/o Turnos).
+// addClient() escribe directamente en businesses; un único insert cubre CRM + perfil.
 window._activateLead = async function(id) {
     const lead = _leadsCache.get(id);
     if (!lead) { showToast('❌ Lead no encontrado en caché'); return; }
@@ -575,62 +575,47 @@ window._activateLead = async function(id) {
         const plan = lead.service_type.toLowerCase();
         const slug = (lead.details?.business_name || lead.name)
             .toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/\s+/g, '-')
             .replace(/[^a-z0-9-]/g, '');
 
-        // 1. Crear cliente en admin_clients (CRM)
-        const newClient = await addClient({
-            name:     lead.name,
-            business: lead.details?.business_name || lead.name,
-            whatsapp: lead.phone,
-            email:    lead.email || '',
-            slug:     slug,
-            plan:     plan,
-            status:   'active',
-            notes:    `Activado automáticamente desde lead #${lead.id}. Profesión: ${lead.details?.profession || '—'}. Origen: ${lead.details?.origin || '—'}.`,
+        const trialEnd = new Date();
+        trialEnd.setDate(trialEnd.getDate() + 30);
+
+        // Único insert: admin/CRM fields + business profile fields en una sola llamada.
+        // addClient() ahora escribe directamente en la tabla businesses.
+        await addClient({
+            // Campos admin/CRM
+            name:           lead.name,
+            business:       lead.details?.business_name || lead.name,
+            whatsapp:       lead.phone,
+            email:          lead.email || '',
+            slug:           slug,
+            plan:           plan,
+            status:         'active',
+            notes:          `Activado desde lead #${lead.id}. Profesión: ${lead.details?.profession || '—'}. Origen: ${lead.details?.origin || '—'}.`,
+            // Campos perfil de negocio
+            foto_url:             lead.profile_img_url || '',
+            cover_url:            lead.cover_img_url  || '',
+            profession:           lead.details?.profession || '',
+            instagram:            lead.details?.instagram  || '',
+            location:             lead.details?.address    || '',
+            valor_sena:           lead.details?.deposit ? Number(lead.details.deposit) : 2000,
+            is_premium:           false,
+            fecha_vencimiento:    trialEnd.toISOString().split('T')[0],
+            notificaciones_email: true,
+            recordatorios_activos:true,
+            active_modules: plan === 'tarjeta' ? ['card'] :
+                            plan === 'turnos'  ? ['appointments'] :
+                                                ['card', 'appointments'],
         });
 
-        // 2. Crear registro en businesses (usado por Tarjeta Virtual Y Gestor de Turnos)
-        //    Un único registro sirve para ambos módulos.
-        if (plan === 'tarjeta' || plan === 'turnos' || plan === 'combo') {
-            const trialEnd = new Date();
-            trialEnd.setDate(trialEnd.getDate() + 30);
-
-            const { error: bizError } = await supabase.from('businesses').insert({
-                slug:                 slug,
-                nombre_negocio:       lead.details?.business_name || lead.name,
-                email:                lead.email || '',
-                telefono:             lead.phone,
-                foto_url:             lead.profile_img_url || '',
-                cover_url:            lead.cover_img_url || '',
-                profession:           lead.details?.profession || '',
-                instagram:            lead.details?.instagram || '',
-                location:             lead.details?.address || '',
-                valor_sena:           lead.details?.deposit ? Number(lead.details.deposit) : 2000,
-                is_premium:           false,
-                fecha_vencimiento:    trialEnd.toISOString().split('T')[0],
-                notificaciones_email: true,
-                recordatorios_activos:true,
-                // Módulos activos según el plan
-                active_modules: plan === 'tarjeta' ? ['card'] :
-                                plan === 'turnos'  ? ['appointments'] :
-                                                    ['card', 'appointments'],
-            });
-
-            if (bizError && bizError.code !== '23505') {
-                // 23505 = unique constraint (el slug ya existe) — no es error fatal
-                console.error('[_activateLead] Error creando en businesses:', bizError);
-                showToast('⚠️ Cliente creado, pero hubo un error configurando las apps. Revisá la consola.');
-            }
-        }
-
-        // 3. Marcar lead como convertido
+        // Marcar lead como convertido
         await supabase.from('leads')
             .update({ status: 'converted', converted_at: new Date().toISOString() })
             .eq('id', id);
 
-        // 4. Generar links y abrir WhatsApp para notificar al cliente
+        // Notificar al cliente por WhatsApp
         const baseUrl = 'https://suito.pro';
         let msg = `¡Hola ${lead.name}! 🎉 Te escribo de *Suito*.\n\n`;
         msg += `Tu suite ya está activa y lista para usar. 🚀\n\n`;

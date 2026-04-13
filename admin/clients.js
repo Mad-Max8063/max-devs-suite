@@ -1,8 +1,8 @@
 // ============================================
 // clients.js — Client Management (Supabase)
 // ============================================
-// Persistence layer for the admin_clients table.
-// All Supabase calls are async with try/catch error propagation.
+// Backed by the 'businesses' table (unified source of truth).
+// Bidirectional translation layer maps admin form fields ↔ businesses columns.
 
 import { supabase } from '@shared/supabase.js';
 
@@ -14,8 +14,58 @@ async function getUserId() {
     return session ? session.user.id : null;
 }
 
-// ——— Migration: localStorage → Supabase ———
-// Guard prevents duplicate runs within the same page session.
+// ——— businesses row → admin client object ———
+function businessToClient(b) {
+    return {
+        id:             b.id,
+        name:           b.contact_name || b.nombre_negocio || '',
+        business:       b.nombre_negocio || '',
+        whatsapp:       b.telefono || '',
+        email:          b.email || '',
+        slug:           b.slug || '',
+        plan:           b.plan || 'tarjeta',
+        status:         b.status || 'active',
+        is_premium:     b.is_premium || false,
+        card_id:        b.slug || '',
+        notes:          b.notes || '',
+        transfer_email: b.transfer_email || null,
+        free_until:     b.free_until || null,
+        paid_until:     b.paid_until || null,
+        created_at:     b.created_at,
+    };
+}
+
+// ——— admin client form → businesses columns ———
+// Accepts a superset: basic admin fields + optional business-specific fields.
+function clientToBusiness(clientData, userId = null) {
+    const row = {
+        contact_name:   clientData.name            || null,
+        nombre_negocio: clientData.business        || clientData.name || '',
+        telefono:       clientData.whatsapp        || '',
+        email:          clientData.email           || '',
+        slug:           clientData.slug            || '',
+        plan:           clientData.plan            || 'tarjeta',
+        status:         clientData.status          || 'active',
+        is_premium:     clientData.is_premium      || false,
+        notes:          clientData.notes           || null,
+        transfer_email: clientData.transfer_email  || null,
+        free_until:     clientData.free_until      || null,
+        paid_until:     clientData.paid_until      || null,
+    };
+    if (userId) row.user_id = userId;
+
+    // Pass through optional business-specific fields if provided
+    const extra = [
+        'active_modules', 'profession', 'instagram', 'location',
+        'valor_sena', 'fecha_vencimiento', 'notificaciones_email',
+        'recordatorios_activos', 'foto_url', 'cover_url',
+    ];
+    extra.forEach(f => { if (clientData[f] !== undefined) row[f] = clientData[f]; });
+
+    return row;
+}
+
+// ——— Migration: localStorage → Supabase (businesses) ———
 let migrationDone = false;
 
 async function performMigration() {
@@ -40,55 +90,41 @@ async function performMigration() {
 
     const userId = await getUserId();
     if (!userId) {
-        // Not authenticated yet; migration will retry on next load after login.
         migrationDone = false;
         return;
     }
 
-    console.log(`[Migration] Migrating ${clients.length} client(s) to Supabase...`);
+    console.log(`[Migration] Migrating ${clients.length} client(s) to businesses...`);
 
-    const clientsToUpload = clients.map(c => ({
-        user_id:        userId,
-        name:           c.name           || '',
-        business:       c.business       || '',
-        whatsapp:       c.whatsapp       || '',
-        email:          c.email          || '',
-        slug:           c.slug           || '',
-        plan:           c.plan           || 'tarjeta',
-        status:         c.status         || 'active',
-        is_premium:     c.is_premium     || false,
-        card_id:        c.card_id        || '',
-        notes:          c.notes          || '',
-        transfer_email: c.transfer_email || null,   // field previously missing from mapper
-        free_until:     c.free_until     || null,
-        paid_until:     c.paid_until     || null,
-    }));
+    const rows = clients.map(c => clientToBusiness(c, userId));
 
-    const { error } = await supabase.from('admin_clients').insert(clientsToUpload);
+    const { error } = await supabase.from('businesses').insert(rows);
 
     if (!error) {
         console.log('[Migration] Success — purging localStorage.');
         localStorage.removeItem(STORAGE_KEY);
     } else {
-        // Preserve localStorage on failure so no data is lost.
         console.error('[Migration] Insert failed (localStorage preserved):', error);
-        migrationDone = false;  // Allow retry on next session
+        migrationDone = false;
     }
 }
 
-// Trigger migration after auth has had time to settle.
 window.addEventListener('load', () => setTimeout(performMigration, 1200));
 
 // ——— DAO ———
 export async function getClients() {
     try {
+        const userId = await getUserId();
+        if (!userId) return [];
+
         const { data, error } = await supabase
-            .from('admin_clients')
+            .from('businesses')
             .select('*')
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        return data ?? [];
+        return (data ?? []).map(businessToClient);
     } catch (err) {
         console.error('[clients] getClients error:', err);
         return [];
@@ -99,9 +135,11 @@ export async function addClient(clientData) {
     const userId = await getUserId();
     if (!userId) throw new Error('Usuario no autenticado');
 
+    const row = clientToBusiness(clientData, userId);
+
     const { data, error } = await supabase
-        .from('admin_clients')
-        .insert({ user_id: userId, ...clientData })
+        .from('businesses')
+        .insert(row)
         .select()
         .single();
 
@@ -109,13 +147,19 @@ export async function addClient(clientData) {
         console.error('[clients] addClient error:', error);
         throw error;
     }
-    return data;
+    return businessToClient(data);
 }
 
 export async function updateClient(id, updates) {
+    const row = clientToBusiness(updates);
+    // Remove nullish keys that shouldn't overwrite existing business data
+    Object.keys(row).forEach(k => {
+        if (row[k] === null && updates[k] === undefined) delete row[k];
+    });
+
     const { data, error } = await supabase
-        .from('admin_clients')
-        .update(updates)
+        .from('businesses')
+        .update(row)
         .eq('id', id)
         .select()
         .single();
@@ -124,12 +168,12 @@ export async function updateClient(id, updates) {
         console.error('[clients] updateClient error:', error);
         throw error;
     }
-    return data;
+    return businessToClient(data);
 }
 
 export async function deleteClient(id) {
     const { error } = await supabase
-        .from('admin_clients')
+        .from('businesses')
         .delete()
         .eq('id', id);
 
