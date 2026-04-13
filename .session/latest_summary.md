@@ -1,49 +1,49 @@
-# Resumen de Sesión — MiSuite (Suito Platform)
-**Fecha:** 12 de Abril, 2026 (Local: 14:30)
-**Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
+# Resumen de Sesión — Estabilización Suito Platform
+**Fecha:** 2026-04-12 21:03 (Local)
+**Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Reparar el entorno de producción en Hostinger, resolviendo los errores 404 de los submódulos y venciendo la estricta caché de la CDN (HCDN) para que se reflejen los cambios y subdominios con CORS integrado.
+Lograr un despliegue estable y de alto rendimiento de Suito en Hostinger, resolviendo los errores 422 de assets y manifest PWA que persistían debido a la caché (HCDN) y rutas relativas.
 
 ---
 
 ## ✅ Lo que se hizo
-1. **Resolución de Rutas Relativas:** Modificación en `vite.config.ts` (monorepo) para que el `base` apunte a la ruta absoluta `https://suito.pro/`, solucionando los errores 404 en los subdominios (`admin.suito.pro`, `card...`).
-2. **CORS para Subdominios:** Creación de reglas `Access-Control-Allow-Origin: "*"` en el archivo `.htaccess`.
-3. **Inclusión de `.htaccess` en Build:** Identificación de que Vite no compilaba `.htaccess`. Se movió a la carpeta `public/.htaccess` para que forme parte del `dist/` en GitHub Actions.
-4. **HCDN Cache Busting (Evadiendo Caché):** Múltiples estilos/scripts estaban estancados en los servidores Edge de Hostinger (HCDN). Se añadieron comentarios `/* cachebust */` en el código fuente (`admin/styles.css`, `admin/app.js`, `card/js/supabase.js`) para FORZAR a Vite a generar hashes nuevos y que la CDN asimile los últimos archivos originarios con las correctas cabeceras CORS.
-
----
-
-## ❌ Problemas encontrados
-- **Hostinger HCDN:** Extremadamente agresivo (HIT/max-age=604800). No alcanzaba con arreglar `.htaccess` si la CDN tenía en caché los archivos viejos sin cabeceras. La estrategia final (Cache Busting de Vite) fue la clave definitiva.
-- Sintaxis en `vite.config.ts` truncó el build una vez (falta de paréntesis), pero se corrigió al instante.
+1.  **Invalidación de Caché Total (v4)**:
+    - Se configuró el sufijo `-v4.js` en `vite.config.ts`.
+    - Se añadió `?v=4` a favicon y manifest en `index.html`.
+2.  **Solución de Rutas Dinámicas**:
+    - Se migraron todos los assets críticos a `public/card/assets/`.
+    - Se actualizaron las rutas en `card.js` y `editor.js` a absolutas (`/card/assets/...`).
+3.  **Blindaje de Servidor**:
+    - Se creó un `.htaccess` en `public/card/` con exclusión explícita de assets y encabezados `no-cache` para el manifest.
+4.  **Confirmación de Producción**:
+    - Verificación exitosa mediante subagente de navegador: el JS carga con la nueva versión y el logo es visible.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Validación Funcional
-1. Verificar que el panel `admin.suito.pro` carga y rutea exitosamente al backend de Supabase.
-2. Hacer el flujo de creación de la "Tarjeta Virtual Suito" (Perfil/Profesión) para confirmar persistencia y lectura en base de datos.
-3. Crear el primer cliente real desde el panel para testear la RLS de Supabase.
+### Prioridad 1 — Limpieza de Servidor
+1.  **Eliminar carpetas basura**: Borrar `/home/u543991373/domains/suito.pro/public_html/card/card/` (carpeta duplicada detectada).
+2.  **Verificar Subdominios**: Asegurar que `appointment-manager` no tenga conflictos de `.htaccess` similares.
 
-### Prioridad 2 — Limpieza / UI
-1. Ajustes menores en placeholders y variables de Entorno local vs Prod.
-2. Confirmar propagación en subdominio de turnos (`turnos.suito.pro`).
+### Prioridad 2 — UX y PWA
+1.  **Audit Lighthouse**: Verificar puntuación de PWA tras el fix del manifest.
+2.  **Offline Support**: Validar que el Service Worker maneje correctamente las nuevas rutas `-v4`.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repo:** Mad-Max8063/max-devs-suite (Rama: `main`)
-- **Flujo CI/CD:** `.github/workflows/deploy-production.yml`
-- **Path de Deploy Local:** `dist/`
-- **Path de Servidor:** `../domains/suito.pro/public_html/`
+- **Repo**: `Mad-Max8063/max-devs-suite`
+- **Branch**: `main`
+- **Commit Reciente**: `3eb36fb` (fix fallback paths)
+- **URL Crítica**: `https://suito.pro/card/max-devs-solutions`
+- **Hostinger IP**: `147.93.14.107`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Vite Base Path Dinámico:** Se usa "https://suito.pro/" al empaquetar para garantizar compatibilidad transversal entre subdominios, rompiendo la atadura de rutas relativas puras.
-- **Cache Busting Manual:** Antes de pelear contra el panel de Hostinger, simplemente tocar los archivos fuerza un bypass 100% nativo.
+- **Base Path `/`**: Obligatorio para que Vite resuelva rutas relativas a la raíz del dominio en lugar de la carpeta física, evitando duplicaciones.
+- **Cache Busting Forzado**: Se prefirió renombrar archivos (`-v4`) sobre solo usar query params porque el CDN de Hostinger a veces ignora los params para archivos `.js`.
