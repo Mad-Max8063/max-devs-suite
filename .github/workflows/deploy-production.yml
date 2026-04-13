@@ -45,8 +45,11 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
           local-dir: ./dist/
-          server-dir: /domains/suito.pro/public_html/
+          # Intentamos una ruta relativa más común por si la absoluta bloquea
+          server-dir: domains/suito.pro/public_html/
+          timeout: 120000
           exclude: |
             **/.git*
             **/.git*/**
