@@ -1,4 +1,4 @@
-# MiSuite Plataforma Unificada
+# MiSuite Plataforma Unificada v1.0.8 - Cache Bust v6
 # ——— Cache Control (Anti-HCDN) ———
 <FilesMatch "\.(html|htm|js|css|json|webmanifest)$">
     FileETag None
@@ -30,7 +30,7 @@
 
   # Excepción atómica para carpetas de assets y archivos estáticos clave
   RewriteRule ^(assets|admin/assets|card/assets|turnos/assets)/.*$ - [L]
-  RewriteRule ^.*\.(json|webmanifest|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|sw-v5\.js)$ - [L]
+  RewriteRule ^.*\.(json|webmanifest|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|sw-v6\.js)$ - [L]
 
   # B. Soporte para Subdominios (cuando el host es admin.suito.pro, etc.)
   # Nota: Hostinger suele mapear el subdominio a la carpeta, pero esta regla asegura el routing interno.
