@@ -26,14 +26,17 @@ jobs:
       - name: 🔨 Build & Strategic Prep
         run: |
           npm run build
-          # Redundancia Estratégica para Subdominios
+          # Limpia directorios antes de la redundancia para evitar anidamiento accidental
+          rm -rf dist/admin/assets dist/card/assets dist/turnos/assets
           mkdir -p dist/admin/assets dist/card/assets dist/turnos/assets
+          
+          # Copia limpia de assets
           cp -r dist/assets/* dist/admin/assets/ 2>/dev/null || :
           cp -r dist/assets/* dist/card/assets/ 2>/dev/null || :
           cp -r dist/assets/* dist/turnos/assets/ 2>/dev/null || :
-          # Fix Manifest PWA: El navegador lo busca en la raíz del subdominio
+          
+          # Fix Manifest PWA y SW
           find dist/assets -name "manifest-v4-*.webmanifest" -exec cp {} dist/card/manifest-v4.webmanifest \; 2>/dev/null || :
-          # El Service Worker también debe estar accesible en la raíz del scope
           find dist/assets -name "card-*-v4.js" -exec cp {} dist/card/sw-v4.js \; 2>/dev/null || :
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -48,12 +51,14 @@ jobs:
           port: 21
           local-dir: ./dist/
           server-dir: domains/suito.pro/public_html/
-          timeout: 300000
-          state-name: .ftp-deploy-sync-state.json
+          timeout: 400000
+          # Cambiamos el nombre del estado para ignorar errores previos
+          state-name: .ftp-deploy-sync-state-v3.json
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/*.map
+            **/assets/assets/**
             **/tarjeta/**
             **/compartido/**
