@@ -114,13 +114,9 @@ window.addEventListener('load', () => setTimeout(performMigration, 1200));
 // ——— DAO ———
 export async function getClients() {
     try {
-        const userId = await getUserId();
-        if (!userId) return [];
-
         const { data, error } = await supabase
             .from('businesses')
             .select('*')
-            .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
