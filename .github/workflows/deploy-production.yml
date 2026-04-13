@@ -52,10 +52,10 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           local-dir: ./dist/
-          server-dir: domains/suito.pro/public_html/
+          server-dir: public_html/
           timeout: 400000
-          # v4-full: Forzamos sincronización completa para barrer archivos viejos en Hostinger
-          state-name: .ftp-deploy-sync-state-v4-full.json
+          # v5-path: Cambio de ruta raíz para asegurar que llegue al sitio en vivo
+          state-name: .ftp-deploy-sync-state-v5-path.json
           exclude: |
             **/.git*
             **/.git*/**
