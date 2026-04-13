@@ -38,8 +38,8 @@ jobs:
           cp -r dist/assets/* dist/turnos/assets/ 2>/dev/null || :
           
           # Fix Manifest PWA y SW
-          find dist/assets -name "manifest-v6-*.webmanifest" -exec cp {} dist/card/manifest-v6.webmanifest \; 2>/dev/null || :
-          find dist/assets -name "card-*-v6.js" -exec cp {} dist/card/sw-v6.js \; 2>/dev/null || :
+          find dist/assets -name "manifest-2026-*.webmanifest" -exec cp {} dist/card/manifest-2026.webmanifest \; 2>/dev/null || :
+          find dist/assets -name "card-*-2026.js" -exec cp {} dist/card/sw-2026.js \; 2>/dev/null || :
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
@@ -64,5 +64,3 @@ jobs:
             **/assets/assets/**
             **/tarjeta/**
             **/compartido/**
-            **/card/js/**
-            **/card/css/**
