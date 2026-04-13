@@ -1,3 +1,4 @@
+// v1.0.6 - Forced Cache Bust - 2026-04-13
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';

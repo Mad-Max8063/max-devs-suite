@@ -26,11 +26,13 @@ jobs:
       - name: 🔨 Build & Strategic Prep
         run: |
           npm run build
-          # Limpia directorios antes de la redundancia para evitar anidamiento accidental
+          
+          # Limpieza profunda de carpetas fantasma en el dist antes de subir
+          # Esto asegura que no subamos carpetas viejas si el build cambió de estructura
           rm -rf dist/admin/assets dist/card/assets dist/turnos/assets
           mkdir -p dist/admin/assets dist/card/assets dist/turnos/assets
           
-          # Copia limpia de assets
+          # Copia limpia de assets para redundancia (Hostinger workaround)
           cp -r dist/assets/* dist/admin/assets/ 2>/dev/null || :
           cp -r dist/assets/* dist/card/assets/ 2>/dev/null || :
           cp -r dist/assets/* dist/turnos/assets/ 2>/dev/null || :
@@ -52,8 +54,8 @@ jobs:
           local-dir: ./dist/
           server-dir: domains/suito.pro/public_html/
           timeout: 400000
-          # Cambiamos el nombre del estado para ignorar errores previos
-          state-name: .ftp-deploy-sync-state-v3.json
+          # v4-full: Forzamos sincronización completa para barrer archivos viejos en Hostinger
+          state-name: .ftp-deploy-sync-state-v4-full.json
           exclude: |
             **/.git*
             **/.git*/**
@@ -62,3 +64,5 @@ jobs:
             **/assets/assets/**
             **/tarjeta/**
             **/compartido/**
+            **/card/js/**
+            **/card/css/**
