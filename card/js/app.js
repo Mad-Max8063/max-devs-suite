@@ -2,7 +2,7 @@
 // app.js — Main router & app orchestration
 // ============================================
 
-import { getCard } from './supabase.js';
+import { getCard } from './supabase.js?v=4.9';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
@@ -58,7 +58,7 @@ function navigate() {
             app.innerHTML = '';
             app.appendChild(editView);
 
-            import('./gallery-editor.js').then((mod) => {
+            import('./gallery-editor.js?v=4.9').then((mod) => {
                 mod.renderGalleryEditor(editView, card);
             });
         });
@@ -91,7 +91,7 @@ function navigate() {
             app.innerHTML = '';
             app.appendChild(landingView);
 
-            import('./card.js').then((mod) => {
+            import('./card.js?v=4.9').then((mod) => {
                 mod.renderLanding(landingView, data);
             });
         });
@@ -104,7 +104,7 @@ function navigate() {
 
         const data = window.__previewData || {};
 
-        import('./card.js').then((mod) => {
+        import('./card.js?v=4.9').then((mod) => {
             mod.renderPreview(
                 previewView,
                 data,
@@ -181,7 +181,7 @@ function loadEditor() {
     editorView.className = 'view active';
     app.appendChild(editorView);
 
-    import('./editor.js').then((mod) => {
+    import('./editor.js?v=4.9').then((mod) => {
         window.__editorModule = mod;
         mod.initEditor(editorView, (data) => {
             window.__previewData = data;

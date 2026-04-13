@@ -3,7 +3,7 @@ console.log("cachebust-20260412");
 // supabase.js — Supabase client & API functions
 // ============================================
 
-import { supabase } from '../../shared/supabase.js';
+import { supabase } from '../../shared/supabase.js?v=4.9';
 
 // Compatibilidad: getClient() retorna el cliente compartido
 function getClient() {
