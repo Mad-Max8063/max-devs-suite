@@ -20,6 +20,10 @@ function navigate() {
     const cardMatch = path.match(/\/card\/([A-Za-z0-9-]+)$/);
     const editMatch = path.match(/\/edit\/([A-Za-z0-9-]+)$/);
 
+    console.log('[Router] Path:', path);
+    console.log('[Router] Card Match:', cardMatch);
+    console.log('[Router] Edit Match:', editMatch);
+
     if (editMatch) {
         // — Gallery edit mode —
         const cardId = editMatch[1];
