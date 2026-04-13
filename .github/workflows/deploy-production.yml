@@ -49,4 +49,5 @@ jobs:
             **/tarjeta/**
             **/compartido/**
             **/turnos/activos/**
+            **/shared/**
             **/sw-v4.js
