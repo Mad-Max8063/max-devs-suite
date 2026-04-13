@@ -1,4 +1,4 @@
-// v1.0.6 - Forced Cache Bust - 2026-04-13
+// v1.0.7 - Forced Cache Bust v6 - 2026-04-13
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
@@ -26,9 +26,9 @@ export default defineConfig(({ command }) => ({
       },
       output: {
         // Hashes únicos más versionado forzado para evadir caché persistente de HCDN
-        entryFileNames: 'assets/[name]-[hash]-v5.js',
-        chunkFileNames: 'assets/[name]-[hash]-v5.js',
-        assetFileNames: 'assets/[name]-[hash]-v5.[ext]',
+        entryFileNames: 'assets/[name]-[hash]-v6.js',
+        chunkFileNames: 'assets/[name]-[hash]-v6.js',
+        assetFileNames: 'assets/[name]-[hash]-v6.[ext]',
       },
     },
   },

@@ -14,7 +14,7 @@
 
   <!-- base href eliminado: ahora Vite maneja la base URL -->
   <link rel="icon" href="/card/favicon.png">
-  <link rel="manifest" href="/card/manifest-v5.webmanifest">
+  <link rel="manifest" href="/card/manifest-v6.webmanifest">
 
   <!-- Stitch / Tailwind Dependencies -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -76,7 +76,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        const swPath = '/card/sw-v5.js';
+        const swPath = '/card/sw-v6.js';
         const scope = '/card/';
         
         navigator.serviceWorker.register(swPath, { scope: scope })
