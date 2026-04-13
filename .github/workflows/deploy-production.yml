@@ -39,46 +39,15 @@ jobs:
           cp -r dist/assets/* dist/turnos/assets/
           echo "Assets duplicated for unified module resolution."
 
-      - name: 🚀 Deploy → suito.pro (Robust Rsync)
-        env:
-          SSHPASS: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          # 1. Instalar herramientas de red y transferencia
-          sudo apt-get update && sudo apt-get install -y sshpass rsync netcat-openbsd
-          
-          # 2. Sondeo de conectividad (diagnóstico temprano)
-          echo "🔍 Probando conexión a 147.93.14.107:65002..."
-          if ! nc -zv -w 5 147.93.14.107 65002; then
-            echo "⚠️ ADVERTENCIA: El puerto 65002 no responde. El firewall de Hostinger podría estar bloqueando esta IP."
-          fi
-
-          # 3. Pre-cargar host key para evitar prompts interactivos
-          mkdir -p ~/.ssh
-          ssh-keyscan -p 65002 -H 147.93.14.107 >> ~/.ssh/known_hosts
-
-          # 4. Lógica de reintento con Rsync
-          MAX_ATTEMPTS=5
-          ATTEMPT=1
-          SUCCESS=false
-
-          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "🚀 Intento de despliegue $ATTEMPT de $MAX_ATTEMPTS..."
-            
-            if sshpass -e rsync -avz --delete \
-              -e "ssh -p 65002 -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60" \
-              ./dist/ u543991373@147.93.14.107:domains/suito.pro/public_html/; then
-              SUCCESS=true
-              break
-            else
-              echo "❌ El intento $ATTEMPT falló. Esperando 30 segundos antes de reintentar..."
-              sleep 30
-              ATTEMPT=$((ATTEMPT+1))
-            fi
-          done
-
-          if [ "$SUCCESS" = true ]; then
-            echo "✅ Despliegue completado con éxito."
-          else
-            echo "🔥 ERROR: Todos los intentos de despliegue fallaron."
-            exit 1
-          fi
+      - name: 🚀 Deploy → suito.pro (Standard FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: /domains/suito.pro/public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
