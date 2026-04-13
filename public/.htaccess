@@ -38,14 +38,14 @@
   RewriteRule ^$ admin/dashboard.html [L]
 
   RewriteCond %{HTTP_HOST} ^card\.suito\.pro$ [NC]
-  RewriteRule ^$ card/index.html [L]
+  RewriteRule ^$ card/app-v6.html [L]
 
   RewriteCond %{HTTP_HOST} ^turnos\.suito\.pro$ [NC]
   RewriteRule ^$ turnos/index.html [L]
 
   # C. MPA Routing (vía subcarpetas en dominio principal)
   RewriteRule ^admin(/.*)?$ admin/dashboard.html [L]
-  RewriteRule ^card(/.*)?$ card/index.html [L]
+  RewriteRule ^card(/.*)?$ card/app-v6.html [L]
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing

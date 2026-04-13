@@ -20,7 +20,7 @@ export default defineConfig(({ command }) => ({
         // Admin Panel (Vanilla JS)
         dashboard: resolve(__dirname, 'admin/dashboard.html'),
         // Tarjeta Virtual (Vanilla JS)
-        card:   resolve(__dirname, 'card/index.html'),
+        card:   resolve(__dirname, 'card/app-v6.html'),
         // Gestor de Turnos (React + TypeScript)
         turnos: resolve(__dirname, 'turnos/index.html'),
       },
