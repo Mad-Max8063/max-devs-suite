@@ -53,9 +53,9 @@ jobs:
           port: 21
           local-dir: ./dist/
           server-dir: /
-          timeout: 400000
-          # v11-clean: Restauración total sobre raíz limpia
-          state-name: .ftp-deploy-sync-state-v11-clean.json
+          timeout: 800000
+          # v14: Blindaje total y restauración de panel
+          state-name: .ftp-deploy-sync-state-v14.json
           exclude: |
             **/.git*
             **/.git*/**
