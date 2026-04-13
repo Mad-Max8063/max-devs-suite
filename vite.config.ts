@@ -18,7 +18,7 @@ export default defineConfig(({ command }) => ({
         // Punto de entrada principal (Landing)
         main:   resolve(__dirname, 'index.html'),
         // Admin Panel (Vanilla JS)
-        admin:  resolve(__dirname, 'admin/index.html'),
+        dashboard: resolve(__dirname, 'admin/dashboard.html'),
         // Tarjeta Virtual (Vanilla JS)
         card:   resolve(__dirname, 'card/index.html'),
         // Gestor de Turnos (React + TypeScript)

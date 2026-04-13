@@ -35,7 +35,7 @@
   # B. Soporte para Subdominios (cuando el host es admin.suito.pro, etc.)
   # Nota: Hostinger suele mapear el subdominio a la carpeta, pero esta regla asegura el routing interno.
   RewriteCond %{HTTP_HOST} ^admin\.suito\.pro$ [NC]
-  RewriteRule ^$ admin/index.html [L]
+  RewriteRule ^$ admin/dashboard.html [L]
 
   RewriteCond %{HTTP_HOST} ^card\.suito\.pro$ [NC]
   RewriteRule ^$ card/index.html [L]
@@ -44,7 +44,7 @@
   RewriteRule ^$ turnos/index.html [L]
 
   # C. MPA Routing (vía subcarpetas en dominio principal)
-  RewriteRule ^admin(/.*)?$ admin/index.html [L]
+  RewriteRule ^admin(/.*)?$ admin/dashboard.html [L]
   RewriteRule ^card(/.*)?$ card/index.html [L]
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
