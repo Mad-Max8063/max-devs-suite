@@ -3,7 +3,7 @@ console.log("cachebust-20260412");
 // Suito Admin Dashboard — Master Controller
 // ============================================
 import { CONFIG } from './config.js';
-import { supabase } from '../shared/supabase.js';
+import { supabase } from '@shared/supabase.js';
 import { getClients, addClient, updateClient, deleteClient, getClientStats } from './clients.js';
 
 // ——— State ———

@@ -3,7 +3,7 @@ console.log("cachebust-20260412");
 // supabase.js — Supabase client & API functions
 // ============================================
 
-import { supabase } from '../../shared/supabase.js?v=4.9';
+import { supabase } from '@shared/supabase.js';
 
 // Compatibilidad: getClient() retorna el cliente compartido
 function getClient() {
@@ -129,10 +129,10 @@ export async function getCard(slug) {
         phone: business.telefono || '',
         email: business.email || '',
         location: business.location || '',
-        // Blindaje Visual Freemium
-        photo: isPremium ? (business.foto_url || '') : 'assets/default-avatar.svg',
-        coverPhoto: isPremium ? (business.cover_url || '') : '',
-        primary_color: isPremium ? (business.color_primario || '') : '',
+        // Blindaje Visual Freemium (Desactivado para estabilización)
+        photo: business.foto_url || 'assets/default-avatar.svg',
+        coverPhoto: business.cover_url || '',
+        primary_color: business.color_primario || '',
         // Redes
         instagram: business.instagram || '',
         facebook: business.facebook || '',

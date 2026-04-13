@@ -45,6 +45,9 @@ export default defineConfig(({ command }) => ({
 
   // Resolver extensiones para el módulo React
   resolve: {
+    alias: {
+      '@shared': resolve(__dirname, 'shared'),
+    },
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
 }));

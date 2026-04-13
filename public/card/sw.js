@@ -1,23 +1,20 @@
 // ============================================
-// Service Worker — Suito Virtual Card v4
-// Scope: /card/ | Served from: /card/sw-v4.js
+// Service Worker — Suito Virtual Card v5
+// Scope: /card/ | Served from: /card/sw.js
 // ============================================
+// PRECACHE: Solo assets estáticos estables (public/).
+// Los assets hasheados por Vite (JS/CSS en /assets/) se cachean
+// en runtime via el handler Stale-While-Revalidate.
 
-const CACHE_NAME = 'suito-card-v4';
+const CACHE_NAME = 'suito-card-v10';
 
-// Only precache stable public/ assets — Vite-hashed filenames are NOT
-// known at SW write time and must be cached at runtime via fetch handler.
 const PRECACHE_URLS = [
   '/card/',
   '/card/assets/suito-logo.png',
   '/card/assets/cover.png',
   '/card/assets/default-avatar.svg',
-  // Icons — manifest-declared (paridad 1:1 con manifest-v4.webmanifest)
-  '/card/assets/icon-192.svg',   // manifest: image/svg+xml 192x192
-  '/card/assets/icon-192.png',   // manifest: image/png 192x192 (NUEVO)
-  '/card/assets/icon-512.png',   // manifest: image/png 512x512 (purpose: any + maskable)
-  // Icons — vector present on disk, offline policy for Chromium/Android
-  '/card/assets/icon-512.svg',   // vector 512x512, existe en public/card/assets/
+  '/card/assets/icon-192.png',
+  '/card/assets/icon-512.png',
   '/card/manifest-v4.webmanifest',
   '/favicon.png',
 ];
@@ -30,7 +27,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// ——— Activate: purge ALL stale caches (virtual-card-v5, suito-card-v3, etc.) ———
+// ——— Activate: purge ALL stale caches ———
 self.addEventListener('activate', (event) => {
   const VALID_CACHES = [CACHE_NAME];
   event.waitUntil(
@@ -49,7 +46,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Skip non-GET requests
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
@@ -58,11 +54,9 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Never intercept the SW file itself
-  if (url.pathname.endsWith('sw-v4.js')) return;
+  if (url.pathname.endsWith('sw.js')) return;
 
-  // ——— Navigation (slug URLs like /card/max-devs-solutions/) ———
-  // NetworkFirst: dynamic slug content must resolve against the server.
-  // Fallback to cache only on network failure.
+  // ——— Navigation (slug URLs like /card/slug/) ———
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -74,15 +68,12 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(
-          () => caches.match(request) || caches.match('/card/')
-        )
+        .catch(() => caches.match(request) || caches.match('/card/'))
     );
     return;
   }
 
-  // ——— Static assets (images, scripts, styles, fonts) ———
-  // Stale-While-Revalidate: instant response from cache + background update.
+  // ——— Static assets: Stale-While-Revalidate ———
   if (
     request.destination === 'image' ||
     request.destination === 'style' ||

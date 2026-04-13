@@ -29,23 +29,6 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: 📂 Prepare Production Bundle
-        run: |
-          # 1. Copiamos carpetas de código que Vite no incluye automáticamente por ser Vanilla JS con queries
-          echo "Copying raw JS modules to dist..."
-          cp -r card/js dist/card/ || true
-          cp -r shared dist/ || true
-          mkdir -p dist/admin
-          cp admin/*.js dist/admin/ || true
-          
-          # 2. Duplicamos la carpeta de assets en cada módulo para resolución de rutas absolutas
-          echo "Duplicating assets for subdomains..."
-          mkdir -p dist/admin/assets dist/card/assets dist/turnos/assets
-          cp -r dist/assets/* dist/admin/assets/
-          cp -r dist/assets/* dist/card/assets/
-          cp -r dist/assets/* dist/turnos/assets/
-          echo "Deployment bundle ready."
-
       - name: 🚀 Deploy → suito.pro (Standard FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:

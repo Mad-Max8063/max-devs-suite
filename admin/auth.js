@@ -3,7 +3,7 @@
 // ============================================
 // Uses the singleton client from supabaseClient.js to prevent
 // session desynchronization with clients.js and app.js.
-import { supabase } from './supabaseClient.js';
+import { supabase } from '@shared/supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const { data: { session } } = await supabase.auth.getSession();

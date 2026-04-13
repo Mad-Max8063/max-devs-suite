@@ -4,7 +4,7 @@
 // Persistence layer for the admin_clients table.
 // All Supabase calls are async with try/catch error propagation.
 
-import { supabase } from '../shared/supabase.js';
+import { supabase } from '@shared/supabase.js';
 
 const STORAGE_KEY = 'suito_clients';
 
