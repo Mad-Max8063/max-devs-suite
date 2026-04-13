@@ -6,8 +6,8 @@ import { resolve } from 'path';
 export default defineConfig(({ command }) => ({
   plugins: [react()],
 
-  // Base path relativo para compatibilidad total con subdominios y subcarpetas en Hostinger
-  base: './',
+  // Base path absoluto para soportar Slugs (pretty URLs) y subdominios mediante duplicidad
+  base: '/',
 
   build: {
     outDir: 'dist',
