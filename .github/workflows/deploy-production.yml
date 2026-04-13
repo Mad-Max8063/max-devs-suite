@@ -54,8 +54,8 @@ jobs:
           local-dir: ./dist/
           server-dir: /
           timeout: 800000
-          # v14: Blindaje total y restauración de panel
-          state-name: .ftp-deploy-sync-state-v14.json
+          # v2026-FINAL: Reset total para romper el bloqueo de Hostinger
+          state-name: .ftp-deploy-sync-state-v2026-FINAL.json
           exclude: |
             **/.git*
             **/.git*/**
