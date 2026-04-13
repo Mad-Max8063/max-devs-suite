@@ -23,25 +23,21 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔨 Build (Vite MPA)
+      - name: 🔨 Build & Strategic Prep
         run: |
           npm run build
-          # Redundancia de Assets para Subdominios en Hostinger
-          cp -r dist/assets dist/admin/assets
-          cp -r dist/assets dist/card/assets
+          # Redundancia Estratégica para Subdominios
+          mkdir -p dist/admin/assets dist/card/assets dist/turnos/assets
+          cp -r dist/assets/* dist/admin/assets/ 2>/dev/null || :
+          cp -r dist/assets/* dist/card/assets/ 2>/dev/null || :
+          cp -r dist/assets/* dist/turnos/assets/ 2>/dev/null || :
+          # Fix Manifest PWA: El navegador lo busca en la raíz del subdominio
+          find dist/assets -name "manifest-v4-*.webmanifest" -exec cp {} dist/card/manifest-v4.webmanifest \; 2>/dev/null || :
+          # El Service Worker también debe estar accesible en la raíz del scope
+          find dist/assets -name "card-*-v4.js" -exec cp {} dist/card/sw-v4.js \; 2>/dev/null || :
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: Post-Build Asset Redundancy
-        run: |
-          # Redundancia de assets para subdominios (Vite MPA fallback)
-          cp -r dist/assets dist/admin/assets
-          cp -r dist/assets dist/card/assets
-          cp -r dist/assets dist/turnos/assets
-          # Asegurar que el manifest y el SW residan en /card/ para que el path ./ resuelva
-          cp dist/card/manifest-v4.webmanifest dist/card/manifest-v4.webmanifest 2>/dev/null || :
-          cp dist/card/sw.js dist/card/sw.js 2>/dev/null || :
       
       - name: Deploy to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -51,17 +47,13 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           local-dir: ./dist/
-          # Intentamos una ruta relativa más común por si la absoluta bloquea
           server-dir: domains/suito.pro/public_html/
-          timeout: 120000
+          timeout: 300000
+          state-name: .ftp-deploy-sync-state.json
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
-            **/card/js/**
-            **/admin/assets/**
+            **/*.map
             **/tarjeta/**
             **/compartido/**
-            **/turnos/activos/**
-            **/shared/**
-            **/sw-v4.js
