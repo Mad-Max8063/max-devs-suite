@@ -44,3 +44,9 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+            **/card/js/**
+            **/admin/assets/**
+            **/tarjeta/**
+            **/compartido/**
+            **/turnos/activos/**
+            **/sw-v4.js
