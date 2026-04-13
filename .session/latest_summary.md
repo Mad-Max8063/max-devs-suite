@@ -1,49 +1,51 @@
-# Resumen de Sesión — Suito Platform (PWA Stabilization)
-**Fecha:** 2026-04-12 22:45
+# Resumen de Sesión — Suito Platform Stabilization
+**Fecha:** 2026-04-13 (02:10 ART)
 **Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Recuperar la funcionalidad crítica del módulo de Tarjeta Virtual (`/card/`) y estabilizar la PWA mediante estrategias de bypass de caché (HCDN) y ruteo robusto en el servidor.
+Lograr un despliegue estable en Hostinger resolviendo bloqueos de red, errores de carga de archivos estáticos (404) y conflictos de "redeclaración" de scripts en el módulo de tarjetas virtuales.
 
 ---
 
 ## ✅ Lo que se hizo
-- **Bypass de Caché (HCDN)**: Renombrado de `manifest.json` a `manifest-v4.webmanifest` y assets a `-v4.js/css`.
-- **Service Worker v4**: Implementación de `sw-v4.js` con estrategia `NetworkFirst` para navegación y `Stale-While-Revalidate` para assets.
-- **Precaché Atómico**: Se excluyó `icon-192.png` (archivo inexistente) para prevenir fallos en la instalación del SW.
-- **Blindaje .htaccess**: Configuración de cabeceras `no-store` para el SW y exclusión explícita de la redirección SPA.
-- **Despliegue**: Build exitoso y push a la rama `main` (Commit: `06c7967`).
-- **Verificación**: Auditoría en vivo confirmando que la PWA es instalable.
+- **Migración CI/CD**: Se cambió de SSH/Rsync (bloqueado) a **FTP Estándar (Puerto 21)** con `SamKirkland/FTP-Deploy-Action`.
+- **Reparación de Empaquetado**: Se actualizó el workflow para copiar manualmente las carpetas `card/js`, `shared` y scripts de `admin` a la carpeta `dist/`, solucionando los errores 404.
+- **Unificación de Scripts**: Se eliminó la redeclaración de `renderCard` desactivando el listener en `card.js` y usando `app.js` como único punto de entrada en `index.html`.
+- **Cache-Busting Profundo**: Se implementó una estrategia de versionado en cascada (`?v=4.9`) en todos los imports internos para forzar la actualización en el navegador.
+- **Estabilización de PWA**: Se renombró el manifest a `.webmanifest` y se agregaron excepciones en `.htaccess` para evitar redirecciones SPA incorrectas.
+- **Documentación**: Se creó la nueva Skill `hostinger-stabilization` para replicar estas soluciones a futuro.
 
 ---
 
 ## ❌ Problemas encontrados
-- **404 en SW**: Se detectó que la falta de `icon-192.png` abortaba la instalación. Corregido mediante exclusión selectiva.
-- **Caché Persistente**: El CDN de Hostinger mantenía versiones viejas del `index.html`. Mitigado mediante versionado de archivos.
+- **Hostinger HCDN**: La caché del servidor y del Service Worker es extremadamente persistente, lo que requirió el versionado total de los imports JS.
+- **Firewall de Hostinger**: Bloqueos constantes en puertos no estándar (65002), lo que obligó a usar FTP tradicional.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — UX & PWA
-1. Generar `icon-192.png` (rasterizado) a partir del SVG para completar la compatibilidad total de iconos en todas las plataformas.
-2. Realizar una auditoría Lighthouse completa una vez que la caché bare-URL expire.
+### Prioridad 1 — Refactor de Estilos
+1. Migrar Tailwind CDN a una compilación local en el build de Vite para eliminar warnings y mejorar velocidad.
+2. Unificar los estilos de la landing con los de la tarjeta (están "confusos" actualmente).
 
-### Prioridad 2 — Otros Módulos
-1. Revisar ruteo y caché en `/admin/` y `/turnos/` siguiendo el patrón de `/card/`.
+### Prioridad 2 — Funcionalidad Supabase
+1. Validar la persistencia de cambios desde el Admin Panel hacia la tarjeta virtual.
+2. Implementar manejo de errores más elegante cuando la DB no responde.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repo URL**: https://github.com/Mad-Max8063/max-devs-suite
-- **Deploy URL**: https://suito.pro/card/max-devs-solutions
-- **Commit SHA**: `06c796723223126be1e233da829c48bcfbc2189d`
-- **SW Scope**: `/card/`
+- **Stitch Project ID**: `4044680601076201931`
+- **Últimos Commits**:
+    - `8c0073a`: fix: apply deep cache-busting to all card modules (v4.9)
+    - `9feaf71`: fix: ensures unbundled JS modules are included in deployment (v4.8)
+- **Deploy URL**: [suito.pro/card/max-devs-solutions](https://suito.pro/card/max-devs-solutions)
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Versioning forzado**: Se optó por `-v4` en lugar de queries (`?v=4`) porque el CDN de Hostinger suele ignorar los query strings en archivos estáticos.
-- **NetworkFirst**: Elegido para el `fetch` de navegación para asegurar que los datos dinámicos de las tarjetas siempre intenten cargar desde Supabase primero.
+- **Vanilla JS + ESM**: Se decidió mantener la carga dinámica de módulos sin bundler pesado para el módulo `card` para mantener simplicidad, compensando con cache-busting manual.
+- **Ruta FTP Relativa**: Se movió a `domains/suito.pro/public_html/` para evitar problemas de permisos con rutas absolutas de Linux en Hostinger.
