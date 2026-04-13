@@ -16,23 +16,25 @@ function navigate() {
     app.className = 'app-container';
     app.classList.remove('landing-mode');
 
-    // Parse route - compatible with subfolders
-    const cardMatch = path.match(/\/card\/([A-Za-z0-9-]+)$/);
-    const editMatch = path.match(/\/edit\/([A-Za-z0-9-]+)$/);
-
     console.log('[Router] Path:', path);
-    console.log('[Router] Card Match:', cardMatch);
-    console.log('[Router] Edit Match:', editMatch);
 
-    if (editMatch) {
+    // Normalización de slug robusta: quita barra final y toma el último segmento
+    // Esto soporta slugs con guiones y evita problemas con la profundidad de la URL
+    const cleanPath = path.replace(/\/$/, "");
+    const segments = cleanPath.split("/");
+    const slug = segments.pop();
+
+    const isEdit = segments.includes('edit');
+    const isCard = segments.includes('card') || (segments.length === 0 && slug !== '');
+
+    if (isEdit && slug) {
         // — Gallery edit mode —
-        const cardId = editMatch[1];
+        const cardId = slug;
         const params = new URLSearchParams(search);
         const token = params.get('token') || '';
-        // Remember this page for PWA home screen launch (relative URL)
         localStorage.setItem('last_card_url', `edit/${cardId}?token=${token}`);
 
-        app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><p>Cargando...</p></div>';
+        app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><p>Cargando editor...</p></div>';
 
         getCard(cardId).then(card => {
             if (!card) {
@@ -60,13 +62,15 @@ function navigate() {
 
             import('./gallery-editor.js').then((mod) => {
                 mod.renderGalleryEditor(editView, card);
+            }).catch(err => {
+                console.error('[Router] Error loading editor:', err);
+                app.innerHTML = '<div class="error-container">Error cargando el editor. Reintentá.</div>';
             });
         });
 
-    } else if (cardMatch) {
+    } else if (isCard && slug) {
         // — Landing mode: fetch card from Supabase (fullscreen) —
-        const cardId = cardMatch[1];
-        // Remember this card for PWA home screen launch (relative URL)
+        const cardId = slug;
         localStorage.setItem('last_card_url', `card/${cardId}`);
         app.classList.add('landing-mode');
 
@@ -82,18 +86,30 @@ function navigate() {
                 return;
             }
 
-            // Transform DB format to app format
-            const data = dbToAppFormat(card);
-            updateMeta(data);
+            try {
+                // Transform DB format to app format
+                const data = dbToAppFormat(card);
+                updateMeta(data);
 
-            const landingView = document.createElement('div');
-            landingView.className = 'view active';
-            app.innerHTML = '';
-            app.appendChild(landingView);
+                const landingView = document.createElement('div');
+                landingView.className = 'view active';
+                app.innerHTML = '';
+                app.appendChild(landingView);
 
-            import('./card.js').then((mod) => {
-                mod.renderLanding(landingView, data);
-            });
+                import('./card.js').then((mod) => {
+                    mod.renderLanding(landingView, data);
+                }).catch(err => {
+                    console.error('[Router] Error importing card.js:', err);
+                    throw err;
+                });
+            } catch (renderErr) {
+                console.error('[Router] Render Error:', renderErr);
+                app.innerHTML = `
+                    <div style="text-align:center; padding:60px 20px;">
+                        <h2 style="margin-bottom:8px;">Error de visualización</h2>
+                        <p style="color:var(--text-secondary);">Hubo un problema al renderizar la tarjeta. Por favor avisale al dueño.</p>
+                    </div>`;
+            }
         });
 
     } else if (path === '/preview') {

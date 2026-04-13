@@ -25,9 +25,12 @@
   # A. Excepción para Assets: Si existe el archivo físicamente, servirlo y parar.
   # Esto cubre /assets/..., /admin/assets/..., /card/assets/..., /turnos/assets/...
   RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d [OR]
-  RewriteCond %{REQUEST_URI} \.(json|webmanifest)$ [NC]
+  RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
+
+  # Excepción atómica para carpetas de assets y archivos estáticos clave
+  RewriteRule ^(assets|admin/assets|card/assets|turnos/assets)/.*$ - [L]
+  RewriteRule ^.*\.(json|webmanifest|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|sw\.js)$ - [L]
 
   # B. Soporte para Subdominios (cuando el host es admin.suito.pro, etc.)
   # Nota: Hostinger suele mapear el subdominio a la carpeta, pero esta regla asegura el routing interno.

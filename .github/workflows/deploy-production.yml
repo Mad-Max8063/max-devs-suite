@@ -33,8 +33,18 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: 🚀 Deploy → suito.pro (Standard FTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Post-Build Asset Redundancy
+        run: |
+          # Redundancia de assets para subdominios (Vite MPA fallback)
+          cp -r dist/assets dist/admin/assets
+          cp -r dist/assets dist/card/assets
+          cp -r dist/assets dist/turnos/assets
+          # Asegurar que el manifest y el SW residan en /card/ para que el path ./ resuelva
+          cp dist/card/manifest-v4.webmanifest dist/card/manifest-v4.webmanifest 2>/dev/null || :
+          cp dist/card/sw.js dist/card/sw.js 2>/dev/null || :
+      
+      - name: Deploy to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
