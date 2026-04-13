@@ -20,6 +20,17 @@
     Header set Expires 0
   </FilesMatch>
 
+  # Forzar no-caché para el Service Worker (el navegador gestiona su propio ciclo de vida)
+  <Files "sw-v4.js">
+    <IfModule mod_headers.c>
+      Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+      Header set Pragma "no-cache"
+      Header set Expires 0
+    </IfModule>
+  </Files>
+
   # Redirección SPA: Todo lo demás va a index.html
+  # Excluir el Service Worker de la redirección (aunque ya es archivo real, exclusión explícita)
+  RewriteCond %{REQUEST_URI} !^/card/sw-v4\.js$
   RewriteRule . /card/index.html [L]
 </IfModule>

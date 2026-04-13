@@ -74,5 +74,13 @@
   <div id="app" class="app-container w-full relative pb-40"></div>
 
   <script type="module" src="/card/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/card/sw-v4.js', { scope: '/card/' })
+          .catch((err) => console.warn('[SW] Registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>
