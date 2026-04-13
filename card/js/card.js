@@ -1,8 +1,10 @@
 /**
  * Suito Virtual Card - Luminous Curator Edition
  * Personalized for: Matías Maximiliano (Max) Bernal
- * v1.0.4 - Cache Bust v4 - 2026-04-12
+ * v1.0.5 - Integrated VCard & Gallery Fix - 2026-04-13
  */
+
+import { downloadVCard } from './vcard.js';
 
 const CARD_DATA = {
     profile: {
@@ -62,10 +64,12 @@ function shareCard() {
 
 export function renderLanding(container, data) {
     container.innerHTML = buildCardHTML(data);
+    attachCardEvents(container, data);
 }
 
 export function renderPreview(container, data, onBack, onSave) {
     container.innerHTML = buildCardHTML(data);
+    attachCardEvents(container, data);
     // Add back button for preview mode
     const backBtn = document.createElement('button');
     backBtn.className = 'btn-secondary';
@@ -121,12 +125,10 @@ function buildCardHTML(data) {
 
                 <!-- Quick Actions -->
                 <div class="card-actions">
-                    ${phone ? `
-                        <a href="https://wa.me/${phone}" target="_blank" class="btn-primary">
-                            <span class="material-symbols-outlined">chat</span>
-                            WhatsApp
-                        </a>
-                    ` : ''}
+                    <button class="btn-primary" id="btn-save-contact" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Agendar
+                    </button>
                     <button class="btn-secondary" onclick="navigator.share ? navigator.share({title:'${name}',url:window.location.href}).catch(()=>{}) : navigator.clipboard.writeText(window.location.href)">
                         <span class="material-symbols-outlined">share</span>
                         Compartir
@@ -184,3 +186,9 @@ function buildCardHTML(data) {
     `;
 }
 
+function attachCardEvents(container, data) {
+    const saveBtn = container.querySelector('#btn-save-contact');
+    if (saveBtn) {
+        saveBtn.onclick = () => downloadVCard(data);
+    }
+}

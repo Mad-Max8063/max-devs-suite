@@ -129,17 +129,16 @@ export async function getCard(slug) {
         phone: business.telefono || '',
         email: business.email || '',
         location: business.location || '',
-        // Blindaje Visual Freemium (Desactivado para estabilización)
         photo: business.foto_url || 'assets/default-avatar.svg',
         coverPhoto: business.cover_url || '',
         primary_color: business.color_primario || '',
-        // Redes
         instagram: business.instagram || '',
         facebook: business.facebook || '',
         website: business.website || '',
         bookingUrl: hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : '',
         isPremium: isPremium,
-        _id: business.slug,
+        _id: business.slug, // Usamos el slug como ID para el editor
+        edit_token: business.edit_token || '', // Necesario para el router
         gallery: gallery
     };
 
