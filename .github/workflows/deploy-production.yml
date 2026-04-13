@@ -52,10 +52,10 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           local-dir: ./dist/
-          server-dir: ./
+          server-dir: /
           timeout: 400000
-          # v6-root: Intento final en la raíz del FTP por si public_html está bloqueado o es redundante
-          state-name: .ftp-deploy-sync-state-v6-root.json
+          # v11-clean: Restauración total sobre raíz limpia
+          state-name: .ftp-deploy-sync-state-v11-clean.json
           exclude: |
             **/.git*
             **/.git*/**
