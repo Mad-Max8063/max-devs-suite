@@ -1,49 +1,49 @@
-# Resumen de Sesión — Estabilización Suito Platform
-**Fecha:** 2026-04-12 21:03 (Local)
-**Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
+# Resumen de Sesión — Suito Platform (PWA Stabilization)
+**Fecha:** 2026-04-12 22:45
+**Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Lograr un despliegue estable y de alto rendimiento de Suito en Hostinger, resolviendo los errores 422 de assets y manifest PWA que persistían debido a la caché (HCDN) y rutas relativas.
+Recuperar la funcionalidad crítica del módulo de Tarjeta Virtual (`/card/`) y estabilizar la PWA mediante estrategias de bypass de caché (HCDN) y ruteo robusto en el servidor.
 
 ---
 
 ## ✅ Lo que se hizo
-1.  **Invalidación de Caché Total (v4)**:
-    - Se configuró el sufijo `-v4.js` en `vite.config.ts`.
-    - Se añadió `?v=4` a favicon y manifest en `index.html`.
-2.  **Solución de Rutas Dinámicas**:
-    - Se migraron todos los assets críticos a `public/card/assets/`.
-    - Se actualizaron las rutas en `card.js` y `editor.js` a absolutas (`/card/assets/...`).
-3.  **Blindaje de Servidor**:
-    - Se creó un `.htaccess` en `public/card/` con exclusión explícita de assets y encabezados `no-cache` para el manifest.
-4.  **Confirmación de Producción**:
-    - Verificación exitosa mediante subagente de navegador: el JS carga con la nueva versión y el logo es visible.
+- **Bypass de Caché (HCDN)**: Renombrado de `manifest.json` a `manifest-v4.webmanifest` y assets a `-v4.js/css`.
+- **Service Worker v4**: Implementación de `sw-v4.js` con estrategia `NetworkFirst` para navegación y `Stale-While-Revalidate` para assets.
+- **Precaché Atómico**: Se excluyó `icon-192.png` (archivo inexistente) para prevenir fallos en la instalación del SW.
+- **Blindaje .htaccess**: Configuración de cabeceras `no-store` para el SW y exclusión explícita de la redirección SPA.
+- **Despliegue**: Build exitoso y push a la rama `main` (Commit: `06c7967`).
+- **Verificación**: Auditoría en vivo confirmando que la PWA es instalable.
+
+---
+
+## ❌ Problemas encontrados
+- **404 en SW**: Se detectó que la falta de `icon-192.png` abortaba la instalación. Corregido mediante exclusión selectiva.
+- **Caché Persistente**: El CDN de Hostinger mantenía versiones viejas del `index.html`. Mitigado mediante versionado de archivos.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Limpieza de Servidor
-1.  **Eliminar carpetas basura**: Borrar `/home/u543991373/domains/suito.pro/public_html/card/card/` (carpeta duplicada detectada).
-2.  **Verificar Subdominios**: Asegurar que `appointment-manager` no tenga conflictos de `.htaccess` similares.
+### Prioridad 1 — UX & PWA
+1. Generar `icon-192.png` (rasterizado) a partir del SVG para completar la compatibilidad total de iconos en todas las plataformas.
+2. Realizar una auditoría Lighthouse completa una vez que la caché bare-URL expire.
 
-### Prioridad 2 — UX y PWA
-1.  **Audit Lighthouse**: Verificar puntuación de PWA tras el fix del manifest.
-2.  **Offline Support**: Validar que el Service Worker maneje correctamente las nuevas rutas `-v4`.
+### Prioridad 2 — Otros Módulos
+1. Revisar ruteo y caché en `/admin/` y `/turnos/` siguiendo el patrón de `/card/`.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repo**: `Mad-Max8063/max-devs-suite`
-- **Branch**: `main`
-- **Commit Reciente**: `3eb36fb` (fix fallback paths)
-- **URL Crítica**: `https://suito.pro/card/max-devs-solutions`
-- **Hostinger IP**: `147.93.14.107`
+- **Repo URL**: https://github.com/Mad-Max8063/max-devs-suite
+- **Deploy URL**: https://suito.pro/card/max-devs-solutions
+- **Commit SHA**: `06c796723223126be1e233da829c48bcfbc2189d`
+- **SW Scope**: `/card/`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Base Path `/`**: Obligatorio para que Vite resuelva rutas relativas a la raíz del dominio en lugar de la carpeta física, evitando duplicaciones.
-- **Cache Busting Forzado**: Se prefirió renombrar archivos (`-v4`) sobre solo usar query params porque el CDN de Hostinger a veces ignora los params para archivos `.js`.
+- **Versioning forzado**: Se optó por `-v4` en lugar de queries (`?v=4`) porque el CDN de Hostinger suele ignorar los query strings en archivos estáticos.
+- **NetworkFirst**: Elegido para el `fetch` de navegación para asegurar que los datos dinámicos de las tarjetas siempre intenten cargar desde Supabase primero.
