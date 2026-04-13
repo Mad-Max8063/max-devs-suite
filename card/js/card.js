@@ -308,6 +308,8 @@ function renderCardLegacy() {
 }
 
 // Initial render (only when loaded standalone, not via dynamic import)
+/*
 if (!window.__appRouterActive) {
     document.addEventListener('DOMContentLoaded', renderCardLegacy);
 }
+*/

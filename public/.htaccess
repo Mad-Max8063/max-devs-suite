@@ -25,7 +25,8 @@
   # A. Excepción para Assets: Si existe el archivo físicamente, servirlo y parar.
   # Esto cubre /assets/..., /admin/assets/..., /card/assets/..., /turnos/assets/...
   RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME} -d [OR]
+  RewriteCond %{REQUEST_URI} \.(json|webmanifest)$ [NC]
   RewriteRule ^ - [L]
 
   # B. Soporte para Subdominios (cuando el host es admin.suito.pro, etc.)
