@@ -96,18 +96,31 @@ function navigate() {
                 app.innerHTML = '';
                 app.appendChild(landingView);
 
-                import('./card.js').then((mod) => {
+                // Usamos la ruta absoluta del build para evitar errores de profundidad en Hostinger
+                import('/card/js/card.js').then((mod) => {
                     mod.renderLanding(landingView, data);
-                }).catch(err => {
-                    console.error('[Router] Error importing card.js:', err);
-                    throw err;
+                }).catch(async (err) => {
+                    console.warn('[Router] Absolute import failed, trying fallback...', err);
+                    try {
+                        const mod = await import('./card.js');
+                        mod.renderLanding(landingView, data);
+                    } catch (fallbackErr) {
+                        console.error('[Router] All imports failed:', fallbackErr);
+                        throw fallbackErr;
+                    }
                 });
             } catch (renderErr) {
                 console.error('[Router] Render Error:', renderErr);
                 app.innerHTML = `
-                    <div style="text-align:center; padding:60px 20px;">
-                        <h2 style="margin-bottom:8px;">Error de visualización</h2>
-                        <p style="color:var(--text-secondary);">Hubo un problema al renderizar la tarjeta. Por favor avisale al dueño.</p>
+                    <div style="text-align:center; padding:60px 20px; color: white;">
+                        <h2 style="margin-bottom:8px; color: #ef4444;">Error de Carga (v7)</h2>
+                        <p style="color:#9ca3af; margin-bottom: 20px;">No se pudo renderizar el diseño de la tarjeta.</p>
+                        <div style="font-family: monospace; font-size: 0.7rem; background: #000; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                            ${renderErr.message}
+                        </div>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #8b5cf6; border: none; border-radius: 8px; color: white; cursor: pointer;">
+                            Reintentar
+                        </button>
                     </div>`;
             }
         });
