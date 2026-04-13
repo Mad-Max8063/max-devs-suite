@@ -20,15 +20,15 @@ export default defineConfig(({ command }) => ({
         // Admin Panel (Vanilla JS)
         dashboard: resolve(__dirname, 'admin/dashboard.html'),
         // Tarjeta Virtual (Vanilla JS)
-        card:   resolve(__dirname, 'card/app-v6.html'),
+        card:   resolve(__dirname, 'card/suito-max-2026.html'),
         // Gestor de Turnos (React + TypeScript)
         turnos: resolve(__dirname, 'turnos/index.html'),
       },
       output: {
         // Hashes únicos más versionado forzado para evadir caché persistente de HCDN
-        entryFileNames: 'assets/[name]-[hash]-v6.js',
-        chunkFileNames: 'assets/[name]-[hash]-v6.js',
-        assetFileNames: 'assets/[name]-[hash]-v6.[ext]',
+        entryFileNames: 'assets/[name]-[hash]-v2026.js',
+        chunkFileNames: 'assets/[name]-[hash]-v2026.js',
+        assetFileNames: 'assets/[name]-[hash]-v2026.[ext]',
       },
     },
   },

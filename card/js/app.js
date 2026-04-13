@@ -97,12 +97,12 @@ function navigate() {
                 app.appendChild(landingView);
 
                 // Usamos la ruta absoluta del build para evitar errores de profundidad en Hostinger
-                import('/card/js/engine-v6.js').then((mod) => {
+                import('/card/js/engine-2026.js').then((mod) => {
                     mod.renderLanding(landingView, data);
                 }).catch(async (err) => {
                     console.warn('[Router] Absolute import failed, trying fallback...', err);
                     try {
-                        const mod = await import('./engine-v6.js');
+                        const mod = await import('./engine-2026.js');
                         mod.renderLanding(landingView, data);
                     } catch (fallbackErr) {
                         console.error('[Router] All imports failed:', fallbackErr);
@@ -133,7 +133,7 @@ function navigate() {
 
         const data = window.__previewData || {};
 
-        import('./engine-v6.js').then((mod) => {
+        import('./engine-2026.js').then((mod) => {
             mod.renderPreview(
                 previewView,
                 data,
