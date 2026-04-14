@@ -107,52 +107,52 @@ export async function getCard(slug) {
     }
 
     const db = getClient();
-    
-    // Si parece un UUID, permitimos buscar por ID, si no, solo por slug
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
     
-    let query = db
+    // Fetch business profile (Purely from businesses table to avoid 400 errors)
+    const { data: business, error: bizError } = await db
         .from('businesses')
-        .select('*, gallery_items:gallery_images(*)');
+        .select('*')
+        .or(isUUID ? `id.eq.${slug},slug.eq.${slug}` : `slug.eq.${slug}`)
+        .maybeSingle();
 
-    if (isUUID) {
-        query = query.or(`id.eq.${slug},slug.eq.${slug}`);
-    } else {
-        query = query.eq('slug', slug);
+    if (bizError) {
+        console.error('[Supabase] Error fetching business:', bizError);
+        throw bizError;
     }
 
-    const { data: business, error } = await query.maybeSingle();
+    if (!business) return null;
 
-    if (error) {
-        console.error('[Supabase] Error detallado:', {
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            code: error.code
-        });
-        throw error;
-    }
+    console.log('[Supabase] Business found:', business.nombre_negocio);
 
-    if (business) {
-        console.log('[Supabase] Business data:', business);
+    // Fetch gallery images in a separate call (Silent fail if table missing or relationship broken)
+    let galleryItems = [];
+    try {
+        const { data: galleryData } = await db
+            .from('gallery_images')
+            .select('*')
+            .eq('card_id', business.id)
+            .order('sort_order', { ascending: true });
+        
+        galleryItems = galleryData || [];
+    } catch (e) {
+        console.warn('[Supabase] Could not fetch from gallery_images table, falling back to column.', e);
     }
 
     const isPremium = business.is_premium || false;
     const activeModules = business.active_modules || ['card'];
     const hasAppointments = activeModules.includes('appointments');
 
-    // Gallery format logic (Unified: check both column and aliased join)
+    // Gallery format logic (Unified: check both column and separate table results)
     let gallery = [];
-    const rawGallery = business.gallery_items || business.gallery_images || [];
+    const sourceGallery = (galleryItems.length > 0) ? galleryItems : (business.gallery_images || []);
     
-    if (Array.isArray(rawGallery)) {
-        gallery = rawGallery
-            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-            .map(g => ({
-                id: g.id || Math.random(),
-                src: g.image_url || g.src || g, // Handle various formats
-                caption: g.caption || ''
-            }));
+    if (Array.isArray(sourceGallery)) {
+        gallery = sourceGallery.map(g => ({
+            id: g.id || Math.random(),
+            src: g.image_url || g.src || g,
+            caption: g.caption || ''
+        }));
     }
 
     // Map DB entity 'business' to 'card' display format
