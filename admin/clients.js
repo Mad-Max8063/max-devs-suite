@@ -54,6 +54,10 @@ function clientToBusiness(clientData, userId = null) {
         transfer_email: clientData.transfer_email  || null,
         free_until:     clientData.free_until      || null,
         paid_until:     clientData.paid_until      || null,
+        profession:     clientData.profession      || null,
+        foto_url:       clientData.foto_url        || null,
+        cover_url:      clientData.cover_url       || null,
+        gallery_images: clientData.gallery_images  || [],
         // Ensure edit_token exists for new clients
         edit_token:     clientData.edit_token      || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
     };
