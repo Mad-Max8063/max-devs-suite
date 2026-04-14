@@ -14,6 +14,126 @@ async function getUserId() {
     return session ? session.user.id : null;
 }
 
+// ——— Image Processing & Upload ———
+
+/**
+ * Resizes and compresses an image using Canvas
+ * @param {File} file 
+ * @param {Object} options { maxWidth, maxHeight, quality }
+ * @returns {Promise<Blob>}
+ */
+async function processImage(file, { maxWidth = 1200, maxHeight = 1200, quality = 0.8 } = {}) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate dimensions
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = reject;
+        };
+        reader.onerror = reject;
+    });
+}
+
+/**
+ * Uploads a file to Supabase Storage
+ */
+async function uploadToSupabase(blob, fileName, bucket = 'images') {
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, blob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(fileName);
+
+    return publicUrl;
+}
+
+/**
+ * Initializes the image upload buttons in the modal
+ */
+export function initImageUploads(showToast) {
+    const fileProfile = document.getElementById('file-profile');
+    const fileCover = document.getElementById('file-cover');
+    const inputProfile = document.getElementById('clientFotoUrl');
+    const inputCover = document.getElementById('clientCoverUrl');
+
+    const handleUpload = async (file, type, event) => {
+        if (!file) return;
+        
+        const originalBtn = event.target.closest('.form-group').querySelector('button');
+        const originalIcon = originalBtn.innerHTML;
+        
+        try {
+            originalBtn.disabled = true;
+            originalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            // 1. Process (Resize/Compress)
+            const options = type === 'profile' 
+                ? { maxWidth: 400, maxHeight: 400, quality: 0.8 }
+                : { maxWidth: 1200, maxHeight: 800, quality: 0.7 };
+            
+            showToast(`Procesando imagen de ${type}...`, 'info');
+            const processedBlob = await processImage(file, options);
+            
+            // 2. Upload
+            const timestamp = Date.now();
+            const fileName = `admin/uploads/${type}_${timestamp}.jpg`;
+            
+            showToast(`Subiendo a la nube...`, 'info');
+            const publicUrl = await uploadToSupabase(processedBlob, fileName);
+            
+            // 3. Update Input
+            if (type === 'profile') inputProfile.value = publicUrl;
+            else inputCover.value = publicUrl;
+            
+            showToast('¡Imagen cargada y optimizada!', 'success');
+        } catch (error) {
+            console.error('Upload error:', error);
+            showToast('Error al subir la imagen: ' + error.message, 'error');
+        } finally {
+            originalBtn.disabled = false;
+            originalBtn.innerHTML = originalIcon;
+        }
+    };
+
+    fileProfile?.addEventListener('change', (e) => handleUpload(e.target.files[0], 'profile', e));
+    fileCover?.addEventListener('change', (e) => handleUpload(e.target.files[0], 'cover', e));
+}
+
 // ——— businesses row → admin client object ———
 function businessToClient(b) {
     return {

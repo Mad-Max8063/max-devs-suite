@@ -4,7 +4,7 @@ console.log("cachebust-v2028-FINAL");
 // ============================================
 import { CONFIG } from './config.js';
 import { supabase } from '@shared/supabase.js';
-import { getClients, addClient, updateClient, deleteClient, getClientStats } from './clients.js';
+import { getClients, addClient, updateClient, deleteClient, getClientStats, initImageUploads } from './clients.js';
 
 // ——— State ———
 let currentSection = 'dashboard';
@@ -18,6 +18,7 @@ const _leadsCache = new Map();
 document.addEventListener('DOMContentLoaded', async () => {
     initNavigation();
     initModal();
+    initImageUploads(showToast);
     initFilters();
     initSearch();
     initMobile();
