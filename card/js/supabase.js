@@ -107,11 +107,21 @@ export async function getCard(slug) {
     }
 
     const db = getClient();
-    const { data: business, error } = await db
+    
+    // Si parece un UUID, permitimos buscar por ID, si no, solo por url_slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    
+    let query = db
         .from('businesses')
-        .select('*, gallery_images(*)')
-        .or(`slug.eq."${slug}",id.eq."${slug}"`)
-        .maybeSingle();
+        .select('*, gallery_images(*)');
+
+    if (isUUID) {
+        query = query.or(`id.eq.${slug},url_slug.eq.${slug}`);
+    } else {
+        query = query.eq('url_slug', slug);
+    }
+
+    const { data: business, error } = await query.maybeSingle();
 
     if (error) {
         console.error('Error fetching Suito profile:', error);
