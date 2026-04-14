@@ -1,0 +1,34 @@
+{
+  "name": "Suito | v2026",
+  "short_name": "Suito",
+  "description": "Tu tarjeta de presentación digital e inteligente.",
+  "start_url": "/card/",
+  "display": "standalone",
+  "background_color": "#fff3fe",
+  "theme_color": "#8200e8",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/card/assets/icon-192.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/card/assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/card/assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/card/assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ]
+}
