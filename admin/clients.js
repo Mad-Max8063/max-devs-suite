@@ -31,6 +31,9 @@ function businessToClient(b) {
         transfer_email: b.transfer_email || null,
         free_until:     b.free_until || null,
         paid_until:     b.paid_until || null,
+        profession:     b.profession || '',
+        foto_url:       b.foto_url || '',
+        cover_url:      b.cover_url || '',
         created_at:     b.created_at,
     };
 }
@@ -51,6 +54,8 @@ function clientToBusiness(clientData, userId = null) {
         transfer_email: clientData.transfer_email  || null,
         free_until:     clientData.free_until      || null,
         paid_until:     clientData.paid_until      || null,
+        // Ensure edit_token exists for new clients
+        edit_token:     clientData.edit_token      || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
     };
     if (userId) row.user_id = userId;
 

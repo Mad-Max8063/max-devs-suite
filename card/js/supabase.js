@@ -23,55 +23,65 @@ function generateId(length = 8) {
     return id;
 }
 
-// ——————— Cards ———————
+// ——————— Cards (Unified as Businesses) ———————
 
 export async function createCard(data) {
     const db = getClient();
-    const cardId = generateId(8);
+    const slug = data.slug || generateId(6).toLowerCase();
     const editToken = generateId(12);
 
-    const { data: card, error } = await db
-        .from('cards')
+    const { data: business, error } = await db
+        .from('businesses')
         .insert({
-            id: cardId,
-            edit_token: editToken,
-            name: data.name,
-            profession: data.profession,
+            nombre_negocio: data.name,
+            profession: data.profession || 'Profesional',
             description: data.description || '',
-            phone: data.phone,
+            telefono: data.phone,
             email: data.email || '',
             location: data.location || '',
-            photo_url: data.photo_url || '',
+            foto_url: data.photo_url || '',
             cover_url: data.cover_url || '',
             instagram: data.instagram || '',
             linkedin: data.linkedin || '',
             website: data.website || '',
             booking_url: data.booking_url || '',
+            slug: slug,
+            edit_token: editToken,
+            plan: 'tarjeta',
+            status: 'active',
+            active_modules: ['card']
         })
         .select()
         .single();
 
     if (error) {
-        console.error('Error creating card:', error);
+        console.error('Error creating business/card:', error);
         throw error;
     }
-    return card;
+    return business;
 }
 
-export async function updateCard(cardId, updates) {
+export async function updateCard(businessId, updates) {
     const db = getClient();
-    const { data: card, error } = await db
-        .from('cards')
-        .update(updates)
-        .eq('id', cardId)
+    
+    // Map internal fields to DB fields if needed
+    const dbUpdates = { ...updates };
+    if (updates.name) dbUpdates.nombre_negocio = updates.name;
+    if (updates.phone) dbUpdates.telefono = updates.phone;
+    if (updates.photo_url) dbUpdates.foto_url = updates.photo_url;
+
+    const { data: business, error } = await db
+        .from('businesses')
+        .update(dbUpdates)
+        .eq('id', businessId)
         .select()
         .single();
 
     if (error) {
-        console.error('Error updating card:', error);
+        console.error('Error updating business:', error);
         throw error;
     }
-    return card;
+    return business;
 }
 
 export async function getCard(slug) {
@@ -84,14 +94,14 @@ export async function getCard(slug) {
             phone: '5491162621406',
             email: 'hola@suito.pro',
             location: 'Buenos Aires, Argentina',
-            photo: 'assets/suito-logo.png',
-            coverPhoto: 'assets/demo-cover.png',
+            photo: '/card/assets/suito-logo.png',
+            coverPhoto: '/card/assets/cover.png',
             primary_color: '#8B5CF6',
             instagram: 'suito.pro',
             website: 'https://suito.pro',
             bookingUrl: 'https://turnos.suito.pro/#/demo/booking',
             isPremium: true,
-            _id: 'suito',
+            id: 'suito',
             gallery: []
         };
     }
@@ -99,9 +109,9 @@ export async function getCard(slug) {
     const db = getClient();
     const { data: business, error } = await db
         .from('businesses')
-        .select('*')
-        .eq('slug', slug)
-        .single();
+        .select('*, gallery_images(*)')
+        .or(`slug.eq."${slug}",id.eq."${slug}"`)
+        .maybeSingle();
 
     if (error) {
         console.error('Error fetching Suito profile:', error);
@@ -109,40 +119,46 @@ export async function getCard(slug) {
     }
 
     const isPremium = business.is_premium || false;
-    const activeModules = business.active_modules || ['appointments', 'card'];
+    const activeModules = business.active_modules || ['card'];
     const hasAppointments = activeModules.includes('appointments');
 
-    // Gallery format logic
+    // Gallery format logic (from joined table)
     let gallery = [];
     if (Array.isArray(business.gallery_images)) {
-        gallery = business.gallery_images.map(g => ({
-            src: g.image_url,
-            caption: g.caption || ''
-        }));
+        gallery = business.gallery_images
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+            .map(g => ({
+                id: g.id,
+                src: g.image_url,
+                caption: g.caption || ''
+            }));
     }
 
-    // Map DB entity 'business' to 'card' legacy format for the UI
-    const card = {
+    // Map DB entity 'business' to 'card' display format
+    const cardData = {
+        id: business.id,
+        _id: business.id, // Legacy compatibility
         name: business.nombre_negocio,
         profession: business.profession || 'Profesional',
         description: business.description || '',
         phone: business.telefono || '',
         email: business.email || '',
         location: business.location || '',
-        photo: business.foto_url || 'assets/default-avatar.svg',
+        photo: business.foto_url || '/card/assets/suito-logo.png',
         coverPhoto: business.cover_url || '',
-        primary_color: business.color_primario || '',
+        primary_color: business.color_primario || '#8B5CF6',
         instagram: business.instagram || '',
         facebook: business.facebook || '',
+        linkedin: business.linkedin || '',
         website: business.website || '',
-        bookingUrl: hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : '',
+        bookingUrl: hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : (business.booking_url || ''),
         isPremium: isPremium,
-        _id: business.slug, // Usamos el slug como ID para el editor
-        edit_token: business.edit_token || '', // Necesario para el router
+        slug: business.slug,
+        edit_token: business.edit_token || '',
         gallery: gallery
     };
 
-    return card;
+    return cardData;
 }
 
 // ——————— Image Upload ———————

@@ -135,3 +135,29 @@ CREATE POLICY "Solo usuarios autenticados crean negocios"
 ON public.businesses FOR INSERT
 WITH CHECK (auth.uid() IS NOT NULL);
 
+-- 10. Gallery Images (Habilitar RLS y proteger)
+ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Lectura pública de galerías" ON public.gallery_images;
+CREATE POLICY "Lectura pública de galerías"
+ON public.gallery_images FOR SELECT
+USING (true);
+
+DROP POLICY IF EXISTS "Solo dueños gestionan su galería" ON public.gallery_images;
+CREATE POLICY "Solo dueños gestionan su galería"
+ON public.gallery_images FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM public.businesses b 
+    WHERE b.id = card_id 
+    AND b.user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.businesses b 
+    WHERE b.id = card_id 
+    AND b.user_id = auth.uid()
+  )
+);
+
