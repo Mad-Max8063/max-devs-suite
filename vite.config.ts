@@ -16,9 +16,9 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         // Punto de entrada principal (Landing)
-        main:   resolve(__dirname, 'index.html'),
+        main:   resolve(__dirname, 'home-v2027.html'),
         // Admin Panel (Vanilla JS)
-        dashboard: resolve(__dirname, 'admin/dashboard.html'),
+        dashboard: resolve(__dirname, 'admin/dashboard-v2027.html'),
         // Tarjeta Virtual (Vanilla JS)
         card:   resolve(__dirname, 'card/index.html'),
         // Gestor de Turnos (React + TypeScript)

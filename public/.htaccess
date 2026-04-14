@@ -52,7 +52,7 @@
   RewriteRule ^$ turnos/index.html [L]
 
   # C. MPA Routing (vía subcarpetas en dominio principal)
-  RewriteRule ^admin(/.*)?$ admin/dashboard.html [L]
+  RewriteRule ^admin(/.*)?$ admin/dashboard-v2027.html [L]
   
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -61,5 +61,5 @@
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing
-  RewriteRule ^$ index.html [L]
+  RewriteRule ^$ home-v2027.html [L]
 </IfModule>
