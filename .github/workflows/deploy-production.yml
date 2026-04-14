@@ -23,31 +23,18 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔨 Build & Strategic Prep
+      - name: 🔨 Build
         run: |
           npm run build
-          
-          # Limpieza profunda de carpetas fantasma en el dist antes de subir
-          # Esto asegura que no subamos carpetas viejas si el build cambió de estructura
+
+          # Redundancia de assets para Hostinger (resolución de paths por subcarpeta)
           rm -rf dist/admin/assets dist/card/assets dist/turnos/assets
           mkdir -p dist/admin/assets dist/card/assets dist/turnos/assets
-          
-          # Copia limpia de assets para redundancia (Hostinger workaround)
           cp -r dist/assets/* dist/admin/assets/ 2>/dev/null || :
-          cp -r dist/assets/* dist/card/assets/ 2>/dev/null || :
+          cp -r dist/assets/* dist/card/assets/  2>/dev/null || :
           cp -r dist/assets/* dist/turnos/assets/ 2>/dev/null || :
-          
-          # Fix Manifest PWA y SW - Copia redundante para asegurar visibilidad
-          find dist/assets -name "manifest-2026-*.webmanifest" -exec cp {} dist/card/manifest-2026.webmanifest \; 2>/dev/null || :
-          find dist/assets -name "manifest-2026-*.webmanifest" -exec cp {} dist/manifest-2026.webmanifest \; 2>/dev/null || :
-          find dist/assets -name "card-*-2026.js" -exec cp {} dist/card/sw-2026.js \; 2>/dev/null || :
-          find dist/assets -name "card-*-2026.js" -exec cp {} dist/sw-2026.js \; 2>/dev/null || :
-          
-          # Asegurar que toda la lógica JS esté disponible (redundancia para Vite)
-          mkdir -p dist/card/js
-          cp -r card/js/* dist/card/js/ 2>/dev/null || :
-          
-          # Asegurar Favicon en carpeta card
+
+          # Favicon en subcarpeta card
           cp card/favicon.png dist/card/favicon.png 2>/dev/null || :
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}

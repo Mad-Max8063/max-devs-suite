@@ -5,7 +5,7 @@
 // ============================================
 
 import { sanitize, getCardUrl, resizeGalleryImage, dataUriToFile } from './utils.js';
-import { uploadImage, addGalleryImage, deleteGalleryImage, getGalleryImages, updateGalleryCaption } from './supabase.js';
+import { uploadImage, addGalleryImage, deleteGalleryImage, getGalleryImages, updateGalleryCaption } from './supabase-v2028.js';
 
 export function renderGalleryEditor(container, card) {
   // card comes from Supabase (DB format with _id etc.)

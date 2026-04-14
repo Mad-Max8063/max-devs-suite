@@ -3,7 +3,7 @@
 // ============================================
 
 import { resizeImage, resizeBanner, resizeGalleryImage, dataUriToFile } from './utils.js';
-import { createCard, updateCard, uploadImage, getSupabaseClient } from './supabase.js';
+import { createCard, updateCard, uploadImage, getSupabaseClient } from './supabase-v2028.js';
 
 const FIELDS = ['name', 'profession', 'description', 'phone', 'email', 'location', 'instagram', 'linkedin', 'website', 'bookingUrl'];
 const MAX_DESC = 160;
@@ -387,7 +387,7 @@ export function initEditor(container, onPreview) {
 
       // 5. Upload gallery images
       if (data.gallery && data.gallery.length > 0) {
-        const { addGalleryImage, uploadImage: upload } = await import('./supabase.js');
+        const { addGalleryImage, uploadImage: upload } = await import('./supabase-v2028.js');
         for (let i = 0; i < data.gallery.length; i++) {
           const item = data.gallery[i];
           if (item.src && item.src.startsWith('data:')) {

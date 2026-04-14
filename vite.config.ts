@@ -1,11 +1,24 @@
-// v1.0.7 - Forced Cache Bust v6 - 2026-04-13
+// v1.0.8 - MPA SPA fallback for dev routing
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
+// Plugin: rewrite /card/* y /admin/* a sus index.html para SPA routing en dev
+const mpaFallback = {
+  name: 'mpa-spa-fallback',
+  configureServer(server: any) {
+    server.middlewares.use((req: any, _res: any, next: any) => {
+      if (req.url?.startsWith('/card/') && !req.url.includes('.')) {
+        req.url = '/card/index.html';
+      }
+      next();
+    });
+  },
+};
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
-  plugins: [react()],
+  plugins: [react(), mpaFallback],
 
   // Base path relativo para soportar cualquier estructura de carpetas (subcarpetas o subdominios)
   base: './',
