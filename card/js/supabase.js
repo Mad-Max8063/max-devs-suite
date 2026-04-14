@@ -113,7 +113,7 @@ export async function getCard(slug) {
     
     let query = db
         .from('businesses')
-        .select('*, gallery_images(*)');
+        .select('*');
 
     if (isUUID) {
         query = query.or(`id.eq.${slug},slug.eq.${slug}`);
