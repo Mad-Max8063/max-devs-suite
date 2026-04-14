@@ -45,7 +45,7 @@
 
   # C. MPA Routing (vía subcarpetas en dominio principal)
   RewriteRule ^admin(/.*)?$ admin/dashboard.html [L]
-  RewriteRule ^card(/.*)?$ card/suito-max-2026.html [L]
+  RewriteRule ^card(/.*)?$ card/index.html [L]
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing
