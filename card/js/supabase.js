@@ -124,8 +124,17 @@ export async function getCard(slug) {
     const { data: business, error } = await query.maybeSingle();
 
     if (error) {
-        console.error('Error fetching Suito profile:', error);
-        return null;
+        console.error('[Supabase] Error detallado:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+        });
+        throw error;
+    }
+
+    if (business) {
+        console.log('[Supabase] Business data columns:', Object.keys(business));
     }
 
     const isPremium = business.is_premium || false;
