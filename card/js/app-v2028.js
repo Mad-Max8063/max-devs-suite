@@ -2,7 +2,7 @@
 // app.js — Main router & app orchestration
 // ============================================
 
-import { getCard } from './supabase.js';
+import { getCard } from './supabase-v2028.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
