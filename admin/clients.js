@@ -34,6 +34,7 @@ function businessToClient(b) {
         profession:     b.profession || '',
         foto_url:       b.foto_url || '',
         cover_url:      b.cover_url || '',
+        edit_token:     b.edit_token || null,
         created_at:     b.created_at,
     };
 }

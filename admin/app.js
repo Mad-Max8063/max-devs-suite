@@ -360,6 +360,9 @@ function initModal() {
             free_until: document.getElementById('clientFreeUntil').value || null,
             transfer_email: document.getElementById('clientTransferEmail').value || null,
             notes: document.getElementById('clientNotes').value,
+            profession: document.getElementById('clientProfession').value || null,
+            foto_url: document.getElementById('clientFotoUrl').value || null,
+            cover_url: document.getElementById('clientCoverUrl').value || null,
         };
 
         try {
@@ -398,6 +401,29 @@ function openModal(client = null) {
     document.getElementById('clientFreeUntil').value = client?.free_until || '';
     document.getElementById('clientTransferEmail').value = client?.transfer_email || '';
     document.getElementById('clientNotes').value = client?.notes || '';
+    document.getElementById('clientProfession').value = client?.profession || '';
+    document.getElementById('clientFotoUrl').value = client?.foto_url || '';
+    document.getElementById('clientCoverUrl').value = client?.cover_url || '';
+
+    // Gallery editor button logic
+    const galleryControls = document.getElementById('gallery-vcard-controls');
+    const galleryBtn = document.getElementById('btnOpenGalleryEditor');
+    
+    if (client && client.plan !== 'turnos') {
+        galleryControls.style.display = 'block';
+        galleryBtn.onclick = () => {
+            const baseUrl = CONFIG.products.tarjetaVirtual;
+            const slug = client.slug || client.id;
+            const token = client.edit_token;
+            if (token) {
+                window.open(`${baseUrl}/${slug}?edit=${token}`, '_blank');
+            } else {
+                alert('Este cliente no tiene un token de edición generado. Por favor guardá los cambios primero.');
+            }
+        };
+    } else {
+        galleryControls.style.display = 'none';
+    }
 
     modal.classList.add('active');
     document.getElementById('clientName').focus();

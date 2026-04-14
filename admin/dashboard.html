@@ -373,8 +373,33 @@
                         <label for="clientFreeUntil">Periodo gratuito hasta</label>
                         <input type="date" id="clientFreeUntil">
                     </div>
+                    <div class="form-group">
+                        <label for="clientProfession">Profesión / Rubro</label>
+                        <input type="text" id="clientProfession" placeholder="Ej: Desarrollador Web">
+                    </div>
                 </div>
-                <div class="form-group full-width">
+                <div class="form-grid" style="margin-top: 16px;">
+                    <div class="form-group">
+                        <label for="clientFotoUrl">URL Foto Perfil (Logo)</label>
+                        <input type="text" id="clientFotoUrl" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientCoverUrl">URL Foto Portada (Banner)</label>
+                        <input type="text" id="clientCoverUrl" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-group full-width" id="gallery-vcard-controls" style="display:none; margin-top: 12px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border: 1px dashed var(--accent-purple);">
+                    <label style="color: var(--accent-purple); display: block; margin-bottom: 8px; font-weight: 600;">
+                        <i class="fa-solid fa-camera"></i> Multimedia y Galería
+                    </label>
+                    <button type="button" id="btnOpenGalleryEditor" class="btn-secondary" style="width: 100%; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-images"></i> Abrir Editor de Galería (Fotos de Trabajos)
+                    </button>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px; text-align: center;">
+                        Subí fotos de tus trabajos, poneles descripción y mirá cómo queda tu tarjeta.
+                    </p>
+                </div>
+                <div class="form-group full-width" style="margin-top: 16px;">
                     <label for="clientTransferEmail">
                         <i class="fa-solid fa-arrow-right-arrow-left" style="color:var(--text-muted);margin-right:4px;"></i>
                         Email de Transferencia (Fase B)
