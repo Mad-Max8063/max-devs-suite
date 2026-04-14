@@ -1,14 +1,11 @@
 # MiSuite Plataforma Unificada v1.0.8 - Cache Bust v6
 # --- BLOQUEO DE SCRIPTS ZOMBIE (Protección contra caché persistente) ---
-<FilesMatch "(app|card|engine|supabase|utils)\.js$">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
-</FilesMatch>
+# Solo bloqueamos archivos legacy en raíz o carpetas de módulo. 
+# Los archivos en /assets/ (empaquetados por Vite) están permitidos.
+<IfModule mod_rewrite.c>
+  RewriteRule ^(app|card|engine|supabase|utils)\.js$ - [F,L]
+  RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
+</IfModule>
 
 # ——— Cache Control (Anti-HCDN) ———
 <FilesMatch "\.(html|htm|js|css|json|webmanifest)$">

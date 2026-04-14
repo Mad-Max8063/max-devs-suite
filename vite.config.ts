@@ -26,9 +26,9 @@ export default defineConfig(({ command }) => ({
       },
       output: {
         // Hashes únicos más versionado forzado para evadir caché persistente de HCDN
-        entryFileNames: 'assets/[name]-[hash]-v2026.js',
-        chunkFileNames: 'assets/[name]-[hash]-v2026.js',
-        assetFileNames: 'assets/[name]-[hash]-v2026.[ext]',
+        entryFileNames: 'assets/[name]-[hash]-v2027.js',
+        chunkFileNames: 'assets/[name]-[hash]-v2027.js',
+        assetFileNames: 'assets/[name]-[hash]-v2027.[ext]',
       },
     },
   },

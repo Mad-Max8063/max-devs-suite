@@ -4,6 +4,20 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Suito | Soluciones Digitales Premium</title>
+    <!-- Cache Busting Fail-safe -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+                const url = e.target.src || e.target.href;
+                if (url && (url.includes('/assets/') || url.includes('-v'))) {
+                    console.warn('Asset load failed, forcing clean reload...', url);
+                    if (!window.location.search.includes('reload=true')) {
+                        window.location.search += (window.location.search ? '&' : '?') + 'reload=true';
+                    }
+                }
+            }
+        }, true);
+    </script>
     <meta name="description" content="Plataforma integral de soluciones digitales para tu negocio. Tarjeta Virtual + Gestor de Turnos.">
     <link rel="icon" type="image/png" href="/favicon.png">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>

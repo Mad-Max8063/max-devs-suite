@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suito Admin | Dashboard</title>
+    <!-- Cache Busting Fail-safe -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+                const url = e.target.src || e.target.href;
+                if (url && (url.includes('/assets/') || url.includes('-v'))) {
+                    console.warn('Asset load failed, forcing clean reload...', url);
+                    if (!window.location.search.includes('reload=true')) {
+                        window.location.search += (window.location.search ? '&' : '?') + 'reload=true';
+                    }
+                }
+            }
+        }, true);
+    </script>
     <meta name="description" content="Panel de administración de Suito. Gestioná clientes, servicios y productos.">
     <link rel="stylesheet" href="/admin/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
