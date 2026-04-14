@@ -108,7 +108,7 @@ export async function getCard(slug) {
 
     const db = getClient();
     
-    // Si parece un UUID, permitimos buscar por ID, si no, solo por url_slug
+    // Si parece un UUID, permitimos buscar por ID, si no, solo por slug
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
     
     let query = db
@@ -116,9 +116,9 @@ export async function getCard(slug) {
         .select('*, gallery_images(*)');
 
     if (isUUID) {
-        query = query.or(`id.eq.${slug},url_slug.eq.${slug}`);
+        query = query.or(`id.eq.${slug},slug.eq.${slug}`);
     } else {
-        query = query.eq('url_slug', slug);
+        query = query.eq('slug', slug);
     }
 
     const { data: business, error } = await query.maybeSingle();
