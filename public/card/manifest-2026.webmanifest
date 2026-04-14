@@ -2,7 +2,7 @@
   "name": "Suito | v2026",
   "short_name": "Suito",
   "description": "Tu tarjeta de presentación digital e inteligente.",
-  "start_url": "/card/suito-max-2026.html",
+  "start_url": "/card/",
   "display": "standalone",
   "background_color": "#fff3fe",
   "theme_color": "#8200e8",

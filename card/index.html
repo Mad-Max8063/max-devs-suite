@@ -76,10 +76,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        const swPath = '/card/sw-2026.js';
-        const scope = '/card/';
-        
-        navigator.serviceWorker.register(swPath, { scope: scope })
+        navigator.serviceWorker.register('/card/sw-2026.js', { scope: '/card/' })
           .catch((err) => console.warn('[SW] Registration failed:', err));
       });
     }
