@@ -1,4 +1,4 @@
-console.log("cachebust-20260412");
+console.log("cachebust-v2028-FINAL");
 // ============================================
 // supabase.js — Supabase client & API functions
 // ============================================
