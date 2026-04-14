@@ -64,7 +64,7 @@ jobs:
           server-dir: domains/suito.pro/public_html/
           timeout: 800000
           # v2026-FINAL: Reset total para romper el bloqueo de Hostinger
-          state-name: .ftp-deploy-sync-state-v2026-FINAL.json
+          state-name: .ftp-deploy-sync-state-v2028-NUCLEAR-FORCE.json
           exclude: |
             **/.git*
             **/.git*/**
