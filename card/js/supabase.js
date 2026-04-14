@@ -113,7 +113,7 @@ export async function getCard(slug) {
     
     let query = db
         .from('businesses')
-        .select('*');
+        .select('*, gallery_items:gallery_images(*)');
 
     if (isUUID) {
         query = query.or(`id.eq.${slug},slug.eq.${slug}`);
@@ -134,21 +134,23 @@ export async function getCard(slug) {
     }
 
     if (business) {
-        console.log('[Supabase] Business data columns:', Object.keys(business));
+        console.log('[Supabase] Business data:', business);
     }
 
     const isPremium = business.is_premium || false;
     const activeModules = business.active_modules || ['card'];
     const hasAppointments = activeModules.includes('appointments');
 
-    // Gallery format logic (from joined table)
+    // Gallery format logic (Unified: check both column and aliased join)
     let gallery = [];
-    if (Array.isArray(business.gallery_images)) {
-        gallery = business.gallery_images
+    const rawGallery = business.gallery_items || business.gallery_images || [];
+    
+    if (Array.isArray(rawGallery)) {
+        gallery = rawGallery
             .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
             .map(g => ({
-                id: g.id,
-                src: g.image_url,
+                id: g.id || Math.random(),
+                src: g.image_url || g.src || g, // Handle various formats
                 caption: g.caption || ''
             }));
     }
