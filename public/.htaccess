@@ -1,4 +1,5 @@
-# MiSuite Plataforma Unificada v1.0.8 - Cache Bust v6
+# MiSuite Plataforma Unificada v1.0.9
+DirectoryIndex home-v2028.html index.html
 # --- BLOQUEO DE SCRIPTS ZOMBIE (Protección contra caché persistente) ---
 # Solo bloqueamos archivos legacy en raíz o carpetas de módulo. 
 # Los archivos en /assets/ (empaquetados por Vite) están permitidos.

@@ -87,7 +87,6 @@ function navigate() {
             }
 
             try {
-                // Transform DB format to app format
                 const data = dbToAppFormat(card);
                 updateMeta(data);
 
@@ -96,27 +95,33 @@ function navigate() {
                 app.innerHTML = '';
                 app.appendChild(landingView);
 
-                // Usamos la ruta relativa para que Vite pueda resolverlo correctamente
                 import('./engine-v2028.js').then((mod) => {
                     mod.renderLanding(landingView, data);
-                }).catch(async (err) => {
+                }).catch(err => {
                     console.error('[Router] Error loading engine:', err);
                     app.innerHTML = '<div class="error-container">Error cargando el motor de diseño. Reintentá.</div>';
                 });
             } catch (renderErr) {
                 console.error('[Router] Render Error:', renderErr);
                 app.innerHTML = `
-                    <div style="text-align:center; padding:60px 20px; color: white;">
-                        <h2 style="margin-bottom:8px; color: #ef4444;">Error de Carga (v7)</h2>
-                        <p style="color:#9ca3af; margin-bottom: 20px;">No se pudo renderizar el diseño de la tarjeta.</p>
-                        <div style="font-family: monospace; font-size: 0.7rem; background: #000; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-                            ${renderErr.message}
-                        </div>
-                        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #8b5cf6; border: none; border-radius: 8px; color: white; cursor: pointer;">
+                    <div style="text-align:center; padding:60px 20px;">
+                        <h2 style="color: #ef4444; margin-bottom:8px;">Error de Carga</h2>
+                        <p style="color:#9ca3af; margin-bottom: 20px;">${renderErr.message}</p>
+                        <button onclick="window.location.reload()" style="padding:10px 20px;background:#8b5cf6;border:none;border-radius:8px;color:white;cursor:pointer;">
                             Reintentar
                         </button>
                     </div>`;
             }
+        }).catch(fetchErr => {
+            console.error('[Router] getCard failed:', fetchErr);
+            app.innerHTML = `
+                <div style="text-align:center; padding:60px 20px;">
+                    <h2 style="color:#ef4444; margin-bottom:8px;">Sin conexión</h2>
+                    <p style="color:#9ca3af; margin-bottom:20px;">No se pudo cargar la tarjeta. Verificá tu conexión.</p>
+                    <button onclick="window.location.reload()" style="padding:10px 20px;background:#8b5cf6;border:none;border-radius:8px;color:white;cursor:pointer;">
+                        Reintentar
+                    </button>
+                </div>`;
         });
 
     } else if (path === '/preview') {
