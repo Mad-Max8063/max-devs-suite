@@ -278,23 +278,31 @@ export async function addClient(clientData) {
 
 export async function updateClient(id, updates) {
     const row = clientToBusiness(updates);
+    
     // Remove nullish keys that shouldn't overwrite existing business data
     Object.keys(row).forEach(k => {
         if (row[k] === null && updates[k] === undefined) delete row[k];
     });
 
+    console.log('[updateClient] Attempting update for ID:', id, 'with data:', row);
+
     const { data, error } = await supabase
         .from('businesses')
         .update(row)
         .eq('id', id)
-        .select()
-        .single();
+        .select(); // Removed .single() to avoid PGRST116 during debug
 
     if (error) {
-        console.error('[clients] updateClient error:', error);
+        console.error('[clients] updateClient error details:', error);
         throw error;
     }
-    return businessToClient(data);
+
+    if (!data || data.length === 0) {
+        console.warn('[clients] updateClient: No rows were updated. Check RLS or ID.');
+        return null;
+    }
+
+    return businessToClient(data[0]);
 }
 
 export async function deleteClient(id) {
