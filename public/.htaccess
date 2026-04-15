@@ -58,10 +58,16 @@ DirectoryIndex home-v2028.html index.html
   # C. MPA Routing (vía subcarpetas en dominio principal)
   RewriteRule ^admin(/.*)?$ admin/dashboard-v2028.html [L]
   
+  # --- SEO BOT INTERCEPTOR (WhatsApp, Facebook, Telegram, etc) ---
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_USER_AGENT} (WhatsApp|facebookexternalhit|Twitterbot|LinkedInBot|TelegramBot|Slackbot|Discordbot|SkypeUriPreview) [NC]
+  RewriteRule ^card/([a-z0-9-]+)/?$ card/card_seo_proxy.php?slug=$1 [L,QSA]
+
+  # --- Default SPA Fallback ---
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^card(/.*)?$ card/index.html [L]
-  
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing

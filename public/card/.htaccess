@@ -2,25 +2,42 @@
   RewriteEngine On
   RewriteBase /card/
 
-  # Si la petición es un archivo real, directorio o enlace simbólico, servirlo directamente
+  # ─────────────────────────────────────────────────────────────
+  # 1) SEO BOT INTERCEPTOR — debe ir ANTES del fallback SPA.
+  #    Solo rutea al PHP cuando:
+  #      a) el UA es un scraper social conocido
+  #      b) la URL es /card/<slug> (un único segmento, sin extensión)
+  #    Los humanos nunca entran aquí.
+  # ─────────────────────────────────────────────────────────────
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Discordbot|Pinterest|vkShare|redditbot|Applebot|Googlebot|bingbot|DuckDuckBot|YandexBot|Embedly|SkypeUriPreview|iframely) [NC]
+  RewriteCond %{REQUEST_URI} ^/card/([a-z0-9][a-z0-9-]{0,62}[a-z0-9])/?$
+  RewriteRule ^([a-z0-9][a-z0-9-]{0,62}[a-z0-9])/?$ /card/card_seo_proxy.php?slug=$1 [L,QSA]
+
+  # ─────────────────────────────────────────────────────────────
+  # 2) Archivos reales (assets compilados por Vite): servirlos directo.
+  # ─────────────────────────────────────────────────────────────
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d [OR]
   RewriteCond %{REQUEST_FILENAME} -l
   RewriteRule . - [L]
 
-  # Exclusión explícita para evitar que archivos estáticos faltantes devuelvan el HTML de la SPA
+  # ─────────────────────────────────────────────────────────────
+  # 3) Activos estáticos faltantes → 404 real (evitar que Apache
+  #    devuelva el HTML de la SPA por un .js/.css inexistente).
+  # ─────────────────────────────────────────────────────────────
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_URI} \.(manifest|json|png|jpg|jpeg|svg|css|js|webp|ico|webmanifest)$ [NC]
+  RewriteCond %{REQUEST_URI} \.(manifest|json|png|jpg|jpeg|svg|css|js|webp|ico|webmanifest|php)$ [NC]
   RewriteRule . - [R=404,L]
 
-  # Forzar no-caché para el manifest
+  # ─────────────────────────────────────────────────────────────
+  # 4) Cache headers del manifest y service worker
+  # ─────────────────────────────────────────────────────────────
   <FilesMatch "manifest-v4\.webmanifest$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"
     Header set Pragma "no-cache"
     Header set Expires 0
   </FilesMatch>
 
-  # Forzar no-caché para el Service Worker (el navegador gestiona su propio ciclo de vida)
   <Files "sw-v4.js">
     <IfModule mod_headers.c>
       Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
@@ -29,8 +46,10 @@
     </IfModule>
   </Files>
 
-  # Redirección SPA: Todo lo demás va a index.html
-  # Excluir el Service Worker de la redirección (aunque ya es archivo real, exclusión explícita)
+  # ─────────────────────────────────────────────────────────────
+  # 5) SPA fallback: cualquier otra URL → index.html (humanos).
+  # ─────────────────────────────────────────────────────────────
   RewriteCond %{REQUEST_URI} !^/card/sw-v4\.js$
+  RewriteCond %{REQUEST_URI} !^/card/card_seo_proxy\.php$
   RewriteRule . /card/index.html [L]
 </IfModule>

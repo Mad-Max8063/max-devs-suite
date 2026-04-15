@@ -8,6 +8,7 @@ const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const preSlug = searchParams.get('slug'); // slug pre-asignado por el admin
+    const preToken = searchParams.get('token'); // edit_token que autoriza el claim
     const { register, isAuthenticated, isLoading, error, clearError, user } = useAuth();
 
     const [email, setEmail] = useState('');
@@ -64,6 +65,10 @@ const RegisterPage: React.FC = () => {
     const handleClaimSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
+        if (!preToken) {
+            setLocalError('Link inválido — pedile un enlace nuevo al administrador.');
+            return;
+        }
         setIsClaiming(true);
         setLocalError(null);
         try {
@@ -72,7 +77,10 @@ const RegisterPage: React.FC = () => {
 
             if (authData.session) {
                 // Sesión inmediata: reclamar el negocio
-                const { error: claimError } = await supabase.rpc('claim_business', { business_slug: preSlug });
+                const { error: claimError } = await supabase.rpc('claim_business', {
+                    business_slug: preSlug,
+                    p_edit_token: preToken,
+                });
                 if (claimError) throw claimError;
                 navigate(`/${preSlug}`);
             } else {
@@ -80,7 +88,14 @@ const RegisterPage: React.FC = () => {
                 setLocalError('Revisá tu email para confirmar tu cuenta. Luego podrás acceder a tu panel.');
             }
         } catch (err) {
-            setLocalError(err instanceof Error ? err.message : 'Error al registrar. Verificá tu email.');
+            const raw = err instanceof Error ? err.message : '';
+            const friendly =
+                raw.includes('invalid_claim_token') || raw.includes('token_required')
+                    ? 'Link inválido o expirado — pedile un enlace nuevo al administrador.'
+                    : raw.includes('business_not_claimable')
+                    ? 'Este negocio ya fue reclamado. Iniciá sesión en su lugar.'
+                    : raw || 'Error al registrar. Verificá tu email.';
+            setLocalError(friendly);
         } finally {
             setIsClaiming(false);
         }

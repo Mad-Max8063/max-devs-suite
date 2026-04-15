@@ -581,8 +581,12 @@ window._deliverClient = async function(id) {
     }
 
     if (hasTurnos) {
+        if (!client.edit_token) {
+            showToast('⚠️ Este cliente no tiene edit_token — guardá los cambios antes de enviar el link.');
+            return;
+        }
         message += `📅 *Tu Gestor de Turnos:*\n`;
-        message += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}\n`;
+        message += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}&token=${client.edit_token}\n`;
         message += `📊 Tu panel: ${baseUrl}/turnos/#/${slug}/\n`;
         message += `_Usá el mismo email con el que te registramos._\n\n`;
     }
@@ -673,8 +677,12 @@ window._activateLead = async function(id) {
             msg += `\n`;
         }
         if (hasTurnos) {
+            if (!newClient?.edit_token) {
+                showToast('⚠️ El cliente se activó pero falta edit_token — no se envió link de registro.');
+                return;
+            }
             msg += `📅 *Tu Gestor de Turnos:*\n`;
-            msg += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}\n`;
+            msg += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}&token=${newClient.edit_token}\n`;
             msg += `📊 Tu panel: ${baseUrl}/turnos/#/${slug}/\n`;
             msg += `_Usá el mismo email con el que te registramos._\n\n`;
         }
