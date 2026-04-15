@@ -91,6 +91,7 @@ function buildCardHTML(data) {
     const photo = data.photo || data.photo_url || '';
     const coverPhoto = data.coverPhoto || data.cover_url || '';
     const facebook = data.facebook || '';
+    const instagram = data.instagram || '';
     const linkedin = data.linkedin || '';
     const website = data.website || '';
     const bookingUrl = data.bookingUrl || data.booking_url || '';
