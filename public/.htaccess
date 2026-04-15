@@ -1,14 +1,5 @@
 # MiSuite Plataforma Unificada v1.0.9
 DirectoryIndex home-v2028.html index.html
-# --- BLOQUEO DE SCRIPTS ZOMBIE (Protección contra caché persistente) ---
-# Solo bloqueamos archivos legacy en raíz o carpetas de módulo. 
-# Los archivos en /assets/ (empaquetados por Vite) están permitidos.
-<IfModule mod_rewrite.c>
-  RewriteRule ^(app|card|engine|supabase|utils)\.js$ - [F,L]
-  RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
-  # Bloquear toda la carpeta card/js/ — solo se usa /assets/ (bundles de Vite)
-  RewriteRule ^card/js/.*$ - [F,L]
-</IfModule>
 
 # ——— Cache Control (Anti-HCDN) ———
 <FilesMatch "\.(html|htm|js|css|json|webmanifest)$">
@@ -32,6 +23,12 @@ DirectoryIndex home-v2028.html index.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # --- BLOQUEO DE SCRIPTS ZOMBIE ---
+  # Deben ir ANTES del chequeo de archivo físico para que surtan efecto
+  RewriteRule ^(app|card|engine|supabase|utils)\.js$ - [F,L]
+  RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
+  RewriteRule ^card/js/.*$ - [F,L]
 
   # Force no-cache for HTML files to prevent stale dashboard loads
   <FilesMatch "\.(html|htm)$">
