@@ -1,4 +1,4 @@
-// Suito VCard Service Worker v2028-FINAL
+// Suito VCard Service Worker v2028-FINAL-r2
 const CACHE_NAME = 'suito-card-v2028';
 
 self.addEventListener('install', (event) => {
@@ -12,14 +12,21 @@ self.addEventListener('activate', (event) => {
         cacheNames.filter((cacheName) => cacheName !== CACHE_NAME)
           .map((cacheName) => caches.delete(cacheName))
       );
-    }).then(() => self.clients.claim())
+    })
+    .then(() => self.clients.claim())
+    .then(() => self.clients.matchAll({ type: 'window' }).then(clients => {
+      clients.forEach(client => client.postMessage({ type: 'SW_ACTIVATED' }));
+    }))
   );
 });
 
 self.addEventListener('fetch', (event) => {
   // Pass through for Supabase and other external APIs
   if (event.request.url.includes('supabase.co')) return;
-  
+
+  // Never intercept navigation requests — HTML always comes fresh from the server
+  if (event.request.mode === 'navigate') return;
+
   event.respondWith(
     fetch(event.request).catch(() => {
       return caches.match(event.request);

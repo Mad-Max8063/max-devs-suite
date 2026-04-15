@@ -75,6 +75,16 @@
   <script type="module" src="./js/app-v2028.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
+      // Reload once when new SW takes control (clears stale SW state)
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'SW_ACTIVATED') {
+          if (!sessionStorage.getItem('sw_claimed')) {
+            sessionStorage.setItem('sw_claimed', '1');
+            window.location.reload();
+          }
+        }
+      });
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/card/sw-v2028.js', { scope: '/card/' })
           .catch((err) => console.warn('[SW] Registration failed:', err));
