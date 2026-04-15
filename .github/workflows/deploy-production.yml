@@ -40,13 +40,10 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       
-      - name: 🚀 Deploy via rsync SSH
-        uses: burnett01/rsync-deployments@7.0.1
+      - name: 🚀 Publish dist/ to deploy branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          switches: -avzr --delete --exclude='.git*' --exclude='node_modules/' --exclude='*.map' --exclude='assets/assets/' --exclude='tarjeta/' --exclude='compartido/'
-          path: dist/
-          remote_path: /home/u543991371/domains/suito.pro/public_html/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_port: ${{ secrets.SSH_PORT }}
-          remote_user: ${{ secrets.SSH_USERNAME }}
-          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: deploy
+          publish_dir: ./dist
+          force_orphan: true
