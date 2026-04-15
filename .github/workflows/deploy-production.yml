@@ -40,24 +40,13 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       
-      - name: Deploy to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: 🚀 Deploy via rsync SSH
+        uses: burnett01/rsync-deployments@7.0.1
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftps
-          local-dir: ./dist/
-          server-dir: domains/suito.pro/public_html/
-          timeout: 800000
-          # v2026-FINAL: Reset total para romper el bloqueo de Hostinger
-          state-name: .ftp-deploy-sync-state-v2028-NUCLEAR-FORCE.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/*.map
-            **/assets/assets/**
-            **/tarjeta/**
-            **/compartido/**
+          switches: -avzr --delete --exclude='.git*' --exclude='node_modules/' --exclude='*.map' --exclude='assets/assets/' --exclude='tarjeta/' --exclude='compartido/'
+          path: dist/
+          remote_path: /home/u543991371/domains/suito.pro/public_html/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USERNAME }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
