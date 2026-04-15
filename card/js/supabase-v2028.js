@@ -272,6 +272,60 @@ export function getSupabaseClient() {
     return getClient();
 }
 
+// ——————— Token-authenticated operations (SECURITY DEFINER RPCs) ———————
+// These bypass RLS by validating the edit_token server-side.
+
+export async function addGalleryImageSecure(cardId, editToken, imageUrl, caption = '', sortOrder = 0) {
+    const db = getClient();
+    const { data, error } = await db.rpc('add_gallery_image_secure', {
+        p_card_id: cardId,
+        p_edit_token: editToken,
+        p_image_url: imageUrl,
+        p_caption: caption,
+        p_sort_order: sortOrder,
+    });
+    if (error) { console.error('Error adding gallery image (secure):', error); throw error; }
+    return typeof data === 'string' ? JSON.parse(data) : data;
+}
+
+export async function deleteGalleryImageSecure(imageId, cardId, editToken) {
+    const db = getClient();
+    const { error } = await db.rpc('delete_gallery_image_secure', {
+        p_image_id: imageId,
+        p_card_id: cardId,
+        p_edit_token: editToken,
+    });
+    if (error) { console.error('Error deleting gallery image (secure):', error); throw error; }
+}
+
+export async function updateGalleryCaptionSecure(imageId, cardId, editToken, caption) {
+    const db = getClient();
+    const { error } = await db.rpc('update_gallery_caption_secure', {
+        p_image_id: imageId,
+        p_card_id: cardId,
+        p_edit_token: editToken,
+        p_caption: caption,
+    });
+    if (error) { console.error('Error updating caption (secure):', error); throw error; }
+}
+
+export async function updateBusinessProfileSecure(cardId, editToken, profileData) {
+    const db = getClient();
+    const { error } = await db.rpc('update_business_profile_secure', {
+        p_card_id: cardId,
+        p_edit_token: editToken,
+        p_nombre_negocio: profileData.nombre_negocio ?? null,
+        p_profession:     profileData.profession     ?? null,
+        p_description:    profileData.description    ?? null,
+        p_telefono:       profileData.telefono       ?? null,
+        p_email:          profileData.email          ?? null,
+        p_location:       profileData.location       ?? null,
+        p_instagram:      profileData.instagram      ?? null,
+        p_website:        profileData.website        ?? null,
+    });
+    if (error) { console.error('Error updating business profile (secure):', error); throw error; }
+}
+
 export async function updateGalleryCaption(imageId, caption) {
     const db = getClient();
     const { error } = await db

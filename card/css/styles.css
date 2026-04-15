@@ -642,6 +642,62 @@ body {
   font-weight: 600;
 }
 
+/* ——— Client Panel (Premium Editor) ——— */
+.cp-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  background: var(--surface-variant, #f4d1ff);
+  border-radius: 16px;
+  padding: 4px;
+}
+.cp-tab {
+  flex: 1;
+  padding: 10px 4px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cp-tab.active {
+  background: #fff;
+  color: var(--primary, #8200e8);
+  box-shadow: 0 2px 8px rgba(130, 0, 232, 0.15);
+}
+.cp-panel { display: none; }
+.cp-panel.active { display: block; }
+.cp-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 12px 0 4px;
+}
+.cp-label:first-child { margin-top: 0; }
+.cp-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #1f2937;
+  background: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+.cp-input:focus { outline: none; border-color: var(--primary, #8200e8); }
+.cp-fields { display: flex; flex-direction: column; }
+.cp-avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+
 /* ——— Material Symbols ——— */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;

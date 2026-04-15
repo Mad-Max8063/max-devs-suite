@@ -5,7 +5,7 @@
 // ============================================
 
 import { sanitize, getCardUrl, resizeGalleryImage, dataUriToFile } from './utils.js';
-import { uploadImage, addGalleryImage, deleteGalleryImage, getGalleryImages, updateGalleryCaption } from './supabase-v2028.js';
+import { uploadImage, addGalleryImageSecure, deleteGalleryImageSecure, updateGalleryCaptionSecure } from './supabase-v2028.js';
 
 export function renderGalleryEditor(container, card) {
   // card comes from Supabase (DB format with _id etc.)
@@ -14,6 +14,7 @@ export function renderGalleryEditor(container, card) {
     profession: card.profession,
     photo: card.photo_url,
     _id: card.id,
+    _token: card.edit_token || '',
     gallery: (card.gallery_images || []).map(img => ({
       id: img.id,
       src: img.image_url,
@@ -148,8 +149,8 @@ function wireGalleryEditorEvents(container, data) {
         // Upload to Supabase Storage
         const uploadFile = dataUriToFile(dataUrl, file.name);
         const imageUrl = await uploadImage(uploadFile, data._id, 'gallery');
-        // Save to gallery_images table
-        const dbImage = await addGalleryImage(data._id, imageUrl, '', data.gallery.length);
+        // Save to gallery_images table (token-authenticated)
+        const dbImage = await addGalleryImageSecure(data._id, data._token, imageUrl, '', data.gallery.length);
         data.gallery.push({ id: dbImage.id, src: imageUrl, caption: '' });
       }
       // Re-render
@@ -165,7 +166,7 @@ function wireGalleryEditorEvents(container, data) {
       const item = data.gallery[index];
       // Delete from Supabase
       if (item.id) {
-        await deleteGalleryImage(item.id);
+        await deleteGalleryImageSecure(item.id, data._id, data._token);
       }
       data.gallery.splice(index, 1);
       renderGalleryEditor_internal(container, data);
@@ -200,7 +201,7 @@ function wireGalleryEditorEvents(container, data) {
       try {
         for (const item of data.gallery) {
           if (item.id && item.caption !== undefined) {
-            await updateGalleryCaption(item.id, item.caption);
+            await updateGalleryCaptionSecure(item.id, data._id, data._token, item.caption);
           }
         }
         // Show success feedback
@@ -252,7 +253,7 @@ function wireGalleryEditorEvents(container, data) {
   }
 }
 
-// Internal re-render (data already transformed)
+// Internal re-render (data already transformed, preserves _token)
 function renderGalleryEditor_internal(container, data) {
   container.innerHTML = buildGalleryEditorHTML(data);
   wireGalleryEditorEvents(container, data);

@@ -60,8 +60,17 @@ function navigate() {
             app.innerHTML = '';
             app.appendChild(editView);
 
-            import('./gallery-editor.js').then((mod) => {
-                mod.renderGalleryEditor(editView, card);
+            // Premium clients get full editing panel; basic clients get gallery-only
+            const panelModule = card.isPremium
+                ? import('./client-panel.js')
+                : import('./gallery-editor.js');
+
+            panelModule.then((mod) => {
+                if (card.isPremium) {
+                    mod.renderClientPanel(editView, card);
+                } else {
+                    mod.renderGalleryEditor(editView, card);
+                }
             }).catch(err => {
                 console.error('[Router] Error loading editor:', err);
                 app.innerHTML = '<div class="error-container">Error cargando el editor. Reintentá.</div>';

@@ -65,6 +65,8 @@ function shareCard() {
 export function renderLanding(container, data) {
     container.innerHTML = buildCardHTML(data);
     attachCardEvents(container, data);
+    injectDynamicManifest(data);
+    wireInstallButton();
 }
 
 export function renderPreview(container, data, onBack, onSave) {
@@ -133,6 +135,10 @@ function buildCardHTML(data) {
                         <span class="material-symbols-outlined">share</span>
                         Compartir
                     </button>
+                    <button id="install-btn" class="btn-secondary" style="display:none;">
+                        <span class="material-symbols-outlined">download</span>
+                        Instalar app
+                    </button>
                 </div>
 
                 <!-- Contact Links -->
@@ -191,4 +197,52 @@ function attachCardEvents(container, data) {
     if (saveBtn) {
         saveBtn.onclick = () => downloadVCard(data);
     }
+}
+
+function injectDynamicManifest(data) {
+    const manifest = {
+        name: data.nombre_negocio || data.name || 'Tarjeta Digital',
+        short_name: (data.nombre_negocio || data.name || 'Tarjeta').slice(0, 12),
+        start_url: `/card/${data.slug}`,
+        scope: '/card/',
+        display: 'standalone',
+        background_color: '#fff3fe',
+        theme_color: data.color_primario || '#8200e8',
+        icons: [
+            { src: '/card/assets/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/card/assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+        ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const link = document.querySelector('link[rel="manifest"]');
+    if (link) link.href = URL.createObjectURL(blob);
+}
+
+let _deferredInstallPrompt = null;
+
+function wireInstallButton() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        _deferredInstallPrompt = e;
+        const btn = document.getElementById('install-btn');
+        if (btn) btn.style.display = '';
+    });
+
+    // In case the PWA is already installed
+    window.addEventListener('appinstalled', () => {
+        const btn = document.getElementById('install-btn');
+        if (btn) btn.style.display = 'none';
+        _deferredInstallPrompt = null;
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#install-btn') && _deferredInstallPrompt) {
+            _deferredInstallPrompt.prompt();
+            _deferredInstallPrompt.userChoice.then(() => {
+                _deferredInstallPrompt = null;
+                const btn = document.getElementById('install-btn');
+                if (btn) btn.style.display = 'none';
+            });
+        }
+    });
 }

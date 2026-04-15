@@ -564,13 +564,30 @@ window._deliverClient = async function(id) {
     const client = clients.find(c => c.id === id);
     if (!client) return;
 
-    const baseUrl = client.plan === 'turnos' ? CONFIG.products.gestorTurnos : CONFIG.products.tarjetaVirtual;
-    const fullUrl = `${baseUrl}/${client.plan === 'turnos' ? '#/' : ''}${client.card_id || client.slug}`;
+    const baseUrl = 'https://suito.pro';
+    const slug = client.card_id || client.slug;
+    const hasTarjeta = client.plan === 'tarjeta' || client.plan === 'combo';
+    const hasTurnos  = client.plan === 'turnos'  || client.plan === 'combo';
 
     let message = `¡Hola ${client.name}! 👋 Te escribo de *Suito*.\n\n`;
-    message += `Tengo el gusto de informarte que tu *${getPlanLabel(client.plan)}* ya está lista para usar y compartir. 🚀\n\n`;
-    message += `🔗 Podés verla acá: ${fullUrl}\n\n`;
-    message += `¡Cualquier duda que tengas avisame!`;
+
+    if (hasTarjeta) {
+        message += `📇 *Tu Tarjeta Virtual:*\n`;
+        message += `🔗 Ver: ${baseUrl}/card/${slug}\n`;
+        if (client.edit_token) {
+            message += `✏️ Editar (solo vos): ${baseUrl}/edit/${slug}?token=${client.edit_token}\n`;
+        }
+        message += `\n`;
+    }
+
+    if (hasTurnos) {
+        message += `📅 *Tu Gestor de Turnos:*\n`;
+        message += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}\n`;
+        message += `📊 Tu panel: ${baseUrl}/turnos/#/${slug}/\n`;
+        message += `_Usá el mismo email con el que te registramos._\n\n`;
+    }
+
+    message += `¡Cualquier duda avisame! 💪`;
 
     const waUrl = `https://wa.me/549${client.whatsapp}?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
@@ -611,7 +628,7 @@ window._activateLead = async function(id) {
 
         // Único insert: admin/CRM fields + business profile fields en una sola llamada.
         // addClient() ahora escribe directamente en la tabla businesses.
-        await addClient({
+        const newClient = await addClient({
             // Campos admin/CRM
             name:           lead.name,
             business:       lead.details?.business_name || lead.name,
@@ -644,13 +661,24 @@ window._activateLead = async function(id) {
 
         // Notificar al cliente por WhatsApp
         const baseUrl = 'https://suito.pro';
-        let msg = `¡Hola ${lead.name}! 🎉 Te escribo de *Suito*.\n\n`;
-        msg += `Tu suite ya está activa y lista para usar. 🚀\n\n`;
-        if (plan === 'tarjeta' || plan === 'combo')
-            msg += `📇 Tu Tarjeta Virtual: ${baseUrl}/card/${slug}\n`;
-        if (plan === 'turnos' || plan === 'combo')
-            msg += `📅 Tu Gestor de Turnos: ${baseUrl}/turnos/#/${slug}\n`;
-        msg += `\n¡Cualquier duda estoy acá! 💪`;
+        const hasTarjeta = plan === 'tarjeta' || plan === 'combo';
+        const hasTurnos  = plan === 'turnos'  || plan === 'combo';
+        let msg = `¡Hola ${lead.name}! 🎉 Tu suite en *Suito* ya está activa. 🚀\n\n`;
+        if (hasTarjeta) {
+            msg += `📇 *Tu Tarjeta Virtual:*\n`;
+            msg += `🔗 Ver: ${baseUrl}/card/${slug}\n`;
+            if (newClient?.edit_token) {
+                msg += `✏️ Editar (solo vos): ${baseUrl}/edit/${slug}?token=${newClient.edit_token}\n`;
+            }
+            msg += `\n`;
+        }
+        if (hasTurnos) {
+            msg += `📅 *Tu Gestor de Turnos:*\n`;
+            msg += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}\n`;
+            msg += `📊 Tu panel: ${baseUrl}/turnos/#/${slug}/\n`;
+            msg += `_Usá el mismo email con el que te registramos._\n\n`;
+        }
+        msg += `¡Cualquier duda estoy acá! 💪`;
 
         const waUrl = `https://wa.me/549${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
         window.open(waUrl, '_blank');

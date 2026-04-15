@@ -49,7 +49,7 @@ DirectoryIndex home-v2028.html index.html
 
   # Excepción atómica para carpetas de assets y archivos estáticos clave
   RewriteRule ^(assets|admin/assets|card/assets|turnos/assets)/.*$ - [L]
-  RewriteRule ^.*\.(json|webmanifest|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|sw-v6\.js)$ - [L]
+  RewriteRule ^.*\.(json|webmanifest|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|sw-v6\.js|sw-admin\.js)$ - [L]
 
   # B. Subdomain Routing: admin.suito.pro
   RewriteCond %{HTTP_HOST} ^admin\.suito\.pro$ [NC]

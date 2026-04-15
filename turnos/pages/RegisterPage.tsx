@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BUSINESS_CATEGORIES } from '../constants';
+import { supabase } from '../services/supabaseClient';
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const preSlug = searchParams.get('slug'); // slug pre-asignado por el admin
     const { register, isAuthenticated, isLoading, error, clearError, user } = useAuth();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [businessName, setBusinessName] = useState('');
-    const [slug, setSlug] = useState('');
+    const [slug, setSlug] = useState(preSlug || '');
     const [showPassword, setShowPassword] = useState(false);
     const [localError, setLocalError] = useState<string | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [isClaiming, setIsClaiming] = useState(false);
 
     useEffect(() => {
         if (isAuthenticated && user) {
@@ -23,6 +27,7 @@ const RegisterPage: React.FC = () => {
     }, [isAuthenticated, user, navigate]);
 
     useEffect(() => {
+        if (preSlug) return; // no auto-generar slug si viene del admin
         const generatedSlug = businessName
             .toLowerCase()
             .normalize('NFD')
@@ -32,7 +37,7 @@ const RegisterPage: React.FC = () => {
             .replace(/-+/g, '-')
             .trim();
         setSlug(generatedSlug);
-    }, [businessName]);
+    }, [businessName, preSlug]);
 
     useEffect(() => {
         if (error) clearError();
@@ -48,24 +53,53 @@ const RegisterPage: React.FC = () => {
             setLocalError('Mínimo 6 caracteres');
             return false;
         }
-        if (slug.length < 3) {
+        if (!preSlug && slug.length < 3) {
             setLocalError('Nombre de negocio muy corto');
             return false;
         }
         return true;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Flujo especial: el admin pre-creó el negocio, el cliente solo crea su contraseña
+    const handleClaimSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        setIsClaiming(true);
+        setLocalError(null);
+        try {
+            const { data: authData, error: signUpError } = await supabase.auth.signUp({ email, password });
+            if (signUpError) throw signUpError;
+
+            if (authData.session) {
+                // Sesión inmediata: reclamar el negocio
+                const { error: claimError } = await supabase.rpc('claim_business', { business_slug: preSlug });
+                if (claimError) throw claimError;
+                navigate(`/${preSlug}`);
+            } else {
+                // Confirmación de email requerida
+                setLocalError('Revisá tu email para confirmar tu cuenta. Luego podrás acceder a tu panel.');
+            }
+        } catch (err) {
+            setLocalError(err instanceof Error ? err.message : 'Error al registrar. Verificá tu email.');
+        } finally {
+            setIsClaiming(false);
+        }
+    };
+
+    // Flujo normal: el cliente se registra y crea su propio negocio
+    const handleNormalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
         await register(email, password, slug, businessName);
     };
 
+    const handleSubmit = preSlug ? handleClaimSubmit : handleNormalSubmit;
     const displayError = localError || error;
+    const isSubmitting = isLoading || isClaiming;
 
     return (
         <div className="flex flex-col min-h-screen bg-white text-on-surface font-sans relative overflow-hidden">
-            
+
             {/* Mesh Background Decorative */}
             <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
 
@@ -81,83 +115,95 @@ const RegisterPage: React.FC = () => {
 
             <div className="text-left px-8 pt-6 pb-8 animate-fade-in-up">
                 <h1 className="text-3xl font-black tracking-tighter text-on-surface leading-none mb-2">
-                    Creá tu <span className="text-primary italic">Cuenta</span>
+                    {preSlug ? 'Activá tu' : 'Creá tu'} <span className="text-primary italic">Cuenta</span>
                 </h1>
                 <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant opacity-40">
-                    Tu nueva etapa profesional comienza hoy
+                    {preSlug ? 'Tu panel ya está listo — solo creá tu contraseña' : 'Tu nueva etapa profesional comienza hoy'}
                 </p>
             </div>
 
-            {/* Register Form */}
             <main className="flex-1 px-6 pb-20 overflow-y-auto no-scrollbar">
                 <div className="glass-card ambient-shadow rounded-[3rem] p-7 border-white/60 max-w-md mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        
-                        {/* Business Name */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
-                                Nombre de tu Negocio
-                            </label>
-                            <div className="relative">
-                                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-primary/40">
-                                    <span className="material-symbols-outlined text-[20px]">storefront</span>
-                                </span>
-                                <input
-                                    type="text"
-                                    value={businessName}
-                                    onChange={(e) => setBusinessName(e.target.value)}
-                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
-                                    placeholder="Ej: Max Barber Shop"
-                                    required
-                                />
-                            </div>
-                        </div>
 
-                        {/* Category Selector */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
-                                Tu Rubro Principal
-                            </label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {BUSINESS_CATEGORIES.map(cat => (
-                                    <button
-                                        key={cat.id}
-                                        type="button"
-                                        onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-                                        className={`
-                                            p-3 rounded-2xl border transition-all text-left flex items-center gap-3
-                                            ${selectedCategory === cat.id
-                                                ? 'border-primary bg-primary/5 shadow-inner'
-                                                : 'border-black/5 bg-white/40 hover:bg-white ambient-shadow'
-                                            }
-                                        `}
-                                    >
-                                        <span className="text-lg grayscale-[0.5]">{cat.emoji}</span>
-                                        <p className={`text-[10px] font-black uppercase tracking-widest ${selectedCategory === cat.id ? 'text-primary' : 'text-on-surface-variant opacity-60'}`}>
-                                            {cat.nombre}
-                                        </p>
-                                    </button>
-                                ))}
+                        {/* Si viene del admin: mostrar slug como referencia, ocultar campos de negocio */}
+                        {preSlug ? (
+                            <div className="bg-primary/5 border border-primary/20 rounded-[1.5rem] p-4">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Tu panel en Suito</p>
+                                <p className="text-sm font-bold text-primary">suito.pro/turnos/#{preSlug}</p>
+                                <p className="text-[10px] text-on-surface-variant opacity-50 mt-1">
+                                    Usá el mismo email con el que te registró el admin
+                                </p>
                             </div>
-                        </div>
+                        ) : (
+                            <>
+                                {/* Business Name */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
+                                        Nombre de tu Negocio
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-primary/40">
+                                            <span className="material-symbols-outlined text-[20px]">storefront</span>
+                                        </span>
+                                        <input
+                                            type="text"
+                                            value={businessName}
+                                            onChange={(e) => setBusinessName(e.target.value)}
+                                            className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                            placeholder="Ej: Max Barber Shop"
+                                            required
+                                        />
+                                    </div>
+                                </div>
 
-                        {/* Slug Preview */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
-                                Tu Enlace Profesional
-                            </label>
-                            <div className="bg-black/5 rounded-[1.5rem] p-4 border border-black/5 flex items-center gap-2">
-                                <span className="text-[10px] font-black text-on-surface-variant opacity-30">suito.pro/</span>
-                                <input
-                                    type="text"
-                                    value={slug}
-                                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                                    className="flex-1 bg-transparent text-sm font-bold text-primary focus:outline-none"
-                                    placeholder="tu-negocio"
-                                    required
-                                />
-                            </div>
-                        </div>
+                                {/* Category Selector */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
+                                        Tu Rubro Principal
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {BUSINESS_CATEGORIES.map(cat => (
+                                            <button
+                                                key={cat.id}
+                                                type="button"
+                                                onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+                                                className={`
+                                                    p-3 rounded-2xl border transition-all text-left flex items-center gap-3
+                                                    ${selectedCategory === cat.id
+                                                        ? 'border-primary bg-primary/5 shadow-inner'
+                                                        : 'border-black/5 bg-white/40 hover:bg-white ambient-shadow'
+                                                    }
+                                                `}
+                                            >
+                                                <span className="text-lg grayscale-[0.5]">{cat.emoji}</span>
+                                                <p className={`text-[10px] font-black uppercase tracking-widest ${selectedCategory === cat.id ? 'text-primary' : 'text-on-surface-variant opacity-60'}`}>
+                                                    {cat.nombre}
+                                                </p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Slug Preview */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
+                                        Tu Enlace Profesional
+                                    </label>
+                                    <div className="bg-black/5 rounded-[1.5rem] p-4 border border-black/5 flex items-center gap-2">
+                                        <span className="text-[10px] font-black text-on-surface-variant opacity-30">suito.pro/</span>
+                                        <input
+                                            type="text"
+                                            value={slug}
+                                            onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                                            className="flex-1 bg-transparent text-sm font-bold text-primary focus:outline-none"
+                                            placeholder="tu-negocio"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         {/* Email */}
                         <div className="space-y-2">
@@ -210,6 +256,27 @@ const RegisterPage: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Confirm Password */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
+                                Confirmar Contraseña
+                            </label>
+                            <div className="relative">
+                                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-primary/40">
+                                    <span className="material-symbols-outlined text-[20px]">lock</span>
+                                </span>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                    placeholder="Repetí tu contraseña"
+                                    required
+                                    autoComplete="new-password"
+                                />
+                            </div>
+                        </div>
+
                         {/* Error Message */}
                         {displayError && (
                             <div className="bg-red-50 border border-red-100 rounded-2xl px-5 py-4 text-xs text-red-600 font-bold animate-toast-in flex items-center gap-3">
@@ -221,15 +288,17 @@ const RegisterPage: React.FC = () => {
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            disabled={isLoading || !email || !password || !businessName || !slug}
+                            disabled={isSubmitting || !email || !password || !confirmPassword || (!preSlug && (!businessName || !slug))}
                             className="group w-full mt-6 bg-primary text-white font-black py-5 rounded-[2rem] shadow-xl shadow-primary/30 active:scale-95 transition-all text-xs uppercase tracking-[0.2em] disabled:opacity-50 flex items-center justify-center gap-3"
                         >
-                            {isLoading ? (
+                            {isSubmitting ? (
                                 <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <>
-                                    <span>Crear mi Universo</span>
-                                    <span className="material-symbols-outlined text-[18px] group-hover:translate-x-2 transition-transform">rocket_launch</span>
+                                    <span>{preSlug ? 'Activar mi Panel' : 'Crear mi Universo'}</span>
+                                    <span className="material-symbols-outlined text-[18px] group-hover:translate-x-2 transition-transform">
+                                        {preSlug ? 'login' : 'rocket_launch'}
+                                    </span>
                                 </>
                             )}
                         </button>

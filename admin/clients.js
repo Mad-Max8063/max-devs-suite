@@ -261,7 +261,9 @@ export async function addClient(clientData) {
     const userId = await getUserId();
     if (!userId) throw new Error('Usuario no autenticado');
 
-    const row = clientToBusiness(clientData, userId);
+    // Nuevos clientes tienen user_id = null — el cliente lo reclamará al registrarse
+    // (turnos via claim_business RPC, tarjeta via edit_token en el panel)
+    const row = clientToBusiness(clientData);
 
     const { data, error } = await supabase
         .from('businesses')
