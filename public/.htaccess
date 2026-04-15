@@ -68,6 +68,7 @@ DirectoryIndex home-v2028.html index.html
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^card(/.*)?$ card/index.html [L]
+  RewriteRule ^edit(/.*)?$ card/index.html [L]
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing
