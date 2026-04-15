@@ -6,6 +6,8 @@ DirectoryIndex home-v2028.html index.html
 <IfModule mod_rewrite.c>
   RewriteRule ^(app|card|engine|supabase|utils)\.js$ - [F,L]
   RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
+  # Bloquear toda la carpeta card/js/ — solo se usa /assets/ (bundles de Vite)
+  RewriteRule ^card/js/.*$ - [F,L]
 </IfModule>
 
 # ——— Cache Control (Anti-HCDN) ———
