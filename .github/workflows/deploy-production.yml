@@ -47,6 +47,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
+          protocol: ftps
           local-dir: ./dist/
           server-dir: domains/suito.pro/public_html/
           timeout: 800000
