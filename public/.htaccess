@@ -26,7 +26,7 @@ DirectoryIndex home-v2028.html index.html
 
   # --- BLOQUEO DE SCRIPTS ZOMBIE ---
   # Deben ir ANTES del chequeo de archivo físico para que surtan efecto
-  RewriteRule ^(app|card|engine|supabase|utils)\.js$ - [F,L]
+  RewriteRule ^(card|engine|supabase|utils)\.js$ - [F,L]
   RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
   RewriteRule ^card/js/.*$ - [F,L]
 
