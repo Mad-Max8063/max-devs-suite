@@ -173,7 +173,7 @@ export async function getCard(slug) {
         facebook: business.facebook || '',
         linkedin: business.linkedin || '',
         website: business.website || '',
-        bookingUrl: hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : (business.booking_url || ''),
+        bookingUrl: business.booking_url !== null && business.booking_url !== undefined ? business.booking_url : (hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : ''),
         isPremium: isPremium,
         slug: business.slug,
         edit_token: business.edit_token || '',
@@ -321,7 +321,10 @@ export async function updateBusinessProfileSecure(cardId, editToken, profileData
         p_email:          profileData.email          ?? null,
         p_location:       profileData.location       ?? null,
         p_instagram:      profileData.instagram      ?? null,
+        p_facebook:       profileData.facebook       ?? null,
+        p_linkedin:       profileData.linkedin       ?? null,
         p_website:        profileData.website        ?? null,
+        p_booking_url:    profileData.booking_url    ?? null,
     });
     if (error) { console.error('Error updating business profile (secure):', error); throw error; }
 }

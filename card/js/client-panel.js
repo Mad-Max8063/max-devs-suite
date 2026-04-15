@@ -25,7 +25,10 @@ export function renderClientPanel(container, card) {
         email:      card.email || '',
         location:   card.location || '',
         instagram:  card.instagram || '',
+        facebook:   card.facebook || '',
+        linkedin:   card.linkedin || '',
         website:    card.website || '',
+        bookingUrl: card.bookingUrl || card.booking_url || '',
         photo:      card.photo || card.photo_url || '',
         coverPhoto: card.coverPhoto || card.cover_url || '',
         gallery: (card.gallery_images || card.gallery || []).map(img => ({
@@ -108,8 +111,17 @@ function buildPanelHTML(data) {
               <label class="cp-label">Instagram (sin @)</label>
               <input class="cp-input" id="cp-instagram" type="text" value="${sanitize(data.instagram)}" placeholder="tu.usuario" maxlength="60">
 
+              <label class="cp-label">Facebook</label>
+              <input class="cp-input" id="cp-facebook" type="text" value="${sanitize(data.facebook)}" placeholder="tu.pagina" maxlength="100">
+
+              <label class="cp-label">LinkedIn</label>
+              <input class="cp-input" id="cp-linkedin" type="url" value="${sanitize(data.linkedin)}" placeholder="https://linkedin.com/in/tuusuario" maxlength="200">
+
               <label class="cp-label">Sitio web</label>
               <input class="cp-input" id="cp-website" type="url" value="${sanitize(data.website)}" placeholder="https://tuempresa.com">
+
+              <label class="cp-label">Link de Turnos (Dejalo vacío para ocultar el botón)</label>
+              <input class="cp-input" id="cp-bookingUrl" type="url" value="${sanitize(data.bookingUrl)}" placeholder="https://turnos.suito.pro/#/.../booking" maxlength="200">
             </div>
           </div>
         </div>
@@ -280,7 +292,10 @@ function wireProfileEvents(container, data) {
                 email:          container.querySelector('#cp-email')?.value || '',
                 location:       container.querySelector('#cp-location')?.value || '',
                 instagram:      container.querySelector('#cp-instagram')?.value || '',
+                facebook:       container.querySelector('#cp-facebook')?.value || '',
+                linkedin:       container.querySelector('#cp-linkedin')?.value || '',
                 website:        container.querySelector('#cp-website')?.value || '',
+                booking_url:    container.querySelector('#cp-bookingUrl')?.value || '',
             });
 
             const feedback = container.querySelector('#cp-profile-feedback');

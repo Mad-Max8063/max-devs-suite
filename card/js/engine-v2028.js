@@ -90,7 +90,8 @@ function buildCardHTML(data) {
     const location = data.location || '';
     const photo = data.photo || data.photo_url || '';
     const coverPhoto = data.coverPhoto || data.cover_url || '';
-    const instagram = data.instagram || '';
+    const facebook = data.facebook || '';
+    const linkedin = data.linkedin || '';
     const website = data.website || '';
     const bookingUrl = data.bookingUrl || data.booking_url || '';
     const isPremium = data.isPremium || false;
@@ -142,7 +143,7 @@ function buildCardHTML(data) {
                 </div>
 
                 <!-- Contact Links -->
-                ${(email || instagram || website || bookingUrl) ? `
+                ${(email || instagram || facebook || linkedin || website || bookingUrl) ? `
                 <div class="card-section">
                     <div class="section-header">
                         <h2 class="section-title">Contacto</h2>
@@ -150,6 +151,8 @@ function buildCardHTML(data) {
                     <div class="services-grid">
                         ${email ? `<a href="mailto:${email}" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">mail</span><p>${email}</p></a>` : ''}
                         ${instagram ? `<a href="https://instagram.com/${instagram}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">photo_camera</span><p>@${instagram}</p></a>` : ''}
+                        ${facebook ? `<a href="${facebook}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">facebook</span><p>Facebook</p></a>` : ''}
+                        ${linkedin ? `<a href="${linkedin}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">work</span><p>LinkedIn</p></a>` : ''}
                         ${website ? `<a href="${website}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">language</span><p>Web</p></a>` : ''}
                         ${bookingUrl ? `<a href="${bookingUrl}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">calendar_month</span><p>Agendar Turno</p></a>` : ''}
                     </div>

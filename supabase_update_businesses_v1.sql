@@ -74,6 +74,7 @@ GRANT EXECUTE ON FUNCTION public.claim_business(TEXT, TEXT) TO authenticated;
 -- 3.2 update_business_profile_secure: edición del perfil de la tarjeta
 --     validando estrictamente el edit_token.
 DROP FUNCTION IF EXISTS public.update_business_profile_secure(UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS public.update_business_profile_secure(UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT);
 CREATE OR REPLACE FUNCTION public.update_business_profile_secure(
     p_card_id        UUID,
     p_edit_token     TEXT,
@@ -84,7 +85,10 @@ CREATE OR REPLACE FUNCTION public.update_business_profile_secure(
     p_email          TEXT DEFAULT NULL,
     p_location       TEXT DEFAULT NULL,
     p_instagram      TEXT DEFAULT NULL,
-    p_website        TEXT DEFAULT NULL
+    p_facebook       TEXT DEFAULT NULL,
+    p_linkedin       TEXT DEFAULT NULL,
+    p_website        TEXT DEFAULT NULL,
+    p_booking_url    TEXT DEFAULT NULL
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -110,17 +114,20 @@ BEGIN
            email          = COALESCE(p_email,          email),
            location       = COALESCE(p_location,       location),
            instagram      = COALESCE(p_instagram,      instagram),
+           facebook       = COALESCE(p_facebook,       facebook),
+           linkedin       = COALESCE(p_linkedin,       linkedin),
            website        = COALESCE(p_website,        website),
+           booking_url    = COALESCE(p_booking_url,    booking_url),
            updated_at     = NOW()
      WHERE id = p_card_id;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.update_business_profile_secure(
-    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
+    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
 ) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.update_business_profile_secure(
-    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
+    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
 ) TO anon, authenticated;
 
 -- 3.3 add_gallery_image_secure: alta en tabla gallery_images bypassando RLS
