@@ -163,24 +163,24 @@ function businessToClient(b) {
 // Accepts a superset: basic admin fields + optional business-specific fields.
 function clientToBusiness(clientData, userId = null) {
     const row = {
-        contact_name:   clientData.name            || null,
-        nombre_negocio: clientData.business        || clientData.name || '',
-        telefono:       clientData.whatsapp        || '',
-        email:          clientData.email           || '',
-        slug:           clientData.slug            || '',
-        plan:           clientData.plan            || 'tarjeta',
-        status:         clientData.status          || 'active',
-        is_premium:     clientData.is_premium      || false,
-        notes:          clientData.notes           || null,
-        transfer_email: clientData.transfer_email  || null,
-        free_until:     clientData.free_until      || null,
-        paid_until:     clientData.paid_until      || null,
-        profession:     clientData.profession      || null,
-        foto_url:       clientData.foto_url        || null,
-        cover_url:      clientData.cover_url       || null,
-        gallery_images: clientData.gallery_images  || [],
+        contact_name:   clientData.name?.trim()            || null,
+        nombre_negocio: clientData.business?.trim()        || clientData.name?.trim() || '',
+        telefono:       clientData.whatsapp?.trim()        || '',
+        email:          clientData.email?.trim()           || '',
+        slug:           clientData.slug?.trim()            || '',
+        plan:           clientData.plan                    || 'tarjeta',
+        status:         clientData.status                  || 'active',
+        is_premium:     clientData.is_premium              || false,
+        notes:          clientData.notes?.trim()           || null,
+        transfer_email: clientData.transfer_email?.trim()  || null,
+        free_until:     clientData.free_until              || null,
+        paid_until:     clientData.paid_until              || null,
+        profession:     clientData.profession?.trim()      || null,
+        foto_url:       clientData.foto_url                || null,
+        cover_url:      clientData.cover_url               || null,
+        gallery_images: clientData.gallery_images          || [],
         // Ensure edit_token exists for new clients
-        edit_token:     clientData.edit_token      || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+        edit_token:     clientData.edit_token              || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
     };
     if (userId) row.user_id = userId;
 
