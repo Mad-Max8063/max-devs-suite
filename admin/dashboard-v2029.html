@@ -207,6 +207,23 @@
                     <!-- Populated by JS -->
                 </div>
 
+                <!-- Pricing Actions: Save + Inflation -->
+                <div class="pricing-actions-bar">
+                    <button class="primary-btn" id="btnSavePricing">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Precios
+                    </button>
+                    <div class="inflation-tool">
+                        <label for="inflationPercent">Ajuste por Inflación (%)</label>
+                        <div class="inflation-input-group">
+                            <input type="number" id="inflationPercent" placeholder="Ej: 3.4" min="0.1" max="100" step="0.1">
+                            <button class="btn-secondary" id="btnApplyInflation">
+                                <i class="fa-solid fa-chart-line"></i> Aplicar
+                            </button>
+                        </div>
+                        <small class="inflation-hint">Redondea a múltiplos de $50. Revisá los valores antes de guardar.</small>
+                    </div>
+                </div>
+
                 <div class="dashboard-panel" style="margin-top:32px;">
                     <div class="panel-header">
                         <h2>Análisis de Competencia</h2>

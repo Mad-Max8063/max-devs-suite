@@ -5,17 +5,20 @@ console.log("cachebust-v2029-FINAL");
 import { CONFIG } from './config.js';
 import { supabase } from '@shared/supabase.js';
 import { getClients, addClient, updateClient, deleteClient, getClientStats, initImageUploads } from './clients.js';
+import { getPricing, updatePricing, applyInflation } from './pricing.js';
 
 // ——— State ———
 let currentSection = 'dashboard';
 let currentFilter = 'all';
 let editingClientId = null;
+let currentPricing = null; // loaded from Supabase on init
 
 // In-memory cache for leads — avoids unsafe JSON serialization in onclick attrs
 const _leadsCache = new Map();
 
 // ——— Init ———
 document.addEventListener('DOMContentLoaded', async () => {
+    currentPricing = await getPricing();
     initNavigation();
     initModal();
     initImageUploads(showToast);
@@ -126,7 +129,7 @@ async function renderStats() {
 }
 
 function renderPricingQuick() {
-    const p = CONFIG.pricing;
+    const p = currentPricing;
     document.getElementById('pricingQuickView').innerHTML = `
         <div class="price-item">
             <div class="price-info">
@@ -282,51 +285,113 @@ function initSearch() {
 
 // ——— Pricing Section ———
 function renderPricing() {
-    const p = CONFIG.pricing;
-    document.getElementById('pricingCards').innerHTML = `
-        <div class="pricing-card">
-            <div class="pricing-card-icon blue-bg"><i class="fa-solid fa-address-card"></i></div>
-            <h3>Tarjeta Virtual</h3>
-            <div class="pricing-price">$${p.tarjeta.monthly.toLocaleString('es-AR')}<span>/mes</span></div>
-            <div class="pricing-quarterly">Trimestral: $${p.tarjeta.quarterly.toLocaleString('es-AR')}</div>
-            <ul class="pricing-features">
-                <li><i class="fa-solid fa-check"></i> PWA instalable</li>
-                <li><i class="fa-solid fa-check"></i> Compartir por WhatsApp</li>
-                <li><i class="fa-solid fa-check"></i> Galería de imágenes</li>
-                <li><i class="fa-solid fa-check"></i> Exportar contacto vCard</li>
-                <li><i class="fa-solid fa-check"></i> Open Graph optimizado</li>
-                <li><i class="fa-solid fa-check"></i> Editable en tiempo real</li>
-            </ul>
-        </div>
-        <div class="pricing-card">
-            <div class="pricing-card-icon green-bg"><i class="fa-solid fa-calendar-check"></i></div>
-            <h3>Gestor de Turnos</h3>
-            <div class="pricing-price">$${p.turnos.monthly.toLocaleString('es-AR')}<span>/mes</span></div>
-            <div class="pricing-quarterly">Trimestral: $${p.turnos.quarterly.toLocaleString('es-AR')}</div>
-            <ul class="pricing-features">
-                <li><i class="fa-solid fa-check"></i> Agenda inteligente</li>
-                <li><i class="fa-solid fa-check"></i> Reserva online 24/7</li>
-                <li><i class="fa-solid fa-check"></i> Integración MercadoPago</li>
-                <li><i class="fa-solid fa-check"></i> Confirmación por WhatsApp</li>
-                <li><i class="fa-solid fa-check"></i> Multi-tenant (slug único)</li>
-                <li><i class="fa-solid fa-check"></i> Bloqueo de horarios</li>
-            </ul>
-        </div>
-        <div class="pricing-card featured">
-            <div class="pricing-badge">MÁS POPULAR</div>
-            <div class="pricing-card-icon gradient-bg"><i class="fa-solid fa-star"></i></div>
-            <h3>Pack Emprendedor</h3>
-            <div class="pricing-price">$${p.combo.monthly.toLocaleString('es-AR')}<span>/mes</span></div>
-            <div class="pricing-quarterly">Trimestral: $${p.combo.quarterly.toLocaleString('es-AR')}</div>
-            <div class="pricing-savings">Ahorrás $${((p.tarjeta.monthly + p.turnos.monthly) - p.combo.monthly).toLocaleString('es-AR')}/mes vs individual</div>
-            <ul class="pricing-features">
-                <li><i class="fa-solid fa-check"></i> Todo de Tarjeta Virtual</li>
-                <li><i class="fa-solid fa-check"></i> Todo de Gestor de Turnos</li>
-                <li><i class="fa-solid fa-star" style="color:var(--accent-purple)"></i> Botón "Reservar" integrado</li>
-                <li><i class="fa-solid fa-star" style="color:var(--accent-purple)"></i> Ecosistema unificado</li>
-                <li><i class="fa-solid fa-star" style="color:var(--accent-purple)"></i> Soporte prioritario</li>
-            </ul>
-        </div>
+    const p = currentPricing;
+
+    const planCard = (id, icon, iconClass, label, features, extra = '') => `
+        <div class="pricing-card${id === 'combo' ? ' featured' : ''}">
+            ${id === 'combo' ? '<div class="pricing-badge">MÁS POPULAR</div>' : ''}
+            <div class="pricing-card-icon ${iconClass}"><i class="fa-solid fa-${icon}"></i></div>
+            <h3>${label}</h3>
+            <div class="pricing-edit-fields">
+                <label>Mensual ($)
+                    <input type="number" id="price-${id}-monthly" value="${p[id].monthly}" min="0" step="50" class="pricing-input">
+                </label>
+                <label>Trimestral ($)
+                    <input type="number" id="price-${id}-quarterly" value="${p[id].quarterly}" min="0" step="50" class="pricing-input">
+                </label>
+            </div>
+            ${extra}
+            <ul class="pricing-features">${features}</ul>
+        </div>`;
+
+    const feat = (text) => `<li><i class="fa-solid fa-check"></i> ${text}</li>`;
+    const featStar = (text) => `<li><i class="fa-solid fa-star" style="color:var(--accent-purple)"></i> ${text}</li>`;
+
+    document.getElementById('pricingCards').innerHTML =
+        planCard('tarjeta', 'address-card', 'blue-bg', 'Tarjeta Virtual',
+            feat('PWA instalable') + feat('Compartir por WhatsApp') + feat('Galería de imágenes') +
+            feat('Exportar contacto vCard') + feat('Open Graph optimizado') + feat('Editable en tiempo real')
+        ) +
+        planCard('turnos', 'calendar-check', 'green-bg', 'Gestor de Turnos',
+            feat('Agenda inteligente') + feat('Reserva online 24/7') + feat('Integración MercadoPago') +
+            feat('Confirmación por WhatsApp') + feat('Multi-tenant (slug único)') + feat('Bloqueo de horarios')
+        ) +
+        planCard('combo', 'star', 'gradient-bg', 'Pack Emprendedor',
+            feat('Todo de Tarjeta Virtual') + feat('Todo de Gestor de Turnos') +
+            featStar('Botón "Reservar" integrado') + featStar('Ecosistema unificado') + featStar('Soporte prioritario'),
+            `<div class="pricing-savings">Ahorrás $${((p.tarjeta.monthly + p.turnos.monthly) - p.combo.monthly).toLocaleString('es-AR')}/mes vs individual</div>`
+        );
+
+    // Wire save button
+    document.getElementById('btnSavePricing')?.addEventListener('click', handleSavePricing);
+    document.getElementById('btnApplyInflation')?.addEventListener('click', handleApplyInflation);
+
+    // Update plan selector in client modal
+    updatePlanSelector();
+}
+
+async function handleSavePricing() {
+    const btn = document.getElementById('btnSavePricing');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+    try {
+        const newPricing = {
+            tarjeta: {
+                monthly: Number(document.getElementById('price-tarjeta-monthly').value),
+                quarterly: Number(document.getElementById('price-tarjeta-quarterly').value),
+            },
+            turnos: {
+                monthly: Number(document.getElementById('price-turnos-monthly').value),
+                quarterly: Number(document.getElementById('price-turnos-quarterly').value),
+            },
+            combo: {
+                monthly: Number(document.getElementById('price-combo-monthly').value),
+                quarterly: Number(document.getElementById('price-combo-quarterly').value),
+            },
+        };
+
+        await updatePricing(newPricing);
+        currentPricing = newPricing;
+        renderPricing();
+        renderPricingQuick();
+        showToast('Precios actualizados correctamente');
+    } catch (err) {
+        console.error('[handleSavePricing]', err);
+        showToast('Error al guardar precios. Revisá la consola.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Precios';
+    }
+}
+
+function handleApplyInflation() {
+    const input = document.getElementById('inflationPercent');
+    const pct = parseFloat(input.value);
+    if (isNaN(pct) || pct <= 0 || pct > 100) {
+        showToast('Ingresá un porcentaje válido (ej: 3.4)');
+        return;
+    }
+
+    const preview = applyInflation(currentPricing, pct);
+
+    // Fill inputs with preview values (user still needs to click "Guardar")
+    for (const plan of ['tarjeta', 'turnos', 'combo']) {
+        document.getElementById(`price-${plan}-monthly`).value = preview[plan].monthly;
+        document.getElementById(`price-${plan}-quarterly`).value = preview[plan].quarterly;
+    }
+
+    showToast(`Inflación del ${pct}% aplicada. Revisá y hacé click en "Guardar Precios".`);
+}
+
+function updatePlanSelector() {
+    const select = document.getElementById('clientPlan');
+    if (!select) return;
+    const p = currentPricing;
+    select.innerHTML = `
+        <option value="tarjeta">Tarjeta Virtual — $${p.tarjeta.monthly.toLocaleString('es-AR')}/mes</option>
+        <option value="turnos">Gestor de Turnos — $${p.turnos.monthly.toLocaleString('es-AR')}/mes</option>
+        <option value="combo">Pack Emprendedor — $${p.combo.monthly.toLocaleString('es-AR')}/mes</option>
     `;
 }
 
