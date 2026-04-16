@@ -46,7 +46,6 @@ export function renderClientPanel(container, card) {
 
 function buildPanelHTML(data) {
     return `
-    return `
     <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
 
       <!-- Header -->
