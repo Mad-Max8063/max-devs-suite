@@ -67,24 +67,24 @@ function buildPanelHTML(data) {
         <!-- Live Preview Header -->
         <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 16px; border-radius: var(--radius-card);">
             <div class="card-header" style="margin-bottom: 40px; border-radius: var(--radius-card) var(--radius-card) 0 0;">
-                <div class="card-cover-wrapper" style="height: 140px;">
+                <div class="card-cover-wrapper" style="height: 200px;">
                     <!-- Cover Image -->
                     ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" class="card-cover">` : `<div id="cp-cover-preview" class="card-cover" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);"></div>`}
                     <div class="card-cover-overlay"></div>
                     <!-- Cover Edit Button -->
-                    <label style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                    <label style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--on-surface); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s;">
                         <span class="material-symbols-outlined" style="font-size:16px;">edit</span> Cambiar Portada
                         <input type="file" id="cp-cover-file" accept="image/*" style="display:none">
                     </label>
                 </div>
                 <!-- Avatar Edit Button -->
-                <div class="card-avatar-container" style="bottom: -35px;">
+                <div class="card-avatar-container" style="bottom: -50px;">
                     <label style="cursor: pointer; display: block; position: relative; transition: transform 0.2s;">
-                        <div class="card-avatar-ring" style="width: 84px; height: 84px; border-width: 3px;">
+                        <div class="card-avatar-ring" style="width: 100px; height: 100px;">
                             <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/card/assets/suito-logo.png'}" class="card-avatar">
                         </div>
-                        <div style="position: absolute; bottom: 2px; right: 2px; background: var(--primary); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid white;">
-                            <span class="material-symbols-outlined" style="font-size: 15px;">photo_camera</span>
+                        <div style="position: absolute; bottom: 4px; right: 4px; background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); border: 2px solid var(--background);">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">photo_camera</span>
                         </div>
                         <input type="file" id="cp-avatar-file" accept="image/*" style="display:none">
                     </label>

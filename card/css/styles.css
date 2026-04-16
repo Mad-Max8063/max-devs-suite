@@ -647,54 +647,59 @@ body {
   display: flex;
   gap: 8px;
   margin: 16px 0;
-  background: var(--surface-variant, #f4d1ff);
+  background: var(--surface-2, #F3F0FF);
   border-radius: 16px;
-  padding: 4px;
+  padding: 6px;
 }
 .cp-tab {
   flex: 1;
-  padding: 10px 4px;
+  padding: 12px 4px;
   border: none;
   background: transparent;
   border-radius: 12px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text-secondary, #6b7280);
+  color: var(--on-surface-variant);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 .cp-tab.active {
-  background: #fff;
-  color: var(--primary, #8200e8);
-  box-shadow: 0 2px 8px rgba(130, 0, 232, 0.15);
+  background: var(--background);
+  color: var(--primary);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
 }
 .cp-panel { display: none; }
 .cp-panel.active { display: block; }
 .cp-label {
   display: block;
   font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary, #6b7280);
+  font-weight: 800;
+  color: var(--on-surface-variant);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 12px 0 4px;
+  letter-spacing: 0.1em;
+  margin: 16px 0 6px;
 }
 .cp-label:first-child { margin-top: 0; }
 .cp-input {
   width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-btn, 14px);
   font-family: inherit;
   font-size: 14px;
-  color: #1f2937;
-  background: #fff;
+  color: var(--on-surface);
+  background: var(--surface-2, #F3F0FF);
   box-sizing: border-box;
-  transition: border-color 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   resize: vertical;
 }
-.cp-input:focus { outline: none; border-color: var(--primary, #8200e8); }
+.cp-input:focus { 
+  outline: none; 
+  background: var(--background);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
 .cp-fields { display: flex; flex-direction: column; }
 .cp-avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
 
