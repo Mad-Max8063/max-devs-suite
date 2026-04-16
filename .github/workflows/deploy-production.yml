@@ -28,7 +28,6 @@ jobs:
           npm run build
 
           # Redundancia de assets para Hostinger (resolución de paths por subcarpeta)
-          rm -rf dist/admin/assets dist/card/assets dist/turnos/assets
           mkdir -p dist/admin/assets dist/card/assets dist/turnos/assets
           cp -r dist/assets/* dist/admin/assets/ 2>/dev/null || :
           cp -r dist/assets/* dist/card/assets/  2>/dev/null || :
