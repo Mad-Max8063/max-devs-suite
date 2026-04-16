@@ -49,49 +49,55 @@ function buildPanelHTML(data) {
     <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
 
       <!-- Header -->
-      <div class="ge-header" style="text-align: center; margin-bottom: 20px; padding-top: 8px;">
-        <h1 class="card-name" style="color: var(--primary); font-size: 1.5rem;">✨ Tu Panel Suito</h1>
-        <p class="card-bio" style="margin: 4px auto 0;">Personalizá tu presencia digital en tiempo real.</p>
+      <div class="ge-header" style="text-align: center; margin-bottom: 24px; padding-top: 8px;">
+        <h1 class="card-name" style="color: var(--primary); font-size: 1.8rem; letter-spacing: -1px;">✨ Tu Panel Suito</h1>
+        <p class="card-bio" style="margin: 6px auto 0; font-weight: 600; opacity: 0.7;">Personalizá tu presencia digital.</p>
       </div>
-
+ 
       <!-- Tabs -->
       <div class="cp-tabs" id="cp-tabs">
-        <button class="cp-tab active" data-tab="profile">👤 Mi Perfil</button>
-        <button class="cp-tab" data-tab="gallery">📸 Galería</button>
-        <button class="cp-tab" data-tab="share">🔗 Compartir</button>
+        <button class="cp-tab active" data-tab="profile">
+            <span class="material-symbols-outlined" style="font-size:18px;">account_circle</span> Perfil
+        </button>
+        <button class="cp-tab" data-tab="gallery">
+            <span class="material-symbols-outlined" style="font-size:18px;">photo_library</span> Galería
+        </button>
+        <button class="cp-tab" data-tab="share">
+            <span class="material-symbols-outlined" style="font-size:18px;">share</span> Compartir
+        </button>
       </div>
 
       <!-- ═══ TAB: PERFIL ═══ -->
       <div class="cp-panel active" id="tab-profile">
         
         <!-- Live Preview Header -->
-        <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 16px; border-radius: var(--radius-card);">
-            <div class="card-header" style="margin-bottom: 40px; border-radius: var(--radius-card) var(--radius-card) 0 0;">
-                <div class="card-cover-wrapper" style="height: 200px;">
+        <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 24px; border-radius: 28px; box-shadow: var(--premium-shadow);">
+            <div class="card-header" style="margin-bottom: 40px; border-radius: 28px 28px 0 0;">
+                <div class="card-cover-wrapper" style="height: 180px; background: var(--premium-gradient);">
                     <!-- Cover Image -->
-                    ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" class="card-cover">` : `<div id="cp-cover-preview" class="card-cover" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);"></div>`}
+                    ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" class="card-cover">` : `<div id="cp-cover-preview" class="card-cover"></div>`}
                     <div class="card-cover-overlay"></div>
                     <!-- Cover Edit Button -->
-                    <label style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--on-surface); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s;">
-                        <span class="material-symbols-outlined" style="font-size:16px;">edit</span> Cambiar Portada
+                    <label style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.2s;">
+                        <span class="material-symbols-outlined" style="font-size:16px;">edit</span> Portada
                         <input type="file" id="cp-cover-file" accept="image/*" style="display:none">
                     </label>
                 </div>
                 <!-- Avatar Edit Button -->
                 <div class="card-avatar-container" style="bottom: -50px;">
                     <label style="cursor: pointer; display: block; position: relative; transition: transform 0.2s;">
-                        <div class="card-avatar-ring" style="width: 100px; height: 100px;">
+                        <div class="card-avatar-ring" style="width: 110px; height: 110px; border: 5px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
                             <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/card/assets/suito-logo.png'}" class="card-avatar">
                         </div>
-                        <div style="position: absolute; bottom: 4px; right: 4px; background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); border: 2px solid var(--background);">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">photo_camera</span>
+                        <div style="position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); border: 3px solid #fff;">
+                            <span class="material-symbols-outlined" style="font-size: 18px; font-weight: bold;">photo_camera</span>
                         </div>
                         <input type="file" id="cp-avatar-file" accept="image/*" style="display:none">
                     </label>
                 </div>
             </div>
-            <div style="text-align: center; padding-bottom: 20px;">
-                <p class="section-badge" style="display: inline-block; background: var(--surface-2); padding: 6px 12px;">Vista previa visual</p>
+            <div style="text-align: center; padding: 10px 0 20px;">
+                <span class="section-badge" style="background: var(--surface-2); padding: 6px 16px; font-size: 10px; border-radius: 12px; font-weight: 800;">VISTA PREVIA REAL</span>
             </div>
         </div>
 
@@ -137,13 +143,13 @@ function buildPanelHTML(data) {
           </div>
         </div>
 
-        <div class="ge-actions" style="margin-top:20px; display: flex; flex-direction: column; gap: 8px;">
-          <button type="button" class="btn-save" id="cp-save-profile">
-            <span class="material-symbols-outlined">save</span>
-            Guardar todos los cambios
+        <div class="ge-actions" style="margin-top:24px; display: flex; flex-direction: column; gap: 12px;">
+          <button type="button" class="btn-save" id="cp-save-profile" style="background: var(--premium-gradient); border-radius: 20px;">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+            Guardar cambios del perfil
           </button>
-          <div id="cp-profile-feedback" style="display:none;text-align:center;color:var(--tertiary);font-size:13px;font-weight:700;background:rgba(16,185,129,0.1);padding:10px;border-radius:12px;">
-            ¡Perfil actualizado correctamente!
+          <div id="cp-profile-feedback" style="display:none;text-align:center;color:#059669;font-size:14px;font-weight:700;background:#ecfdf5;padding:14px;border-radius:18px;border: 1px solid #10b981;">
+            ✅ ¡Perfil actualizado correctamente!
           </div>
         </div>
       </div>
