@@ -1,5 +1,5 @@
 # MiSuite Plataforma Unificada v1.0.9
-DirectoryIndex home-v2028.html index.html
+DirectoryIndex home-v2029.html index.html
 
 # ——— Cache Control (Anti-HCDN) ———
 <FilesMatch "\.(html|htm|js|css|json|webmanifest)$">
@@ -53,10 +53,10 @@ DirectoryIndex home-v2028.html index.html
 
   # B. Subdomain Routing: admin.suito.pro
   RewriteCond %{HTTP_HOST} ^admin\.suito\.pro$ [NC]
-  RewriteRule ^(.*)$ admin/dashboard-v2028.html [L]
+  RewriteRule ^(.*)$ admin/dashboard-v2029.html [L]
 
   # C. MPA Routing (vía subcarpetas en dominio principal)
-  RewriteRule ^admin(/.*)?$ admin/dashboard-v2028.html [L]
+  RewriteRule ^admin(/.*)?$ admin/dashboard-v2029.html [L]
   
   # --- SEO BOT INTERCEPTOR (WhatsApp, Facebook, Telegram, etc) ---
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -72,5 +72,5 @@ DirectoryIndex home-v2028.html index.html
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing
-  RewriteRule ^$ home-v2028.html [L]
+  RewriteRule ^$ home-v2029.html [L]
 </IfModule>

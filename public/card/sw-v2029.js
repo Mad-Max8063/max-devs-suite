@@ -1,5 +1,5 @@
-// Suito VCard Service Worker v2028-FINAL-r2
-const CACHE_NAME = 'suito-card-v2028';
+// Suito VCard Service Worker v2029-FINAL-r2
+const CACHE_NAME = 'suito-card-v2029';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

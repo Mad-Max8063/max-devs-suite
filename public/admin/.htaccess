@@ -2,27 +2,27 @@
 Options -Indexes
 
 # Set the default index file to our latest versioned dashboard
-DirectoryIndex dashboard-v2028.html
+DirectoryIndex dashboard-v2029.html
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # 1. Force dashboard-v2028.html as the home for the subdomain
+    # 1. Force dashboard-v2029.html as the home for the subdomain
     RewriteCond %{REQUEST_URI} ^/$
-    RewriteRule ^$ dashboard-v2028.html [L]
+    RewriteRule ^$ dashboard-v2029.html [L]
 
     # 2. Prevent direct access to old dashboard versions (failsafe)
     RewriteCond %{REQUEST_URI} ^/dashboard-v202[0-7]\.html$ [NC]
-    RewriteRule ^(.*)$ /dashboard-v2028.html [R=301,L]
+    RewriteRule ^(.*)$ /dashboard-v2029.html [R=301,L]
 
     # 3. Handle SPA routing for the dashboard
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ dashboard-v2028.html [L]
+    RewriteRule ^(.*)$ dashboard-v2029.html [L]
 </IfModule>
 
 # Prevent caching of the dashboard HTML
-<FilesMatch "dashboard-v2028\.html$">
+<FilesMatch "dashboard-v2029\.html$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"
     Header set Pragma "no-cache"
     Header set Expires 0

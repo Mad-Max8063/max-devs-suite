@@ -11,7 +11,7 @@ import {
     deleteGalleryImageSecure,
     updateGalleryCaptionSecure,
     updateBusinessProfileSecure,
-} from './supabase-v2028.js';
+} from './supabase-v2029.js';
 
 export function renderClientPanel(container, card) {
     const data = {

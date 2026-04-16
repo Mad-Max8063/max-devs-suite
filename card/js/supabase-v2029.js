@@ -1,4 +1,4 @@
-console.log("cachebust-v2028-FINAL");
+console.log("cachebust-v2029-FINAL");
 // ============================================
 // supabase.js — Supabase client & API functions
 // ============================================
@@ -155,7 +155,7 @@ export async function getCard(slug) {
         }));
     }
 
-    // Map DB entity 'business' to 'card' display format (v2028-FIXED)
+    // Map DB entity 'business' to 'card' display format (v2029-FIXED)
     const cardData = {
         id: business.id,
         _id: business.id, // Legacy compatibility

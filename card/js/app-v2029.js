@@ -2,7 +2,7 @@
 // app.js — Main router & app orchestration
 // ============================================
 
-import { getCard } from './supabase-v2028.js';
+import { getCard } from './supabase-v2029.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
@@ -10,7 +10,7 @@ const app = document.getElementById('app');
 // --- PWA Service Worker Registration ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/card/sw-v2028.js', { scope: '/card/' })
+        navigator.serviceWorker.register('/card/sw-v2029.js', { scope: '/card/' })
             .then(reg => console.log('[PWA] Service Worker registered for Card:', reg.scope))
             .catch(err => console.error('[PWA] Service Worker registration failed:', err));
     });
@@ -129,7 +129,7 @@ function navigate() {
                 app.innerHTML = '';
                 app.appendChild(landingView);
 
-                import('./engine-v2028.js').then((mod) => {
+                import('./engine-v2029.js').then((mod) => {
                     mod.renderLanding(landingView, data);
                 }).catch(err => {
                     console.error('[Router] Error loading engine:', err);
@@ -166,7 +166,7 @@ function navigate() {
 
         const data = window.__previewData || {};
 
-        import('./engine-v2028.js').then((mod) => {
+        import('./engine-v2029.js').then((mod) => {
             mod.renderPreview(
                 previewView,
                 data,

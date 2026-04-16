@@ -29,11 +29,11 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         // Punto de entrada principal (Landing)
-        main:   resolve(__dirname, 'home-v2028.html'),
+        main:   resolve(__dirname, 'home-v2029.html'),
         // Landing JS (onboarding)
         landing: resolve(__dirname, 'landing/app.js'),
         // Admin Panel (Vanilla JS)
-        dashboard: resolve(__dirname, 'admin/dashboard-v2028.html'),
+        dashboard: resolve(__dirname, 'admin/dashboard-v2029.html'),
         // Tarjeta Virtual (Vanilla JS)
         card:   resolve(__dirname, 'card/index.html'),
         // Gestor de Turnos (React + TypeScript)
@@ -41,9 +41,9 @@ export default defineConfig(({ command }) => ({
       },
       output: {
         // Hashes únicos más versionado forzado para evadir caché persistente de HCDN
-        entryFileNames: 'assets/[name]-[hash]-v2028.js',
-        chunkFileNames: 'assets/[name]-[hash]-v2028.js',
-        assetFileNames: 'assets/[name]-[hash]-v2028.[ext]',
+        entryFileNames: 'assets/[name]-[hash]-v2029.js',
+        chunkFileNames: 'assets/[name]-[hash]-v2029.js',
+        assetFileNames: 'assets/[name]-[hash]-v2029.[ext]',
       },
     },
   },
