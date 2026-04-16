@@ -44,6 +44,14 @@ export default defineConfig(({ command }) => ({
         entryFileNames: 'assets/[name]-[hash]-v2029.js',
         chunkFileNames: 'assets/[name]-[hash]-v2029.js',
         assetFileNames: 'assets/[name]-[hash]-v2029.[ext]',
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('/react-router') || id.includes('@remix-run')) return 'vendor-router';
+          if (id.includes('/react-dom/')) return 'vendor-react-dom';
+          if (id.includes('/react/') || id.includes('/scheduler/')) return 'vendor-react';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+          return 'vendor';
+        },
       },
     },
   },

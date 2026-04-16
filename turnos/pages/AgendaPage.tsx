@@ -228,7 +228,7 @@ const AgendaPage: React.FC = () => {
 interface AppointmentCardProps {
   appointment: {
     ID: string;
-    Estado: 'Pendiente' | 'Confirmado';
+    Estado: 'Pendiente' | 'Confirmado' | 'Cancelado';
     Hora: string;
     NombreCliente: string;
     Servicio: string;

@@ -21,19 +21,19 @@
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+                navigator.serviceWorker.register('./sw-admin.js', { scope: './' })
                     .then(reg => console.log('[PWA] Service Worker registered for Admin:', reg.scope))
                     .catch(err => console.error('[PWA] Service Worker registration failed:', err));
             });
         }
     </script>
     <meta name="description" content="Panel de administración de Suito. Gestioná clientes, servicios y productos.">
-    <link rel="manifest" href="/admin/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#8b5cf6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="/admin/styles.css">
+    <link rel="stylesheet" href="./styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
@@ -509,11 +509,5 @@
 
     <script type="module" src="./app.js"></script>
     <script type="module" src="./auth.js"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/admin/sw-admin.js', { scope: '/admin/' })
-          .catch(err => console.warn('[SW Admin]', err));
-      }
-    </script>
 </body>
 </html>

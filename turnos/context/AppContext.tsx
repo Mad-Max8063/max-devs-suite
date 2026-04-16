@@ -32,7 +32,7 @@ interface AppState {
 interface AppActions {
     setSlug: (slug: string) => void;
     refreshProfile: () => Promise<void>;
-    updateProfile: (data: Partial<Profile>) => Promise<void>;
+    updateProfile: (data: Partial<Profile>) => Promise<{ slug: string }>;
     refreshAppointments: (status?: 'Pendiente' | 'Confirmado' | 'Cancelado' | 'all') => Promise<void>;
     updateAppointmentStatus: (id: string, status: 'Pendiente' | 'Confirmado' | 'Cancelado') => Promise<void>;
     setCurrentAppointment: (appointment: Appointment | null) => void;
@@ -396,7 +396,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const updateProfile = useCallback(async (data: Partial<Profile>) => {
         if (!slug) {
             logger.error('[updateProfile] No slug available');
-            return;
+            throw new Error('No slug available');
         }
 
         // If profile is null, create a minimal profile with the slug
@@ -425,6 +425,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 throw error;
             }
         }
+        
+        return { slug };
     }, [slug, profile, shouldCallApi, isDemo]);
 
     // Refresh appointments

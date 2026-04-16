@@ -27,8 +27,11 @@ CREATE POLICY "pricing_read_all" ON pricing
     FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "pricing_update_auth" ON pricing;
-CREATE POLICY "pricing_update_auth" ON pricing
-    FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "pricing_update_super_admin" ON pricing;
+CREATE POLICY "pricing_update_super_admin" ON pricing
+    FOR UPDATE
+    USING (public.is_super_admin(auth.uid()))
+    WITH CHECK (public.is_super_admin(auth.uid()));
 
 -- 4. Trigger para auto-actualizar updated_at
 CREATE OR REPLACE FUNCTION update_pricing_timestamp()
