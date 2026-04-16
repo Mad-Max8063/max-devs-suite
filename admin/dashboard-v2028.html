@@ -17,6 +17,15 @@
                 }
             }
         }, true);
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' })
+                    .then(reg => console.log('[PWA] Service Worker registered for Admin:', reg.scope))
+                    .catch(err => console.error('[PWA] Service Worker registration failed:', err));
+            });
+        }
     </script>
     <meta name="description" content="Panel de administración de Suito. Gestioná clientes, servicios y productos.">
     <link rel="manifest" href="/admin/manifest.json">

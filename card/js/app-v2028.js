@@ -7,6 +7,15 @@ import { getCard } from './supabase-v2028.js';
 window.__appRouterActive = true;
 const app = document.getElementById('app');
 
+// --- PWA Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/card/sw-v2028.js', { scope: '/card/' })
+            .then(reg => console.log('[PWA] Service Worker registered for Card:', reg.scope))
+            .catch(err => console.error('[PWA] Service Worker registration failed:', err));
+    });
+}
+
 function navigate() {
     const path = window.location.pathname;
     const search = window.location.search;
@@ -34,7 +43,23 @@ function navigate() {
         const token = params.get('token') || '';
         localStorage.setItem('last_card_url', `edit/${cardId}?token=${token}`);
 
-        app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><p>Cargando editor...</p></div>';
+        app.innerHTML = `
+            <div class="loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:var(--background, #fdfcff);">
+                <div class="card-avatar-ring" style="width:80px; height:80px; margin-bottom:20px; animation: suito-pulse 2s infinite; border: 3px solid var(--primary);">
+                    <img src="/card/assets/suito-logo.png" style="width:100%; height:100%; border-radius:50%; object-fit:cover; background: #fff;">
+                </div>
+                <h2 style="color:var(--primary); font-size:1.5rem; margin-bottom:8px; font-weight:700;">Suito Editor</h2>
+                <div class="spinner" style="border-top-color:var(--primary); width:24px; height:24px; border-width:3px;"></div>
+                <p style="color:var(--text-secondary); margin-top:16px; font-weight:500;">Preparando tu panel mágico...</p>
+            </div>
+            <style>
+                @keyframes suito-pulse {
+                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.5); }
+                    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
+                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+                }
+            </style>
+        `;
 
         getCard(cardId).then(card => {
             if (!card) {
