@@ -11,6 +11,7 @@ import {
     deleteGalleryImageSecure,
     updateGalleryCaptionSecure,
     updateBusinessProfileSecure,
+    updateActiveModulesSecure,
 } from './supabase-v2029.js';
 
 export function renderClientPanel(container, card) {
@@ -31,6 +32,7 @@ export function renderClientPanel(container, card) {
         bookingUrl: card.bookingUrl || card.booking_url || '',
         photo:      card.photo || card.photo_url || '',
         coverPhoto: card.coverPhoto || card.cover_url || '',
+        activeModules: card.activeModules || card.active_modules || ['card'],
         gallery: (card.gallery_images || card.gallery || []).map(img => ({
             id:      img.id,
             src:     img.image_url || img.src || '',
@@ -137,11 +139,35 @@ function buildPanelHTML(data) {
               <label class="cp-label">Sitio web</label>
               <input class="cp-input" id="cp-website" type="url" value="${sanitize(data.website)}" placeholder="https://tuempresa.com">
 
-              <label class="cp-label">Link de Turnos (Dejalo vacío para ocultar el botón)</label>
-              <input class="cp-input" id="cp-bookingUrl" type="url" value="${sanitize(data.bookingUrl)}" placeholder="https://turnos.suito.pro/#/.../booking" maxlength="200">
+              <!-- Module Toggle: Appointments -->
+              <div class="cp-toggle-row" style="display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top:20px;">
+                  <div style="flex:1; padding-right:12px;">
+                      <label class="cp-label" style="margin-bottom:2px; display:block;">Gestor de Turnos</label>
+                      <p style="font-size:11px; opacity:0.5; margin:0; line-height:1.3;">Activá el módulo si sos un profesional que da turnos online.</p>
+                  </div>
+                  <label class="cp-switch">
+                      <input type="checkbox" id="cp-toggle-appointments" ${data.activeModules.includes('appointments') ? 'checked' : ''}>
+                      <span class="cp-slider"></span>
+                  </label>
+              </div>
+
+              <div id="cp-booking-section" style="${data.activeModules.includes('appointments') ? '' : 'display:none;'} transition: all 0.3s ease;">
+                <label class="cp-label">Link de Turnos</label>
+                <input class="cp-input" id="cp-bookingUrl" type="url" value="${sanitize(data.bookingUrl)}" placeholder="https://turnos.suito.pro/#/.../booking" maxlength="200">
+              </div>
             </div>
           </div>
         </div>
+
+        <style>
+            .cp-switch { position:relative; width:44px; height:24px; display:inline-block; flex-shrink:0; }
+            .cp-switch input { opacity:0; width:0; height:0; }
+            .cp-slider { position:absolute; inset:0; background:rgba(255,255,255,0.1); border-radius:30px; transition:.3s; cursor:pointer; }
+            .cp-slider::before { content:''; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+            .cp-switch input:checked + .cp-slider { background: var(--primary); }
+            .cp-switch input:checked + .cp-slider::before { transform:translateX(20px); }
+            .cp-switch input:disabled + .cp-slider { opacity: 0.5; cursor: not-allowed; }
+        </style>
 
         <div class="ge-actions" style="margin-top:24px; display: flex; flex-direction: column; gap: 12px;">
           <button type="button" class="btn-save" id="cp-save-profile" style="background: var(--premium-gradient); border-radius: 20px;">
@@ -240,6 +266,7 @@ function wirePanelEvents(container, data) {
     wireTabs(container);
     wireProfileEvents(container, data);
     wireGalleryEvents(container, data);
+    wireModuleEvents(container, data);
     wireCopyBtn(container, data);
 }
 
@@ -419,5 +446,44 @@ function wireCopyBtn(container, data) {
                 copyBtn.classList.remove('copied');
             }, 2000);
         });
+    });
+}
+
+function wireModuleEvents(container, data) {
+    const toggleAppts = container.querySelector('#cp-toggle-appointments');
+    const bookingSection = container.querySelector('#cp-booking-section');
+
+    toggleAppts?.addEventListener('change', async () => {
+        const isActive = toggleAppts.checked;
+        const currentModules = data.activeModules || ['card'];
+        
+        // Calcular nuevos módulos manteniendo 'card' siempre y evitando duplicados
+        const newModules = isActive 
+            ? [...new Set([...currentModules, 'appointments'])]
+            : currentModules.filter(m => m !== 'appointments');
+
+        toggleAppts.disabled = true;
+        
+        try {
+            await updateActiveModulesSecure(data._id, data._token, newModules);
+            data.activeModules = newModules;
+            
+            // Efecto visual suave para ocultar/mostrar la sección del link
+            if (bookingSection) {
+                if (isActive) {
+                    bookingSection.style.display = 'block';
+                    setTimeout(() => bookingSection.style.opacity = '1', 10);
+                } else {
+                    bookingSection.style.opacity = '0';
+                    setTimeout(() => bookingSection.style.display = 'none', 300);
+                }
+            }
+        } catch (err) {
+            console.error('[ClientPanel] Module toggle error:', err);
+            toggleAppts.checked = !isActive; // Revertir UI
+            alert('No pudimos actualizar los módulos. Verificá tu conexión.');
+        } finally {
+            toggleAppts.disabled = false;
+        }
     });
 }

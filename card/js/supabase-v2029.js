@@ -173,8 +173,11 @@ export async function getCard(slug) {
         facebook: business.facebook || '',
         linkedin: business.linkedin || '',
         website: business.website || '',
-        bookingUrl: business.booking_url !== null && business.booking_url !== undefined ? business.booking_url : (hasAppointments ? `https://turnos.suito.pro/#/${business.slug}/booking` : ''),
+        bookingUrl: hasAppointments 
+            ? (business.booking_url || `https://turnos.suito.pro/#/${business.slug}/booking`) 
+            : '',
         isPremium: isPremium,
+        activeModules: activeModules,
         slug: business.slug,
         edit_token: business.edit_token || '',
         gallery: gallery
@@ -338,6 +341,19 @@ export async function updateGalleryCaption(imageId, caption) {
 
     if (error) {
         console.error('Error updating caption:', error);
+        throw error;
+    }
+}
+
+export async function updateActiveModulesSecure(cardId, editToken, activeModules) {
+    const db = getClient();
+    const { error } = await db.rpc('update_active_modules_secure', {
+        p_card_id: cardId,
+        p_edit_token: editToken,
+        p_active_modules: activeModules,
+    });
+    if (error) {
+        console.error('Error updating active modules (secure):', error);
         throw error;
     }
 }

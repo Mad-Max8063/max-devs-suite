@@ -144,21 +144,27 @@ function buildCardHTML(data) {
                 </div>
 
                 <!-- Contact Links -->
-                ${(email || instagram || facebook || linkedin || website || bookingUrl) ? `
-                <div class="card-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Contacto</h2>
+                ${(() => {
+                    const activeModules = data.activeModules || data.active_modules || [];
+                    const hasAppointments = activeModules.includes('appointments');
+                    const showBooking = bookingUrl && hasAppointments;
+
+                    return (email || instagram || facebook || linkedin || website || showBooking) ? `
+                    <div class="card-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Contacto</h2>
+                        </div>
+                        <div class="services-grid">
+                            ${email ? `<a href="mailto:${email}" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">mail</span><p>${email}</p></a>` : ''}
+                            ${instagram ? `<a href="https://instagram.com/${instagram}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">photo_camera</span><p>@${instagram}</p></a>` : ''}
+                            ${facebook ? `<a href="${facebook}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">facebook</span><p>Facebook</p></a>` : ''}
+                            ${linkedin ? `<a href="${linkedin}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">work</span><p>LinkedIn</p></a>` : ''}
+                            ${website ? `<a href="${website}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">language</span><p>Web</p></a>` : ''}
+                            ${showBooking ? `<a href="${bookingUrl}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">calendar_month</span><p>Agendar Turno</p></a>` : ''}
+                        </div>
                     </div>
-                    <div class="services-grid">
-                        ${email ? `<a href="mailto:${email}" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">mail</span><p>${email}</p></a>` : ''}
-                        ${instagram ? `<a href="https://instagram.com/${instagram}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">photo_camera</span><p>@${instagram}</p></a>` : ''}
-                        ${facebook ? `<a href="${facebook}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">facebook</span><p>Facebook</p></a>` : ''}
-                        ${linkedin ? `<a href="${linkedin}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">work</span><p>LinkedIn</p></a>` : ''}
-                        ${website ? `<a href="${website}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">language</span><p>Web</p></a>` : ''}
-                        ${bookingUrl ? `<a href="${bookingUrl}" target="_blank" class="service-card glass-card" style="text-decoration:none;"><span class="material-symbols-outlined">calendar_month</span><p>Agendar Turno</p></a>` : ''}
-                    </div>
-                </div>
-                ` : ''}
+                    ` : '';
+                })()}
 
                 <!-- Gallery -->
                 ${gallery.length > 0 ? `
