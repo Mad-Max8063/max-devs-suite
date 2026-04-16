@@ -46,12 +46,13 @@ export function renderClientPanel(container, card) {
 
 function buildPanelHTML(data) {
     return `
-    <div class="gallery-editor-view">
+    return `
+    <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
 
       <!-- Header -->
-      <div class="ge-header">
-        <h1 class="ge-title">✨ Tu Panel de Edición</h1>
-        <p class="ge-subtitle">Personalizá tu tarjeta y compartila con tus clientes.</p>
+      <div class="ge-header" style="text-align: center; margin-bottom: 20px; padding-top: 8px;">
+        <h1 class="card-name" style="color: var(--primary); font-size: 1.5rem;">✨ Tu Panel Suito</h1>
+        <p class="card-bio" style="margin: 4px auto 0;">Personalizá tu presencia digital en tiempo real.</p>
       </div>
 
       <!-- Tabs -->
@@ -63,32 +64,43 @@ function buildPanelHTML(data) {
 
       <!-- ═══ TAB: PERFIL ═══ -->
       <div class="cp-panel active" id="tab-profile">
-        <div class="glass-card">
-          <div class="form-section">
-            <div class="section-label">Foto de perfil</div>
-            <div class="cp-avatar-row">
-              <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/card/assets/suito-logo.png'}"
-                   alt="Avatar" class="ge-avatar" style="width:72px;height:72px;object-fit:cover;border-radius:50%;">
-              <label class="btn btn-secondary" style="cursor:pointer;font-size:13px;">
-                Cambiar foto
-                <input type="file" id="cp-avatar-file" accept="image/*" style="display:none">
-              </label>
+        
+        <!-- Live Preview Header -->
+        <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 16px; border-radius: var(--radius-card);">
+            <div class="card-header" style="margin-bottom: 40px; border-radius: var(--radius-card) var(--radius-card) 0 0;">
+                <div class="card-cover-wrapper" style="height: 140px;">
+                    <!-- Cover Image -->
+                    ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" class="card-cover">` : `<div id="cp-cover-preview" class="card-cover" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);"></div>`}
+                    <div class="card-cover-overlay"></div>
+                    <!-- Cover Edit Button -->
+                    <label style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                        <span class="material-symbols-outlined" style="font-size:16px;">edit</span> Cambiar Portada
+                        <input type="file" id="cp-cover-file" accept="image/*" style="display:none">
+                    </label>
+                </div>
+                <!-- Avatar Edit Button -->
+                <div class="card-avatar-container" style="bottom: -35px;">
+                    <label style="cursor: pointer; display: block; position: relative; transition: transform 0.2s;">
+                        <div class="card-avatar-ring" style="width: 84px; height: 84px; border-width: 3px;">
+                            <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/card/assets/suito-logo.png'}" class="card-avatar">
+                        </div>
+                        <div style="position: absolute; bottom: 2px; right: 2px; background: var(--primary); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid white;">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">photo_camera</span>
+                        </div>
+                        <input type="file" id="cp-avatar-file" accept="image/*" style="display:none">
+                    </label>
+                </div>
             </div>
-          </div>
-
-          <div class="form-section">
-            <div class="section-label">Portada</div>
-            ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" style="width:100%;height:100px;object-fit:cover;border-radius:12px;margin-bottom:8px;">` : `<div id="cp-cover-preview" style="width:100%;height:60px;background:linear-gradient(135deg,#8B5CF6,#EC4899);border-radius:12px;margin-bottom:8px;"></div>`}
-            <label class="btn btn-secondary" style="cursor:pointer;font-size:13px;">
-              Cambiar portada
-              <input type="file" id="cp-cover-file" accept="image/*" style="display:none">
-            </label>
-          </div>
+            <div style="text-align: center; padding-bottom: 20px;">
+                <p class="section-badge" style="display: inline-block; background: var(--surface-2); padding: 6px 12px;">Vista previa visual</p>
+            </div>
         </div>
 
         <div class="glass-card" style="margin-top:12px;">
           <div class="form-section">
-            <div class="section-label">Información básica</div>
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">Información Básica</h2>
+            </div>
             <div class="cp-fields">
               <label class="cp-label">Nombre / Negocio</label>
               <input class="cp-input" id="cp-name" type="text" value="${sanitize(data.name)}" placeholder="Ej: Juan García" maxlength="60">
@@ -112,7 +124,7 @@ function buildPanelHTML(data) {
               <input class="cp-input" id="cp-instagram" type="text" value="${sanitize(data.instagram)}" placeholder="tu.usuario" maxlength="60">
 
               <label class="cp-label">Facebook</label>
-              <input class="cp-input" id="cp-facebook" type="text" value="${sanitize(data.facebook)}" placeholder="tu.pagina" maxlength="100">
+              <input class="cp-input" id="cp-facebook" type="text" value="${sanitize(data.facebook)}" placeholder="https://facebook.com/tupagina" maxlength="100">
 
               <label class="cp-label">LinkedIn</label>
               <input class="cp-input" id="cp-linkedin" type="url" value="${sanitize(data.linkedin)}" placeholder="https://linkedin.com/in/tuusuario" maxlength="200">
@@ -126,12 +138,13 @@ function buildPanelHTML(data) {
           </div>
         </div>
 
-        <div class="ge-actions" style="margin-top:16px;">
-          <button type="button" class="btn-primary" id="cp-save-profile">
-            💾 Guardar cambios
+        <div class="ge-actions" style="margin-top:20px; display: flex; flex-direction: column; gap: 8px;">
+          <button type="button" class="btn-save" id="cp-save-profile">
+            <span class="material-symbols-outlined">save</span>
+            Guardar todos los cambios
           </button>
-          <div id="cp-profile-feedback" style="display:none;text-align:center;color:#10b981;font-size:13px;font-weight:600;margin-top:8px;">
-            ✅ Perfil actualizado correctamente
+          <div id="cp-profile-feedback" style="display:none;text-align:center;color:var(--tertiary);font-size:13px;font-weight:700;background:rgba(16,185,129,0.1);padding:10px;border-radius:12px;">
+            ¡Perfil actualizado correctamente!
           </div>
         </div>
       </div>

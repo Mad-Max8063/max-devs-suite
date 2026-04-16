@@ -12,6 +12,9 @@ ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS foto_url TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS cover_url TEXT; -- ← ESTA FALTABA
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS color_primario TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS gallery_images JSONB DEFAULT '[]';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS facebook TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS linkedin TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS booking_url TEXT;
 
 -- 2. Creamos índices para optimizar la búsqueda
 CREATE INDEX IF NOT EXISTS idx_businesses_edit_token ON public.businesses(edit_token);

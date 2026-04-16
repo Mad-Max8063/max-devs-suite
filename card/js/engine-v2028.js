@@ -120,10 +120,10 @@ function buildCardHTML(data) {
                     <p class="card-title">${profession}</p>
                     ${description ? `<p class="card-bio">${description}</p>` : ''}
                     ${location ? `
-                        <div class="card-location">
-                            <span class="material-symbols-outlined">location_on</span>
-                            <span>${location}</span>
-                        </div>
+                        <a href="${location.startsWith('http') ? location : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}" target="_blank" class="card-location" style="text-decoration:none;">
+                            <span class="material-symbols-outlined" style="pointer-events:none;">location_on</span>
+                            <span style="pointer-events:none; text-decoration:underline; text-underline-offset:2px;">${location.startsWith('http') ? 'Ubicación / Mapa' : location}</span>
+                        </a>
                     ` : ''}
                 </div>
 
