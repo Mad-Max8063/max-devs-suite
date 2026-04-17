@@ -51,20 +51,28 @@ function buildPanelHTML(data) {
     return `
     <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
 
-      <!-- Header -->
-      <div class="ge-header" style="text-align: center; margin-bottom: 24px; padding-top: 8px;">
-        <h1 class="card-name" style="color: var(--primary); font-size: 1.8rem; letter-spacing: -1px;">✨ Tu Panel Suito</h1>
-        <p class="card-bio" style="margin: 6px auto 0; font-weight: 600; opacity: 0.7;">Personalizá tu presencia digital.</p>
-      </div>
- 
-      <!-- Install App Banner (PWA) -->
-      <div id="pwa-install-banner" style="display:none; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(236,72,153,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
-        <div style="font-size: 28px; flex-shrink: 0;">📲</div>
-        <div style="flex: 1;">
-          <p style="font-weight: 800; font-size: 13px; color: var(--primary); margin: 0 0 3px;">Guardá tu panel como App</p>
-          <p style="font-size: 11px; color: var(--text-muted); margin: 0; line-height: 1.4;">Agregá tu Panel Suito a la pantalla de inicio para acceder con un toque desde tu celular.</p>
+      <!-- Header Premium -->
+      <div style="text-align: center; margin-bottom: 20px; padding: 28px 16px 20px; background: var(--premium-gradient); border-radius: 28px; position: relative; overflow: hidden;">
+        <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.15), transparent 50%), radial-gradient(circle at 70% 80%, rgba(255,255,255,0.1), transparent 50%);"></div>
+        <div style="position: relative; z-index: 1;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); padding: 6px 16px; border-radius: 20px; font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.9); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.2);">
+            <span style="font-size: 14px;">✨</span> SUITO EDITOR
+          </div>
+          <h1 style="color: #fff; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; text-shadow: 0 2px 12px rgba(0,0,0,0.15);">Tu Panel de Control</h1>
+          <p style="color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 500; margin: 0;">Personalizá tu presencia digital</p>
         </div>
-        <button id="btn-pwa-install" style="background: var(--primary); color: white; border: none; border-radius: 12px; padding: 10px 16px; font-size: 12px; font-weight: 800; cursor: pointer; flex-shrink: 0; white-space: nowrap;">
+      </div>
+
+      <!-- Install App Banner (PWA) -->
+      <div id="pwa-install-banner" style="display:none; background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(139,92,246,0.15); border-radius: 20px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(139,92,246,0.08);">
+        <div style="width: 40px; height: 40px; background: var(--premium-gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
+          <span style="color: #fff; font-size: 18px;">📲</span>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <p style="font-weight: 800; font-size: 12px; color: var(--on-surface); margin: 0 0 2px;">Guardá tu panel como App</p>
+          <p style="font-size: 10px; color: var(--on-surface-variant); margin: 0; line-height: 1.4; opacity: 0.6;">Accedé con un toque desde tu celular.</p>
+        </div>
+        <button id="btn-pwa-install" style="background: var(--premium-gradient); color: white; border: none; border-radius: 12px; padding: 10px 16px; font-size: 11px; font-weight: 800; cursor: pointer; flex-shrink: 0; white-space: nowrap; box-shadow: 0 4px 12px rgba(139,92,246,0.25); transition: all 0.25s;">
           Instalar
         </button>
       </div>
