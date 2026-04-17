@@ -33,6 +33,7 @@ export function renderClientPanel(container, card) {
         photo:      card.photo || card.photo_url || '',
         coverPhoto: card.coverPhoto || card.cover_url || '',
         activeModules: card.activeModules || card.active_modules || ['card'],
+        isPremium: card.isPremium || card.is_premium || false,
         gallery: (card.gallery_images || card.gallery || []).map(img => ({
             id:      img.id,
             src:     img.image_url || img.src || '',
