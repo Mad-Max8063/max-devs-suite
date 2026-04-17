@@ -16,6 +16,8 @@ DirectoryIndex dashboard-v2029.html
     RewriteRule ^(.*)$ /dashboard-v2029.html [R=301,L]
 
     # 3. Handle SPA routing for the dashboard
+    # IMPORTANT: Don't intercept static asset requests (JS, CSS, images, etc.)
+    RewriteCond %{REQUEST_URI} !\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webmanifest|json)$ [NC]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ dashboard-v2029.html [L]
