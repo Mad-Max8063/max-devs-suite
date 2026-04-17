@@ -56,6 +56,18 @@ function buildPanelHTML(data) {
         <p class="card-bio" style="margin: 6px auto 0; font-weight: 600; opacity: 0.7;">Personalizá tu presencia digital.</p>
       </div>
  
+      <!-- Install App Banner (PWA) -->
+      <div id="pwa-install-banner" style="display:none; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(236,72,153,0.1)); border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+        <div style="font-size: 28px; flex-shrink: 0;">📲</div>
+        <div style="flex: 1;">
+          <p style="font-weight: 800; font-size: 13px; color: var(--primary); margin: 0 0 3px;">Guardá tu panel como App</p>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; line-height: 1.4;">Agregá tu Panel Suito a la pantalla de inicio para acceder con un toque desde tu celular.</p>
+        </div>
+        <button id="btn-pwa-install" style="background: var(--primary); color: white; border: none; border-radius: 12px; padding: 10px 16px; font-size: 12px; font-weight: 800; cursor: pointer; flex-shrink: 0; white-space: nowrap;">
+          Instalar
+        </button>
+      </div>
+
       <!-- Tabs -->
       <div class="cp-tabs" id="cp-tabs">
         <button class="cp-tab active" data-tab="profile">
@@ -269,11 +281,51 @@ function buildAddBtn() {
 // ——— Event Wiring ———
 
 function wirePanelEvents(container, data) {
+    wirePwaInstall(container);
     wireTabs(container);
     wireProfileEvents(container, data);
     wireGalleryEvents(container, data);
     wireModuleEvents(container, data);
     wireCopyBtn(container, data);
+}
+
+function wirePwaInstall(container) {
+    const banner = container.querySelector('#pwa-install-banner');
+    const installBtn = container.querySelector('#btn-pwa-install');
+    if (!banner || !installBtn) return;
+
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        banner.style.display = 'flex';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                banner.style.display = 'none';
+            }
+            deferredPrompt = null;
+        } else {
+            // Fallback para iOS (Safari no soporta beforeinstallprompt)
+            banner.innerHTML = `
+              <div style="font-size: 24px;">📱</div>
+              <div style="flex:1; font-size:12px; color: var(--text-muted); line-height:1.5;">
+                En <b>Safari</b>: tocá <b>Compartir</b> → <b>"Agregar a pantalla de inicio"</b>.<br>
+                En <b>Chrome</b>: tocá el menú ⋮ → <b>"Instalar app"</b>.
+              </div>
+            `;
+        }
+    });
+
+    // Si ya está instalada como PWA, ocultamos el banner
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        banner.style.display = 'none';
+    }
 }
 
 function wireTabs(container) {

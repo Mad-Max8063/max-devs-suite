@@ -456,11 +456,19 @@
                     <label style="color: var(--accent-purple); display: block; margin-bottom: 8px; font-weight: 600;">
                         <i class="fa-solid fa-camera"></i> Multimedia y Galería
                     </label>
-                    <button type="button" id="btnOpenGalleryEditor" class="btn-secondary" style="width: 100%; justify-content: center; gap: 8px;">
-                        <i class="fa-solid fa-images"></i> Abrir Editor de Galería (Fotos de Trabajos)
-                    </button>
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px; text-align: center;">
-                        Subí fotos de tus trabajos, poneles descripción y mirá cómo queda tu tarjeta.
+                    <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                        <button type="button" id="btnOpenGalleryEditor" class="btn-secondary" style="flex: 1; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-images"></i> Abrir Editor
+                        </button>
+                        <button type="button" id="btnCopyEditorLink" class="btn-secondary" style="flex: 1; justify-content: center; gap: 8px; background: rgba(139,92,246,0.15);">
+                            <i class="fa-solid fa-copy"></i> Copiar link
+                        </button>
+                    </div>
+                    <p id="copyLinkFeedback" style="font-size: 11px; color: var(--accent-purple); margin-top: 4px; text-align: center; display: none; font-weight: 600;">
+                        ✅ ¡Link copiado al portapapeles!
+                    </p>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px; text-align: center;">
+                        Abrí el editor o copiá el link para enviárselo al cliente por WhatsApp.
                     </p>
                 </div>
                 <div class="form-group full-width" style="margin-top: 16px;">

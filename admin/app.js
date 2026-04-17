@@ -476,17 +476,38 @@ function openModal(client = null) {
     // Gallery editor button logic
     const galleryControls = document.getElementById('gallery-vcard-controls');
     const galleryBtn = document.getElementById('btnOpenGalleryEditor');
+    const copyBtn = document.getElementById('btnCopyEditorLink');
+    const copyFeedback = document.getElementById('copyLinkFeedback');
     
     if (client && client.plan !== 'turnos') {
         galleryControls.style.display = 'block';
-        galleryBtn.onclick = () => {
-            const baseUrl = CONFIG.products.tarjetaVirtual;
+
+        const getEditorUrl = () => {
             const slug = client.slug || client.id;
             const token = client.edit_token;
-            if (token) {
-                window.open(`https://suito.pro/edit/${slug}?token=${token}`, '_blank');
+            return token ? `https://suito.pro/edit/${slug}?token=${token}` : null;
+        };
+
+        galleryBtn.onclick = () => {
+            const url = getEditorUrl();
+            if (url) {
+                window.open(url, '_blank');
             } else {
                 alert('Este cliente no tiene un token de edición generado. Por favor guardá los cambios primero.');
+            }
+        };
+
+        copyBtn.onclick = () => {
+            const url = getEditorUrl();
+            if (url) {
+                navigator.clipboard.writeText(url).then(() => {
+                    copyFeedback.style.display = 'block';
+                    setTimeout(() => { copyFeedback.style.display = 'none'; }, 3000);
+                }).catch(() => {
+                    prompt('Copiá este link y enviáselo al cliente:', url);
+                });
+            } else {
+                alert('Este cliente no tiene un token de edición. Por favor guardá los cambios primero.');
             }
         };
     } else {
