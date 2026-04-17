@@ -3,6 +3,8 @@
 // Acceso: /edit/{cardId}?token={editToken}
 // Permite editar: perfil básico + galería + compartir
 // ============================================
+import '../css/styles.css';
+
 
 import { sanitize, getCardUrl, resizeImage, resizeBanner, resizeGalleryImage, dataUriToFile } from './utils.js';
 import {
