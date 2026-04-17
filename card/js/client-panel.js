@@ -109,11 +109,17 @@ function buildPanelHTML(data) {
                 <h2 class="section-title">Información Básica</h2>
             </div>
             <div class="cp-fields">
-              <label class="cp-label">Nombre / Negocio</label>
-              <input class="cp-input" id="cp-name" type="text" value="${sanitize(data.name)}" placeholder="Ej: Juan García" maxlength="60">
+              <label class="cp-label">Nombre / Negocio ${data.isPremium ? ' <span style="color:var(--accent-purple);font-size:10px;"><i class="fa-solid fa-lock"></i> Premium</span>' : ''}</label>
+              <input class="cp-input" id="cp-name" type="text" value="${sanitize(data.name)}" placeholder="Ej: Juan García" maxlength="60" ${data.isPremium ? 'disabled style="opacity: 0.6; cursor: not-allowed;" title="Premium: Por seguridad, contactanos para cambiar esto"' : ''}>
 
-              <label class="cp-label">Profesión / Especialidad</label>
-              <input class="cp-input" id="cp-profession" type="text" value="${sanitize(data.profession)}" placeholder="Ej: Diseñador Gráfico" maxlength="60">
+              <label class="cp-label">Profesión / Especialidad ${data.isPremium ? ' <span style="color:var(--accent-purple);font-size:10px;"><i class="fa-solid fa-lock"></i> Premium</span>' : ''}</label>
+              <input class="cp-input" id="cp-profession" type="text" value="${sanitize(data.profession)}" placeholder="Ej: Diseñador Gráfico" maxlength="60" ${data.isPremium ? 'disabled style="opacity: 0.6; cursor: not-allowed;" title="Premium: Por seguridad, contactanos para cambiar esto"' : ''}>
+
+              ${data.isPremium ? `
+              <div style="background: rgba(139, 92, 246, 0.1); border: 1px dashed var(--accent-purple); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                <i class="fa-solid fa-circle-info" style="color: var(--accent-purple);"></i> Tu identidad está protegida. Si cambiaste de negocio o vas a ceder tu tarjeta Premium, contactanos a <b>hola@suito.pro</b> (aplica descuento por traspaso).
+              </div>
+              ` : ''}
 
               <label class="cp-label">Descripción breve</label>
               <textarea class="cp-input" id="cp-description" rows="3" placeholder="Contá en pocas palabras qué hacés..." maxlength="160">${sanitize(data.description)}</textarea>

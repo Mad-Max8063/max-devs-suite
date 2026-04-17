@@ -177,6 +177,7 @@ export async function getCard(slug) {
             ? (business.booking_url || `https://turnos.suito.pro/#/${business.slug}/booking`) 
             : '',
         isPremium: isPremium,
+        forceWatermark: business.force_watermark || false,
         activeModules: activeModules,
         slug: business.slug,
         edit_token: business.edit_token || '',

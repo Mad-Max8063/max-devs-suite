@@ -423,6 +423,7 @@ function initModal() {
             slug: document.getElementById('clientSlug').value,
             plan: document.getElementById('clientPlan').value,
             is_premium: document.getElementById('clientPremium').checked,
+            force_watermark: document.getElementById('clientForceWatermark').checked,
             free_until: document.getElementById('clientFreeUntil').value || null,
             transfer_email: document.getElementById('clientTransferEmail').value || null,
             notes: document.getElementById('clientNotes').value,
@@ -464,6 +465,7 @@ function openModal(client = null) {
     document.getElementById('clientSlug').value = client?.slug || '';
     document.getElementById('clientPlan').value = client?.plan || 'tarjeta';
     document.getElementById('clientPremium').checked = client?.is_premium || false;
+    document.getElementById('clientForceWatermark').checked = client?.force_watermark || false;
     document.getElementById('clientFreeUntil').value = client?.free_until || '';
     document.getElementById('clientTransferEmail').value = client?.transfer_email || '';
     document.getElementById('clientNotes').value = client?.notes || '';

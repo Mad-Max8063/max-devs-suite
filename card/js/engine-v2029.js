@@ -187,7 +187,7 @@ function buildCardHTML(data) {
             <!-- Footer -->
             <footer class="card-footer">
                 <div class="footer-divider"></div>
-                ${!isPremium ? `
+                ${(!isPremium || data.forceWatermark) ? `
                     <div class="suito-referral">
                         <p class="referral-text">¿Querés una tarjeta como esta?</p>
                         <a href="https://suito.pro?ref=card" target="_blank" class="referral-link">Obtené la tuya en Suito.pro</a>
