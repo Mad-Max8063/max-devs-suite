@@ -1,0 +1,76 @@
+# MiSuite Plataforma Unificada v1.0.9
+DirectoryIndex home-v2029.html index.html
+
+# ——— Cache Control (Anti-HCDN) ———
+<FilesMatch "\.(html|htm|js|css|json|webmanifest)$">
+    FileETag None
+    <ifModule mod_headers.c>
+        Header unset ETag
+        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+    </ifModule>
+</FilesMatch>
+
+# ——— CORS Assets (Para Subdominios) ———
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|json|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|ico)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# ——— Reescritura de rutas ———
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # --- BLOQUEO DE SCRIPTS ZOMBIE ---
+  # Deben ir ANTES del chequeo de archivo físico para que surtan efecto
+  RewriteRule ^(card|engine|supabase|utils)\.js$ - [F,L]
+  RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
+  RewriteRule ^card/js/.*$ - [F,L]
+
+  # Force no-cache for HTML files to prevent stale dashboard loads
+  <FilesMatch "\.(html|htm)$">
+    FileETag None
+    <ifModule mod_headers.c>
+       Header unset ETag
+       Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+       Header set Pragma "no-cache"
+       Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+    </ifModule>
+  </FilesMatch>
+
+  # A. Excepción para Assets: Si existe el archivo físicamente, servirlo y parar.
+  # Esto cubre /assets/..., /admin/assets/..., /card/assets/..., /turnos/assets/...
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Excepción atómica para carpetas de assets y archivos estáticos clave
+  RewriteRule ^(assets|admin/assets|card/assets|turnos/assets)/.*$ - [L]
+  RewriteRule ^.*\.(json|webmanifest|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|sw-v6\.js|sw-admin\.js)$ - [L]
+
+  # B. Subdomain Routing: admin.suito.pro
+  RewriteCond %{HTTP_HOST} ^admin\.suito\.pro$ [NC]
+  RewriteRule ^(.*)$ admin/dashboard-v2029.html [L]
+
+  # C. MPA Routing (vía subcarpetas en dominio principal)
+  RewriteRule ^admin(/.*)?$ admin/dashboard-v2029.html [L]
+  
+  # --- SEO BOT INTERCEPTOR (WhatsApp, Facebook, Telegram, etc) ---
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_USER_AGENT} (WhatsApp|facebookexternalhit|Twitterbot|LinkedInBot|TelegramBot|Slackbot|Discordbot|SkypeUriPreview) [NC]
+  RewriteRule ^card/([a-z0-9-]+)/?$ card/card_seo_proxy.php?slug=$1 [L,QSA]
+
+  # --- Default SPA Fallback ---
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^card(/.*)?$ card/index.html [L]
+  RewriteRule ^edit(/.*)?$ card/index.html [L]
+  RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
+
+  # D. Raíz: Landing
+  RewriteRule ^$ home-v2029.html [L]
+</IfModule>

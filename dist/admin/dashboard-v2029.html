@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suito Admin | Dashboard</title>
+    <!-- Cache Busting Fail-safe -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+                const url = e.target.src || e.target.href;
+                if (url && (url.includes('/assets/') || url.includes('-v'))) {
+                    console.warn('Asset load failed, forcing clean reload...', url);
+                    if (!window.location.search.includes('reload=true')) {
+                        window.location.search += (window.location.search ? '&' : '?') + 'reload=true';
+                    }
+                }
+            }
+        }, true);
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw-admin.js', { scope: './' })
+                    .then(reg => console.log('[PWA] Service Worker registered for Admin:', reg.scope))
+                    .catch(err => console.error('[PWA] Service Worker registration failed:', err));
+            });
+        }
+    </script>
+    <meta name="description" content="Panel de administración de Suito. Gestioná clientes, servicios y productos.">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <script type="module" crossorigin src="../assets/dashboard-D2h7jlSt-v2029.js"></script>
+  <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX-v2029.js">
+  <link rel="modulepreload" crossorigin href="../assets/vendor-CWnJSrkj-v2029.js">
+  <link rel="modulepreload" crossorigin href="../assets/vendor-supabase-BW_Ct9fl-v2029.js">
+  <link rel="modulepreload" crossorigin href="../assets/supabase-BW7mDqrU-v2029.js">
+  <link rel="stylesheet" crossorigin href="../assets/dashboard-DXUZapGA-v2029.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <span>Suito</span>
+                </div>
+                <button class="mobile-toggle" id="sidebarClose"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <ul class="nav-links">
+                <li class="active" data-section="dashboard">
+                    <a href="#"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a>
+                </li>
+                <li data-section="clients">
+                    <a href="#"><i class="fa-solid fa-users"></i> <span>Clientes</span></a>
+                </li>
+                <li data-section="leads">
+                    <a href="#"><i class="fa-solid fa-envelope-open-text"></i> <span>Solicitudes</span> <span class="badge-new" id="leadsBadge" style="display:none">0</span></a>
+                </li>
+                <li data-section="pricing">
+                    <a href="#"><i class="fa-solid fa-tags"></i> <span>Planes y Precios</span></a>
+                </li>
+                <li data-section="products">
+                    <a href="#"><i class="fa-solid fa-cube"></i> <span>Mis Productos</span></a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Suito+Admin&background=8b5cf6&color=fff&size=40" alt="Admin">
+                    <div class="user-info">
+                        <strong>Admin Suito</strong>
+                        <span>Administrator</span>
+                    </div>
+                </div>
+                <button id="btn-logout" onclick="handleLogout()" style="margin-top:12px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- Mobile hamburger -->
+        <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Buscar cliente..." id="searchInput">
+                </div>
+                <div class="header-actions">
+                    <button class="primary-btn" id="btnNewClient">
+                        <i class="fa-solid fa-plus"></i> Nuevo Cliente
+                    </button>
+                </div>
+            </header>
+
+            <!-- ============ SECTION: Dashboard ============ -->
+            <div class="content-wrapper section-content" id="section-dashboard">
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p>Bienvenido al centro de control de Suito</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Dashboard Panels -->
+                <div class="dashboard-grid">
+                    <!-- Pricing Quick View -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <h2>Precios Vigentes (ARS)</h2>
+                            <a href="#" class="view-all" data-goto="pricing">Editar</a>
+                        </div>
+                        <div class="panel-body">
+                            <div class="price-list" id="pricingQuickView">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Clients -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <h2>Clientes Recientes</h2>
+                            <a href="#" class="view-all" data-goto="clients">Ver Todos</a>
+                        </div>
+                        <div class="panel-body table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Plan</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentClientsTable">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                            <div class="empty-state" id="emptyDashboard" style="display:none;">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <p>Sin clientes todavía. ¡Agregá el primero!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ SECTION: Clients ============ -->
+            <div class="content-wrapper section-content" id="section-clients" style="display:none;">
+                <div class="page-title">
+                    <h1>Gestión de Clientes</h1>
+                    <p>Administrá tus clientes y sus servicios contratados.</p>
+                </div>
+
+                <div class="clients-toolbar">
+                    <div class="filter-pills">
+                        <button class="pill active" data-filter="all">Todos</button>
+                        <button class="pill" data-filter="tarjeta">Tarjeta</button>
+                        <button class="pill" data-filter="turnos">Turnos</button>
+                        <button class="pill" data-filter="combo">Combo</button>
+                    </div>
+                </div>
+
+                <div class="clients-grid" id="clientsGrid">
+                    <!-- Populated by JS -->
+                </div>
+                <div class="empty-state" id="emptyClients" style="display:none;">
+                    <i class="fa-solid fa-users-slash"></i>
+                    <p>No hay clientes con este filtro.</p>
+                </div>
+            </div>
+
+            <!-- ============ SECTION: Leads (Solicitudes) ============ -->
+            <div class="content-wrapper section-content" id="section-leads" style="display:none;">
+                <div class="page-title">
+                    <h1>Solicitudes de Onboarding</h1>
+                    <p>Clientes potenciales que completaron el formulario en la web.</p>
+                </div>
+
+                <div class="leads-grid" id="leadsGrid">
+                    <!-- Populated by JS from Supabase -->
+                </div>
+                <div class="empty-state" id="emptyLeads" style="display:none;">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p>No hay solicitudes pendientes.</p>
+                </div>
+            </div>
+
+            <!-- ============ SECTION: Pricing ============ -->
+            <div class="content-wrapper section-content" id="section-pricing" style="display:none;">
+                <div class="page-title">
+                    <h1>Planes y Precios</h1>
+                    <p>Configurá los precios de tus servicios. Basados en análisis de mercado Argentina.</p>
+                </div>
+
+                <div class="pricing-cards" id="pricingCards">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Pricing Actions: Save + Inflation -->
+                <div class="pricing-actions-bar">
+                    <button class="primary-btn" id="btnSavePricing">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Precios
+                    </button>
+                    <div class="inflation-tool">
+                        <label for="inflationPercent">Ajuste por Inflación (%)</label>
+                        <div class="inflation-input-group">
+                            <input type="number" id="inflationPercent" placeholder="Ej: 3.4" min="0.1" max="100" step="0.1">
+                            <button class="btn-secondary" id="btnApplyInflation">
+                                <i class="fa-solid fa-chart-line"></i> Aplicar
+                            </button>
+                        </div>
+                        <small class="inflation-hint">Redondea a múltiplos de $50. Revisá los valores antes de guardar.</small>
+                    </div>
+                </div>
+
+                <div class="dashboard-panel" style="margin-top:32px;">
+                    <div class="panel-header">
+                        <h2>Análisis de Competencia</h2>
+                    </div>
+                    <div class="panel-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Competidor</th>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Tu ventaja</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Gendu</strong></td>
+                                    <td>Turnos (1 agenda)</td>
+                                    <td>$6.900/mes</td>
+                                    <td><span class="status active">Más barato</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gendu Pro</strong></td>
+                                    <td>Turnos (3 agendas)</td>
+                                    <td>$10.900/mes</td>
+                                    <td><span class="status active">Igual precio + PWA</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ReservaSimple</strong></td>
+                                    <td>Turnos Premium</td>
+                                    <td>$14.999/mes</td>
+                                    <td><span class="status active">34% más barato</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AgendaPro</strong></td>
+                                    <td>Gestión completa</td>
+                                    <td>~$20.000+/mes (USD)</td>
+                                    <td><span class="status active">50% más barato</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tarjetas NFC</strong></td>
+                                    <td>Tarjeta física</td>
+                                    <td>$23.000-$100.000 único</td>
+                                    <td><span class="status active">Digital + editable</span></td>
+                                </tr>
+                                <tr>
+                                    <td><em>Nadie</em></td>
+                                    <td>Tarjeta + Turnos combo</td>
+                                    <td>—</td>
+                                    <td><span class="badge-service combo">Exclusivo tuyo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ SECTION: Products ============ -->
+            <div class="content-wrapper section-content" id="section-products" style="display:none;">
+                <div class="page-title">
+                    <h1>Mis Productos</h1>
+                    <p>Estado y accesos directos a tus dos productos desplegados.</p>
+                </div>
+
+                <div class="products-grid">
+                    <div class="product-card blue-accent">
+                        <div class="product-card-header">
+                            <div class="product-icon blue-bg"><i class="fa-solid fa-address-card"></i></div>
+                            <span class="status active">Producción</span>
+                        </div>
+                        <h3>Tarjeta Virtual</h3>
+                        <p>PWA profesional para compartir por WhatsApp. Stack: HTML/CSS/JS + Supabase.</p>
+                        <div class="product-stats-row">
+                            <div class="product-stat">
+                                <span class="label">Archivos JS</span>
+                                <span class="value">7 módulos</span>
+                            </div>
+                            <div class="product-stat">
+                                <span class="label">Backend</span>
+                                <span class="value">Supabase</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <a href="#" class="product-link" id="linkTarjeta" target="_blank">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir App
+                            </a>
+                            <a href="/card/" class="product-link secondary" target="_blank">
+                                <i class="fa-solid fa-link"></i> Demo pública
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="product-card green-accent">
+                        <div class="product-card-header">
+                            <div class="product-icon green-bg"><i class="fa-solid fa-calendar-check"></i></div>
+                            <span class="status active">Producción</span>
+                        </div>
+                        <h3>Gestor de Turnos</h3>
+                        <p>Sistema multi-tenant con reservas, MercadoPago y WhatsApp. Stack: React 19 + Vite + Supabase.</p>
+                        <div class="product-stats-row">
+                            <div class="product-stat">
+                                <span class="label">Páginas</span>
+                                <span class="value">8 vistas</span>
+                            </div>
+                            <div class="product-stat">
+                                <span class="label">Backend</span>
+                                <span class="value">Supabase + GAS</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <a href="#" class="product-link" id="linkTurnos" target="_blank">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir App
+                            </a>
+                            <a href="/turnos/" class="product-link secondary" target="_blank">
+                                <i class="fa-solid fa-link"></i> Demo pública
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="product-card gradient-accent">
+                        <div class="product-card-header">
+                            <div class="product-icon gradient-bg"><i class="fa-solid fa-star"></i></div>
+                            <span class="badge-service combo">Combo Exclusivo</span>
+                        </div>
+                        <h3>Pack Emprendedor</h3>
+                        <p>Tarjeta Virtual + Gestor de Turnos integrados. La tarjeta muestra el botón "Reservar Turno" que lleva al gestor.</p>
+                        <div class="product-stats-row">
+                            <div class="product-stat">
+                                <span class="label">Integración</span>
+                                <span class="value">booking_url</span>
+                            </div>
+                            <div class="product-stat">
+                                <span class="label">Ahorro</span>
+                                <span class="value">~13% vs individual</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <span class="product-link disabled"><i class="fa-solid fa-link"></i> Se configura por cliente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============ MODAL: New/Edit Client ============ -->
+    <div class="modal-overlay" id="clientModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Cliente</h2>
+                <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="clientName">Nombre del Cliente *</label>
+                        <input type="text" id="clientName" placeholder="Ej: Juan Pérez" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientBusiness">Negocio</label>
+                        <input type="text" id="clientBusiness" placeholder="Ej: Barbería Brothers">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientWhatsapp">WhatsApp</label>
+                        <input type="tel" id="clientWhatsapp" placeholder="Ej: 1155667788">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientEmail">Email</label>
+                        <input type="email" id="clientEmail" placeholder="Ej: juan@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientSlug">Slug (URL del negocio)</label>
+                        <input type="text" id="clientSlug" placeholder="Se genera automáticamente">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPlan">Plan Contratado *</label>
+                        <select id="clientPlan" required>
+                            <option value="tarjeta">Tarjeta Virtual — $4.900/mes</option>
+                            <option value="turnos">Gestor de Turnos — $9.900/mes</option>
+                            <option value="combo">Pack Emprendedor — $12.900/mes</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 24px;">
+                        <input type="checkbox" id="clientPremium" style="width: 18px; height: 18px; cursor: pointer;">
+                        <label for="clientPremium" style="margin: 0; cursor: pointer; user-select: none;">
+                            <i class="fa-solid fa-star" style="color:var(--accent-purple); margin-right: 4px;"></i>
+                            Es nivel Premium (sin marca de agua)
+                        </label>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                        <input type="checkbox" id="clientForceWatermark" style="width: 18px; height: 18px; cursor: pointer;">
+                        <label for="clientForceWatermark" style="margin: 0; cursor: pointer; user-select: none;">
+                            <i class="fa-solid fa-water" style="color:var(--primary); margin-right: 4px;"></i>
+                            Es Promocional (Fuerza marca de agua aunque sea Premium)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientFreeUntil">Periodo gratuito hasta</label>
+                        <input type="date" id="clientFreeUntil">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientProfession">Profesión / Rubro</label>
+                        <input type="text" id="clientProfession" placeholder="Ej: Desarrollador Web">
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-top: 16px;">
+                    <div class="form-group">
+                        <label for="clientFotoUrl">URL Foto Perfil (Logo)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="clientFotoUrl" placeholder="https://..." style="flex: 1;">
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('file-profile').click()" style="padding: 0 12px;" title="Subir Foto">
+                                <i class="fa-solid fa-camera"></i>
+                            </button>
+                        </div>
+                        <input type="file" id="file-profile" hidden accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientCoverUrl">URL Foto Portada (Banner)</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="clientCoverUrl" placeholder="https://..." style="flex: 1;">
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('file-cover').click()" style="padding: 0 12px;" title="Subir Portada">
+                                <i class="fa-solid fa-image"></i>
+                            </button>
+                        </div>
+                        <input type="file" id="file-cover" hidden accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group full-width" id="gallery-vcard-controls" style="display:none; margin-top: 12px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border: 1px dashed var(--accent-purple);">
+                    <label style="color: var(--accent-purple); display: block; margin-bottom: 8px; font-weight: 600;">
+                        <i class="fa-solid fa-camera"></i> Multimedia y Galería
+                    </label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                        <button type="button" id="btnOpenGalleryEditor" class="btn-secondary" style="flex: 1; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-images"></i> Abrir Editor
+                        </button>
+                        <button type="button" id="btnCopyEditorLink" class="btn-secondary" style="flex: 1; justify-content: center; gap: 8px; background: rgba(139,92,246,0.15);">
+                            <i class="fa-solid fa-copy"></i> Copiar link
+                        </button>
+                    </div>
+                    <p id="copyLinkFeedback" style="font-size: 11px; color: var(--accent-purple); margin-top: 4px; text-align: center; display: none; font-weight: 600;">
+                        ✅ ¡Link copiado al portapapeles!
+                    </p>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px; text-align: center;">
+                        Abrí el editor o copiá el link para enviárselo al cliente por WhatsApp.
+                    </p>
+                </div>
+                <div class="form-group full-width" style="margin-top: 16px;">
+                    <label for="clientTransferEmail">
+                        <i class="fa-solid fa-arrow-right-arrow-left" style="color:var(--text-muted);margin-right:4px;"></i>
+                        Email de Transferencia (Fase B)
+                    </label>
+                    <input type="email" id="clientTransferEmail" placeholder="Email del futuro inquilino (opcional)">
+                </div>
+                <div class="form-group full-width">
+                    <label for="clientNotes">Notas</label>
+                    <textarea id="clientNotes" rows="3" placeholder="Notas internas sobre el cliente..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="modalCancel">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fa-solid fa-check"></i> <span id="modalSubmitText">Guardar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ TOAST ============ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-rocket"></i>
+                <span>Suito</span>
+            </div>
+            <h2>Iniciar sesión</h2>
+            <p>Accedé al panel de administración</p>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="login-field">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="admin@suito.pro" required>
+                </div>
+                <div class="login-field">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <div id="login-error" class="login-error" style="display:none;"></div>
+                <button type="submit" id="login-btn" class="login-submit">
+                    <span id="login-btn-text">Ingresar</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
