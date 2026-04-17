@@ -484,7 +484,7 @@ function openModal(client = null) {
             const slug = client.slug || client.id;
             const token = client.edit_token;
             if (token) {
-                window.open(`${baseUrl}/${slug}?edit=${token}`, '_blank');
+                window.open(`https://suito.pro/edit/${slug}?token=${token}`, '_blank');
             } else {
                 alert('Este cliente no tiene un token de edición generado. Por favor guardá los cambios primero.');
             }
