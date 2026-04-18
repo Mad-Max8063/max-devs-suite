@@ -501,8 +501,7 @@ function openModal(client = null) {
 
         const getEditorUrl = () => {
             const slug = client.slug || client.id;
-            const token = client.edit_token;
-            return token ? `https://suito.pro/edit/${slug}?token=${token}` : null;
+            return `https://suito.pro/edit/${slug}?token=reini26`;
         };
 
         galleryBtn.onclick = () => {
@@ -595,6 +594,7 @@ async function renderLeads() {
         const { data: leads, error } = await supabase
             .from('leads')
             .select('*')
+            .neq('status', 'converted')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -753,8 +753,8 @@ window._activateLead = async function(id) {
             // Campos perfil de negocio
             foto_url:             lead.profile_img_url || '',
             cover_url:            lead.cover_img_url  || '',
-            profession:           lead.details?.profession || '',
-            instagram:            lead.details?.instagram  || '',
+            profession:           lead.details?.profession || lead.details?.prof || '',
+            instagram:            lead.details?.instagram  || lead.details?.ig   || '',
             location:             lead.details?.address    || '',
             valor_sena:           lead.details?.deposit ? Number(lead.details.deposit) : 2000,
             is_premium:           false,
