@@ -64,10 +64,51 @@ window.goBackToLanding = function goBackToLanding() {
     showOnly(landingView);
 };
 
+// ——— UI Helpers ———
+function showError(msg) {
+    const form = document.getElementById('onboarding-form');
+    if (!form) return;
+
+    let errorDiv = document.getElementById('onboarding-error');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'onboarding-error';
+        errorDiv.className = 'error-feedback-box';
+        // Insertar antes del botón de submit
+        const submitWrap = document.querySelector('.submit-wrap') || form.lastElementChild;
+        form.insertBefore(errorDiv, submitWrap);
+    }
+    
+    errorDiv.innerHTML = `
+        <div class="error-content">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <p>${msg}</p>
+        </div>
+        <button type="button" class="wa-fallback-btn" onclick="window.goWhatsAppFallback()">
+            <i class="fa-brands fa-whatsapp"></i> Hablar por WhatsApp
+        </button>
+    `;
+    errorDiv.style.display = 'block';
+    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearError() {
+    const errorDiv = document.getElementById('onboarding-error');
+    if (errorDiv) errorDiv.style.display = 'none';
+}
+
+window.goWhatsAppFallback = function() {
+    const name = document.getElementById('user-name')?.value || '';
+    const plan = document.getElementById('selected-service')?.value || '';
+    const msg = `Hola! Intenté registrarme en la web pero tuve un error. Mis datos:\n- Nombre: ${name}\n- Plan: ${plan}`;
+    window.open(`https://wa.me/5491162621406?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
 // ——— Form submit ———
 if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        clearError();
 
         const submitBtn = document.getElementById('submit-btn');
         if (submitBtn) {
@@ -77,32 +118,58 @@ if (form) {
 
         try {
             const service = inputService.value.toUpperCase();
-            const name    = document.getElementById('user-name').value.trim();
+            const rawName = document.getElementById('user-name').value;
             const phone   = document.getElementById('user-phone').value.trim();
             const email   = document.getElementById('user-email').value.trim();
             const origin  = window.localStorage.getItem('lead_ref') || 'Tráfico Orgánico';
 
+            // Sanitización de nombre (eliminar espacios múltiples)
+            const name = rawName.trim().replace(/\s+/g, ' ');
+
+            // Validaciones básicas
+            if (!name || name.length < 3) {
+                showError('Por favor, ingresa tu nombre completo.');
+                return;
+            }
+            if (!phone || phone.replace(/\D/g, '').length < 8) {
+                showError('Por favor, ingresa un número de WhatsApp válido (mínimo 8 dígitos).');
+                return;
+            }
+
             // ——— Subida de imágenes ———
             let profileUrl = '';
             let coverUrl   = '';
+            const BUCKET = 'images'; 
 
             const profileFile = document.getElementById('img-profile')?.files[0];
             if (profileFile) {
                 const ext      = profileFile.name.split('.').pop();
-                const fileName = `profile_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-                const { error } = await supabase.storage.from('leads-media').upload(fileName, profileFile);
-                if (!error) {
-                    profileUrl = supabase.storage.from('leads-media').getPublicUrl(fileName).data.publicUrl;
+                const fileName = `leads/profile_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                const { error: uploadError } = await supabase.storage.from(BUCKET).upload(fileName, profileFile);
+                if (!uploadError) {
+                    profileUrl = supabase.storage.from(BUCKET).getPublicUrl(fileName).data.publicUrl;
+                } else {
+                    console.error('[Landing] Error upload perfil:', {
+                        code: uploadError.code,
+                        message: uploadError.message,
+                        details: uploadError.details
+                    });
                 }
             }
 
             const coverFile = document.getElementById('img-cover')?.files[0];
             if (coverFile) {
                 const ext      = coverFile.name.split('.').pop();
-                const fileName = `cover_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-                const { error } = await supabase.storage.from('leads-media').upload(fileName, coverFile);
-                if (!error) {
-                    coverUrl = supabase.storage.from('leads-media').getPublicUrl(fileName).data.publicUrl;
+                const fileName = `leads/cover_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                const { error: uploadError } = await supabase.storage.from(BUCKET).upload(fileName, coverFile);
+                if (!uploadError) {
+                    coverUrl = supabase.storage.from(BUCKET).getPublicUrl(fileName).data.publicUrl;
+                } else {
+                    console.error('[Landing] Error upload portada:', {
+                        code: uploadError.code,
+                        message: uploadError.message,
+                        details: uploadError.details
+                    });
                 }
             }
 
@@ -138,11 +205,16 @@ if (form) {
                     primary_service: bserv,
                     origin,
                 },
+                status: 'pending'
             }]);
 
             if (insertError) {
-                console.error('[Landing] Error insertando lead:', insertError);
-                // El formulario igual muestra éxito — el equipo puede ser contactado por WhatsApp de fallback
+                console.error('[Landing] Error Supabase Lead Insert:', {
+                    code: insertError.code,
+                    message: insertError.message,
+                    details: insertError.details
+                });
+                throw new Error('DATABASE_ERROR');
             }
 
             // ——— Mostrar pantalla de éxito ———
@@ -150,9 +222,8 @@ if (form) {
             form.reset();
 
         } catch (err) {
-            console.error('[Landing] Error inesperado:', err);
-            // Fallback: abrir WhatsApp si algo falla catastróficamente
-            window.open(`https://wa.me/5491162621406?text=${encodeURIComponent('Hola, me interesa contratar Suito')}`, '_blank');
+            console.error('[Landing] Catch Error:', err);
+            showError('Hubo un problema al procesar tu solicitud. Podés intentarlo de nuevo o escribirnos por WhatsApp.');
         } finally {
             if (submitBtn) {
                 submitBtn.textContent = 'Enviar Solicitud 🚀';
