@@ -583,9 +583,71 @@ function showToast(message, type = 'info') {
 }
 
 // ——— Leads Section (Supabase) ———
-async function renderLeads() {
+let _leadsDebounceTimer = null;
+
+function _renderLeadCards(leads) {
     const grid = document.getElementById('leadsGrid');
     const empty = document.getElementById('emptyLeads');
+
+    if (!leads || leads.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'flex';
+        return;
+    }
+
+    empty.style.display = 'none';
+    grid.innerHTML = leads.map(l => `
+        <div class="lead-card animate-fade-in">
+            <div class="lead-header">
+                <div class="lead-user">
+                    <img src="${l.profile_img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=6366f1&color=fff`}" alt="${escapeHtml(l.name)}">
+                    <div>
+                        <h4>${escapeHtml(l.name)}</h4>
+                        <span class="lead-date">${new Date(l.created_at).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                <span class="badge-service ${escapeHtml(l.service_type.toLowerCase())}">${escapeHtml(l.service_type)}</span>
+            </div>
+            <div class="lead-body">
+                <div class="lead-info"><strong>WhatsApp:</strong> ${escapeHtml(l.phone)}</div>
+                <div class="lead-info"><strong>Negocio:</strong> ${escapeHtml(l.details?.business_name || 'No especificado')}</div>
+                <div class="lead-info"><strong>Profesión:</strong> ${escapeHtml(l.details?.profession || 'No especificada')}</div>
+                <div class="lead-info"><strong>Origen:</strong> ${escapeHtml(l.details?.origin || 'Directo')}</div>
+            </div>
+            <div class="lead-footer">
+                <button class="primary-btn sm"
+                        data-lead-id="${escapeHtml(String(l.id))}"
+                        onclick="window._activateLead('${escapeHtml(String(l.id))}')"
+                        title="Activa al cliente y provisiona sus apps automáticamente">
+                    <i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente
+                </button>
+                <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterAndRenderLeads() {
+    const searchVal = (document.getElementById('leadsSearch')?.value || '').toLowerCase();
+    const serviceVal = document.getElementById('leadsServiceFilter')?.value || '';
+
+    const filtered = Array.from(_leadsCache.values()).filter(l => {
+        if (serviceVal && l.service_type !== serviceVal) return false;
+        if (searchVal) {
+            const hay = [l.name, l.phone, l.details?.business_name || '']
+                .join(' ').toLowerCase();
+            if (!hay.includes(searchVal)) return false;
+        }
+        return true;
+    });
+
+    _renderLeadCards(filtered);
+}
+
+async function renderLeads() {
+    const grid = document.getElementById('leadsGrid');
 
     grid.innerHTML = '<div class="loading">Cargando solicitudes...</div>';
     _leadsCache.clear();
@@ -599,48 +661,24 @@ async function renderLeads() {
 
         if (error) throw error;
 
-        if (!leads || leads.length === 0) {
-            grid.innerHTML = '';
-            empty.style.display = 'flex';
-            return;
+        if (leads) leads.forEach(l => _leadsCache.set(String(l.id), l));
+
+        filterAndRenderLeads();
+
+        const searchInput = document.getElementById('leadsSearch');
+        const serviceSelect = document.getElementById('leadsServiceFilter');
+
+        if (searchInput && !searchInput._bound) {
+            searchInput._bound = true;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(_leadsDebounceTimer);
+                _leadsDebounceTimer = setTimeout(filterAndRenderLeads, 300);
+            });
         }
-
-        empty.style.display = 'none';
-
-        // Populate cache keyed by id — avoids JSON serialization in onclick attrs
-        leads.forEach(l => _leadsCache.set(String(l.id), l));
-
-        grid.innerHTML = leads.map(l => `
-            <div class="lead-card animate-fade-in">
-                <div class="lead-header">
-                    <div class="lead-user">
-                        <img src="${l.profile_img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=6366f1&color=fff`}" alt="${escapeHtml(l.name)}">
-                        <div>
-                            <h4>${escapeHtml(l.name)}</h4>
-                            <span class="lead-date">${new Date(l.created_at).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                    <span class="badge-service ${escapeHtml(l.service_type.toLowerCase())}">${escapeHtml(l.service_type)}</span>
-                </div>
-                <div class="lead-body">
-                    <div class="lead-info"><strong>WhatsApp:</strong> ${escapeHtml(l.phone)}</div>
-                    <div class="lead-info"><strong>Negocio:</strong> ${escapeHtml(l.details?.business_name || 'No especificado')}</div>
-                    <div class="lead-info"><strong>Profesión:</strong> ${escapeHtml(l.details?.profession || 'No especificada')}</div>
-                    <div class="lead-info"><strong>Origen:</strong> ${escapeHtml(l.details?.origin || 'Directo')}</div>
-                </div>
-                <div class="lead-footer">
-                    <button class="primary-btn sm"
-                            data-lead-id="${escapeHtml(String(l.id))}"
-                            onclick="window._activateLead('${escapeHtml(String(l.id))}')"
-                            title="Activa al cliente y provisiona sus apps automáticamente">
-                        <i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente
-                    </button>
-                    <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
-                        <i class="fa-brands fa-whatsapp"></i>
-                    </a>
-                </div>
-            </div>
-        `).join('');
+        if (serviceSelect && !serviceSelect._bound) {
+            serviceSelect._bound = true;
+            serviceSelect.addEventListener('change', filterAndRenderLeads);
+        }
     } catch (err) {
         console.error('[renderLeads] error:', err);
         grid.innerHTML = `<p class="error-text">Error al cargar solicitudes: ${escapeHtml(err.message)}</p>`;

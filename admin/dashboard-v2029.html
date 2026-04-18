@@ -187,6 +187,16 @@
                     <p>Clientes potenciales que completaron el formulario en la web.</p>
                 </div>
 
+                <div class="leads-filters" style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; align-items:center;">
+                    <input type="text" id="leadsSearch" placeholder="Buscar por nombre, teléfono o negocio..." style="flex:1; min-width:200px; padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='#8b5cf6'" onblur="this.style.borderColor='#e2e8f0'">
+                    <select id="leadsServiceFilter" style="padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; background:#fff; cursor:pointer; outline:none;">
+                        <option value="">Todos los servicios</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="GESTOR">Turnos</option>
+                        <option value="COMBO">Combo</option>
+                    </select>
+                </div>
+
                 <div class="leads-grid" id="leadsGrid">
                     <!-- Populated by JS from Supabase -->
                 </div>
