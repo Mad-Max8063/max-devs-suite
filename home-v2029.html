@@ -6,6 +6,42 @@
     <title>Suito | Soluciones Digitales Premium</title>
     <!-- Cache Busting Fail-safe -->
     <script>
+        // --- Navegación Resiliente (Inline para evitar ReferenceError) ---
+        window.startOnboarding = function(serviceType) {
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            const inputService = document.getElementById('selected-service');
+            const sectionTarjeta = document.getElementById('section-tarjeta');
+            const sectionGestor  = document.getElementById('section-gestor');
+
+            if (inputService) inputService.value = serviceType;
+            
+            // Toggle secciones
+            const isTarjeta = serviceType === 'tarjeta' || serviceType === 'combo';
+            const isGestor  = serviceType === 'gestor'  || serviceType === 'combo';
+            
+            if (sectionTarjeta) sectionTarjeta.style.display = isTarjeta ? 'block' : 'none';
+            if (sectionGestor) sectionGestor.style.display = isGestor ? 'block' : 'none';
+
+            if (landingView) landingView.classList.remove('active');
+            if (onboardingView) {
+                onboardingView.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.goBackToLanding = function() {
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            const successView = document.getElementById('success-view');
+
+            [onboardingView, successView].forEach(v => v?.classList.remove('active'));
+            if (landingView) {
+                landingView.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        };
+
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
                 const url = e.target.src || e.target.href;
@@ -333,5 +369,13 @@
     </footer>
 
     <script type="module" src="./landing/app.js"></script>
+    <!-- Fallback if module fails -->
+    <script>
+        setTimeout(() => {
+            if (typeof window.startOnboarding === 'undefined') {
+                console.error('Landing script failed to load. Check console for MIME or CORS errors.');
+            }
+        }, 2000);
+    </script>
 </body>
 </html>

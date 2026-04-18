@@ -38,31 +38,8 @@ function showOnly(view) {
     }
 }
 
-// Exponer globalmente para los onclick del HTML
-window.startOnboarding = function startOnboarding(serviceType) {
-    inputService.value = serviceType;
-
-    const isTarjeta = serviceType === 'tarjeta' || serviceType === 'combo';
-    const isGestor  = serviceType === 'gestor'  || serviceType === 'combo';
-
-    if (sectionTarjeta) {
-        sectionTarjeta.style.display = isTarjeta ? 'block' : 'none';
-        const cardProf = document.getElementById('card-prof');
-        if (cardProf) cardProf.required = isTarjeta;
-    }
-
-    if (sectionGestor) {
-        sectionGestor.style.display = isGestor ? 'block' : 'none';
-        const bizName = document.getElementById('biz-name');
-        if (bizName) bizName.required = isGestor;
-    }
-
-    showOnly(onboardingView);
-};
-
-window.goBackToLanding = function goBackToLanding() {
-    showOnly(landingView);
-};
+// Las funciones startOnboarding y goBackToLanding ahora están inline en el HTML
+// para prevenir ReferenceError si el módulo tarda en cargar.
 
 // ——— UI Helpers ———
 function showError(msg) {

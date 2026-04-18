@@ -1,8 +1,16 @@
-console.log("cachebust-v2029-FINAL");
-// ============================================
-// Suito Admin Dashboard — Master Controller
-// ============================================
-import { CONFIG } from './config.js';
+// Inlining CONFIG to prevent 404 on external file in some environments
+const CONFIG = {
+    products: {
+        tarjetaVirtual: 'https://suito.pro/card',
+        gestorTurnos: 'https://suito.pro/turnos',
+    },
+    pricing: {
+        tarjeta: { monthly: 4900, quarterly: 12500 },
+        turnos: { monthly: 9900, quarterly: 25000 },
+        combo: { monthly: 12900, quarterly: 33000 },
+    }
+};
+
 import { supabase } from '@shared/supabase.js';
 import { getClients, addClient, updateClient, deleteClient, getClientStats, initImageUploads } from './clients.js';
 import { getPricing, updatePricing, applyInflation } from './pricing.js';

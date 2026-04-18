@@ -30,8 +30,6 @@ export default defineConfig(({ command }) => ({
       input: {
         // Punto de entrada principal (Landing)
         main:   resolve(__dirname, 'home-v2029.html'),
-        // Landing JS (onboarding)
-        landing: resolve(__dirname, 'landing/app.js'),
         // Admin Panel (Vanilla JS)
         dashboard: resolve(__dirname, 'admin/dashboard-v2029.html'),
         // Tarjeta Virtual (Vanilla JS)
