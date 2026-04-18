@@ -41,6 +41,11 @@ function showOnly(view) {
 // Las funciones startOnboarding y goBackToLanding ahora están inline en el HTML
 // para prevenir ReferenceError si el módulo tarda en cargar.
 
+// Fallback global para contacto por Email
+window.goEmailFallback = function() {
+    window.location.href = 'mailto:hola@suito.pro?subject=Soporte%20Onboarding%20Suito&body=Hola!%20Tengo%20problemas%20con%20el%20formulario...';
+};
+
 // ——— UI Helpers ———
 function showError(msg) {
     const form = document.getElementById('onboarding-form');

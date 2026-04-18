@@ -124,8 +124,38 @@
         }
         .wa-fallback-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-    <!-- Deployment Trigger: 2026-04-16T00:08:00Z -->
+    <script>
+        // Funciones de navegación resilientes (Inyectadas en el source para evitar fallas por carga de módulos)
+        window.startOnboarding = function(plan) {
+            console.log('Iniciando onboarding para:', plan);
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            
+            if (landingView && onboardingView) {
+                landingView.classList.remove('active');
+                onboardingView.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Si existe el formulario, seleccionar el plan
+                const comboSelect = document.getElementById('combo-select');
+                if (comboSelect) {
+                    comboSelect.value = plan === 'combo' ? 'Pro Full' : 'Galería';
+                }
+            }
+        };
+
+        window.goBackToLanding = function() {
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            
+            if (landingView && onboardingView) {
+                onboardingView.classList.remove('active');
+                landingView.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+    </script>
+    <!-- Deployment Trigger: 2026-04-18T13:40:00Z -->
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary/20 selection:text-primary">
 
