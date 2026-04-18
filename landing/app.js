@@ -61,8 +61,8 @@ function showError(msg) {
             <i class="fa-solid fa-circle-exclamation"></i>
             <p>${msg}</p>
         </div>
-        <button type="button" class="wa-fallback-btn" onclick="window.goWhatsAppFallback()">
-            <i class="fa-brands fa-whatsapp"></i> Hablar por WhatsApp
+        <button type="button" class="wa-fallback-btn" onclick="window.goEmailFallback()">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">mail</span> Contactar por Email
         </button>
     `;
     errorDiv.style.display = 'block';
@@ -74,11 +74,12 @@ function clearError() {
     if (errorDiv) errorDiv.style.display = 'none';
 }
 
-window.goWhatsAppFallback = function() {
+window.goEmailFallback = function() {
     const name = document.getElementById('user-name')?.value || '';
     const plan = document.getElementById('selected-service')?.value || '';
-    const msg = `Hola! Intenté registrarme en la web pero tuve un error. Mis datos:\n- Nombre: ${name}\n- Plan: ${plan}`;
-    window.open(`https://wa.me/5491162621406?text=${encodeURIComponent(msg)}`, '_blank');
+    const subject = encodeURIComponent('Error en Registro - Suito');
+    const body = encodeURIComponent(`Hola! Intenté registrarme en la web pero tuve un error. Mis datos:\n- Nombre: ${name}\n- Plan: ${plan}`);
+    window.location.href = `mailto:hola@suito.pro?subject=${subject}&body=${body}`;
 };
 
 // ——— Form submit ———
@@ -200,7 +201,7 @@ if (form) {
 
         } catch (err) {
             console.error('[Landing] Catch Error:', err);
-            showError('Hubo un problema al procesar tu solicitud. Podés intentarlo de nuevo o escribirnos por WhatsApp.');
+            showError('Hubo un problema al procesar tu solicitud. Podés intentarlo de nuevo o escribirnos por Email.');
         } finally {
             if (submitBtn) {
                 submitBtn.textContent = 'Enviar Solicitud 🚀';

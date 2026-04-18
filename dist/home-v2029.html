@@ -6,6 +6,42 @@
     <title>Suito | Soluciones Digitales Premium</title>
     <!-- Cache Busting Fail-safe -->
     <script>
+        // --- Navegación Resiliente (Inline para evitar ReferenceError) ---
+        window.startOnboarding = function(serviceType) {
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            const inputService = document.getElementById('selected-service');
+            const sectionTarjeta = document.getElementById('section-tarjeta');
+            const sectionGestor  = document.getElementById('section-gestor');
+
+            if (inputService) inputService.value = serviceType;
+            
+            // Toggle secciones
+            const isTarjeta = serviceType === 'tarjeta' || serviceType === 'combo';
+            const isGestor  = serviceType === 'gestor'  || serviceType === 'combo';
+            
+            if (sectionTarjeta) sectionTarjeta.style.display = isTarjeta ? 'block' : 'none';
+            if (sectionGestor) sectionGestor.style.display = isGestor ? 'block' : 'none';
+
+            if (landingView) landingView.classList.remove('active');
+            if (onboardingView) {
+                onboardingView.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.goBackToLanding = function() {
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            const successView = document.getElementById('success-view');
+
+            [onboardingView, successView].forEach(v => v?.classList.remove('active'));
+            if (landingView) {
+                landingView.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        };
+
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
                 const url = e.target.src || e.target.href;
@@ -19,7 +55,7 @@
         }, true);
     </script>
     <meta name="description" content="Plataforma integral de soluciones digitales para tu negocio. Tarjeta Virtual + Gestor de Turnos.">
-    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -78,7 +114,7 @@
             </div>
             <div class="hidden md:flex items-center space-x-12">
                 <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="#soluciones">Soluciones</a>
-                <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="https://wa.me/5491162621406">Contacto</a>
+                <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="mailto:hola@suito.pro">Contacto</a>
             </div>
             <div>
                 <button onclick="startOnboarding('combo')" class="bg-primary text-white px-6 py-2 rounded-full font-bold shadow-lg hover:shadow-primary/20 transition-all scale-95 hover:scale-100">
@@ -308,6 +344,6 @@
             <div class="text-[10px] text-slate-400">Hecho con ❤️ en Argentina.</div>
         </div>
     </footer>
-
+
 </body>
 </html>

@@ -24,11 +24,10 @@ DirectoryIndex home-v2029.html index.html
   RewriteEngine On
   RewriteBase /
 
-  # --- BLOQUEO DE SCRIPTS ZOMBIE ---
-  # Deben ir ANTES del chequeo de archivo físico para que surtan efecto
-  RewriteRule ^(card|engine|supabase|utils)\.js$ - [F,L]
-  RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
-  RewriteRule ^card/js/.*$ - [F,L]
+  # --- BLOQUEO DE SCRIPTS ZOMBIE (Comentado por precaución) ---
+  # RewriteRule ^(card|engine|supabase|utils)\.js$ - [F,L]
+  # RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
+  # RewriteRule ^card/js/.*$ - [F,L]
 
   # Force no-cache for HTML files to prevent stale dashboard loads
   <FilesMatch "\.(html|htm)$">
