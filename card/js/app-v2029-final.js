@@ -7,13 +7,32 @@ import { getCard } from './supabase-v2029.js';
 window.__appRouterActive = true;
 const app = document.getElementById('app');
 
-// --- PWA Service Worker Registration ---
+// --- PWA Nuclear Reset v2030 & Service Worker Registration ---
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/card/sw-v2029.js', { scope: '/card/' })
-            .then(reg => console.log('[PWA] Service Worker registered for Card:', reg.scope))
-            .catch(err => console.error('[PWA] Service Worker registration failed:', err));
-    });
+    const RESET_KEY = 'suito_v2030_reset';
+
+    if (!localStorage.getItem(RESET_KEY)) {
+        Promise.all([
+            navigator.serviceWorker.getRegistrations().then(regs =>
+                Promise.all(regs.map(r => r.unregister()))
+            ),
+            caches.keys().then(names =>
+                Promise.all(names.map(n => caches.delete(n)))
+            )
+        ]).then(() => {
+            localStorage.setItem(RESET_KEY, Date.now().toString());
+            window.location.reload();
+        }).catch(() => {
+            localStorage.setItem(RESET_KEY, 'failed');
+            window.location.reload();
+        });
+    } else {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/card/sw-v2030.js', { scope: '/card/' })
+                .then(reg => console.log('[PWA] SW v2030 registered:', reg.scope))
+                .catch(err => console.error('[PWA] SW registration failed:', err));
+        });
+    }
 }
 
 function navigate() {

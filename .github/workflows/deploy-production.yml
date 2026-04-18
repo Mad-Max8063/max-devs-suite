@@ -36,6 +36,10 @@ jobs:
           # Favicon en subcarpeta card
           cp card/favicon.png dist/card/favicon.png 2>/dev/null || :
 
+          # PWA assets de card (sw-v2030.js + manifest-v2030.webmanifest)
+          cp public/card/sw-v2030.js dist/card/sw-v2030.js 2>/dev/null || :
+          cp public/card/manifest-v2030.webmanifest dist/card/manifest-v2030.webmanifest 2>/dev/null || :
+
           # PWA assets de turnos (sw.js + manifest.json viven en turnos/public/)
           cp turnos/public/sw.js dist/turnos/sw.js 2>/dev/null || :
           cp turnos/public/manifest.json dist/turnos/manifest.json 2>/dev/null || :
