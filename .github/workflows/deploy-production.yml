@@ -39,6 +39,13 @@ jobs:
           # PWA assets de turnos (sw.js + manifest.json viven en turnos/public/)
           cp turnos/public/sw.js dist/turnos/sw.js 2>/dev/null || :
           cp turnos/public/manifest.json dist/turnos/manifest.json 2>/dev/null || :
+
+          # PWA assets de admin (sw-admin.js + manifest.json)
+          cp public/admin/sw-admin.js dist/admin/sw-admin.js 2>/dev/null || :
+          cp public/admin/manifest.json dist/admin/manifest.json 2>/dev/null || :
+
+          # .htaccess (Apache routing rules)
+          cp public/.htaccess dist/.htaccess 2>/dev/null || :
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

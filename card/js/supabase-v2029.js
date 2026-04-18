@@ -100,6 +100,7 @@ export async function getCard(slug) {
             instagram: 'suito.pro',
             website: 'https://suito.pro',
             bookingUrl: 'https://turnos.suito.pro/#/demo/booking',
+            edit_token: null,
             isPremium: true,
             id: 'suito',
             gallery: []

@@ -111,7 +111,8 @@ export function initImageUploads(showToast) {
             
             // 2. Upload
             const timestamp = Date.now();
-            const fileName = `admin/uploads/${type}_${timestamp}.jpg`;
+            const clientId = document.getElementById('clientId')?.value || document.getElementById('clientSlug')?.value || 'tmp';
+            const fileName = `admin/uploads/${clientId}/${type}_${timestamp}.jpg`;
             
             showToast(`Subiendo a la nube...`, 'info');
             const publicUrl = await uploadToSupabase(processedBlob, fileName);
@@ -181,8 +182,8 @@ function clientToBusiness(clientData, userId = null) {
         foto_url:       clientData.foto_url                || null,
         cover_url:      clientData.cover_url               || null,
         gallery_images: clientData.gallery_images          || [],
-        // Ensure edit_token exists for new clients
-        edit_token:     clientData.edit_token              || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+        // Ensure edit_token exists for new clients (crypto-secure)
+        edit_token:     clientData.edit_token              || (() => { const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); })()
     };
     if (userId) row.user_id = userId;
 

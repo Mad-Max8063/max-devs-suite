@@ -2,61 +2,69 @@
 -- 1. Agrega la columna force_watermark
 ALTER TABLE businesses ADD COLUMN IF NOT EXISTS force_watermark BOOLEAN DEFAULT false;
 
--- 2. Modifica la función update_business_profile_secure para prevenir cambios en clientes Premium
-CREATE OR REPLACE FUNCTION update_business_profile_secure(
-    p_card_id TEXT,
+-- 2. Elimina la versión anterior con firma JSONB (si existe)
+DROP FUNCTION IF EXISTS update_business_profile_secure(TEXT, TEXT, JSONB);
+
+-- 3. Crea la función con firma de parámetros individuales (alineada con card/js/supabase-v2029.js)
+CREATE OR REPLACE FUNCTION public.update_business_profile_secure(
+    p_card_id UUID,
     p_edit_token TEXT,
-    p_updates JSONB
+    p_nombre_negocio TEXT DEFAULT NULL,
+    p_profession TEXT DEFAULT NULL,
+    p_description TEXT DEFAULT NULL,
+    p_telefono TEXT DEFAULT NULL,
+    p_email TEXT DEFAULT NULL,
+    p_location TEXT DEFAULT NULL,
+    p_instagram TEXT DEFAULT NULL,
+    p_facebook TEXT DEFAULT NULL,
+    p_linkedin TEXT DEFAULT NULL,
+    p_website TEXT DEFAULT NULL,
+    p_booking_url TEXT DEFAULT NULL
 )
-RETURNS JSONB
+RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
     v_business RECORD;
-    v_clean_updates JSONB;
 BEGIN
     -- 1. Obtener y validar el negocio
     SELECT * INTO v_business
-    FROM businesses
-    WHERE slug = p_card_id AND (edit_token = p_edit_token OR p_edit_token = 'ADMIN_OVERRIDE');
+    FROM public.businesses
+    WHERE id = p_card_id AND (edit_token = p_edit_token OR p_edit_token = 'ADMIN_OVERRIDE');
 
     IF NOT FOUND THEN
-        RAISE EXCEPTION 'No autorizado o tarjeta no encontrada';
+        RAISE EXCEPTION 'No autorizado o tarjeta no encontrada' USING ERRCODE = '28000';
     END IF;
 
-    -- 2. Extraer limpieza base
-    v_clean_updates = p_updates - 'id' - 'user_id' - 'created_at' - 'slug' - 'edit_token' - 'plan' - 'is_premium' - 'force_watermark' - 'free_until' - 'paid_until' - 'status';
-
-    -- [NUEVO] 3. Lógica anti-reventa para Premium
+    -- 2. Lógica anti-reventa para Premium
     IF v_business.is_premium = true AND p_edit_token != 'ADMIN_OVERRIDE' THEN
-        IF (p_updates ? 'nombre_negocio' AND p_updates->>'nombre_negocio' != v_business.nombre_negocio) OR
-           (p_updates ? 'profession' AND p_updates->>'profession' != v_business.profession) 
+        IF (p_nombre_negocio IS NOT NULL AND p_nombre_negocio != v_business.nombre_negocio) OR
+           (p_profession IS NOT NULL AND p_profession != v_business.profession)
         THEN
-            RAISE EXCEPTION 'PROTECTED_IDENTITY: Los clientes Premium no pueden modificar su Nombre/Negocio ni Profesión.';
+            RAISE EXCEPTION 'PROTECTED_IDENTITY: Los clientes Premium no pueden modificar su Nombre/Negocio ni Profesión.' USING ERRCODE = '28000';
         END IF;
     END IF;
 
-    -- 4. Aplicar actualización
-    UPDATE businesses
+    -- 3. Aplicar actualización (COALESCE preserva valores existentes si el parámetro es NULL)
+    UPDATE public.businesses
     SET
-        nombre_negocio = COALESCE(v_clean_updates->>'nombre_negocio', v_business.nombre_negocio),
-        profession = COALESCE(v_clean_updates->>'profession', v_business.profession),
-        description = COALESCE(v_clean_updates->>'description', v_business.description),
-        telefono = COALESCE(v_clean_updates->>'telefono', v_business.telefono),
-        email = COALESCE(v_clean_updates->>'email', v_business.email),
-        location = COALESCE(v_clean_updates->>'location', v_business.location),
-        instagram = COALESCE(v_clean_updates->>'instagram', v_business.instagram),
-        facebook = COALESCE(v_clean_updates->>'facebook', v_business.facebook),
-        linkedin = COALESCE(v_clean_updates->>'linkedin', v_business.linkedin),
-        website = COALESCE(v_clean_updates->>'website', v_business.website),
-        color_primario = COALESCE(v_clean_updates->>'color_primario', v_business.color_primario),
-        foto_url = COALESCE(v_clean_updates->>'foto_url', v_business.foto_url),
-        cover_url = COALESCE(v_clean_updates->>'cover_url', v_business.cover_url)
-        -- Nota: booking_url no se actualiza por esta vía por seguridad.
-    WHERE id = v_business.id
-    RETURNING * INTO v_business;
-
-    RETURN to_jsonb(v_business);
+        nombre_negocio = COALESCE(p_nombre_negocio, nombre_negocio),
+        profession     = COALESCE(p_profession, profession),
+        description    = COALESCE(p_description, description),
+        telefono       = COALESCE(p_telefono, telefono),
+        email          = COALESCE(p_email, email),
+        location       = COALESCE(p_location, location),
+        instagram      = COALESCE(p_instagram, instagram),
+        facebook       = COALESCE(p_facebook, facebook),
+        linkedin       = COALESCE(p_linkedin, linkedin),
+        website        = COALESCE(p_website, website),
+        booking_url    = COALESCE(p_booking_url, booking_url)
+    WHERE id = p_card_id;
 END;
 $$;
+
+-- 4. Permisos: revocar acceso público y otorgar a roles autorizados
+REVOKE ALL ON FUNCTION public.update_business_profile_secure(UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.update_business_profile_secure(UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) TO anon, authenticated;

@@ -19,6 +19,7 @@ const _leadsCache = new Map();
 // ——— Init ———
 document.addEventListener('DOMContentLoaded', async () => {
     currentPricing = await getPricing();
+    updatePlanSelector();
     initNavigation();
     initModal();
     initImageUploads(showToast);
@@ -322,9 +323,17 @@ function renderPricing() {
             `<div class="pricing-savings">Ahorrás $${((p.tarjeta.monthly + p.turnos.monthly) - p.combo.monthly).toLocaleString('es-AR')}/mes vs individual</div>`
         );
 
-    // Wire save button
-    document.getElementById('btnSavePricing')?.addEventListener('click', handleSavePricing);
-    document.getElementById('btnApplyInflation')?.addEventListener('click', handleApplyInflation);
+    // Wire save button (data-wired prevents duplicate listeners on re-render)
+    const btnSave = document.getElementById('btnSavePricing');
+    if (btnSave && !btnSave.dataset.wired) {
+        btnSave.dataset.wired = 'true';
+        btnSave.addEventListener('click', handleSavePricing);
+    }
+    const btnInflation = document.getElementById('btnApplyInflation');
+    if (btnInflation && !btnInflation.dataset.wired) {
+        btnInflation.dataset.wired = 'true';
+        btnInflation.addEventListener('click', handleApplyInflation);
+    }
 
     // Update plan selector in client modal
     updatePlanSelector();
@@ -551,10 +560,10 @@ function initMobile() {
 }
 
 // ——— Toast ———
-function showToast(message) {
+function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
-    toast.className = 'toast';
+    toast.className = `toast toast-${type}`;
     toast.textContent = message;
     container.appendChild(toast);
 
@@ -634,12 +643,15 @@ async function checkNewLeads() {
     try {
         const { count, error } = await supabase
             .from('leads')
-            .select('*', { count: 'exact', head: true });
+            .select('*', { count: 'exact', head: true })
+            .neq('status', 'converted');
 
+        const badge = document.getElementById('leadsBadge');
         if (!error && count > 0) {
-            const badge = document.getElementById('leadsBadge');
             badge.textContent = count;
             badge.style.display = 'inline-flex';
+        } else if (badge) {
+            badge.style.display = 'none';
         }
     } catch (err) {
         console.error('[checkNewLeads] error:', err);

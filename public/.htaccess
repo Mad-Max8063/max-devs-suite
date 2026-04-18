@@ -28,7 +28,6 @@ DirectoryIndex home-v2029.html index.html
   # Deben ir ANTES del chequeo de archivo físico para que surtan efecto
   RewriteRule ^(card|engine|supabase|utils)\.js$ - [F,L]
   RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
-  RewriteRule ^card/js/.*$ - [F,L]
 
   # Force no-cache for HTML files to prevent stale dashboard loads
   <FilesMatch "\.(html|htm)$">

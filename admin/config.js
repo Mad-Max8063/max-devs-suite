@@ -1,23 +1,18 @@
 // ============================================
 // config.js — Suito Admin Panel Configuration
 // ============================================
-// NOTE: The Supabase anon key is public by design.
-// Real security is enforced via Row Level Security (RLS) policies.
-// Triggering new deployment with unified secrets - v1.0.1
+// Supabase connection is handled exclusively by @shared/supabase.js
+// via VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY env vars.
 export const CONFIG = {
-    supabase: {
-        url: 'https://bfsttdiokdqyvwjuvcbp.supabase.co',
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmc3R0ZGlva2RxeXZ3anV2Y2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNzc1NDUsImV4cCI6MjA4Nzk1MzU0NX0.TqmEpfSlN25f9eZjw3ULIhJ0PiHAH3NuNCQEoESPD-w',
-    },
     // Base URLs for deployed products (update when deployed to Hostinger)
     products: {
         tarjetaVirtual: 'https://suito.pro/card',
         gestorTurnos: 'https://suito.pro/turnos',
     },
-    // Pricing in ARS (editable from the panel)
+    // Pricing in ARS (editable from the panel — these are fallback defaults)
     pricing: {
         tarjeta: { monthly: 4900, quarterly: 12500 },
         turnos: { monthly: 9900, quarterly: 25000 },
         combo: { monthly: 12900, quarterly: 33000 },
     }
-};
+};

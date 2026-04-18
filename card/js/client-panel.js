@@ -66,7 +66,7 @@ function buildPanelHTML(data) {
       </div>
 
       <!-- Install App Banner (PWA) -->
-      <div id="pwa-install-banner" style="display:none; background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(139,92,246,0.15); border-radius: 20px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(139,92,246,0.08);">
+      <div id="pwa-install-banner" style="display:none; background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(139,92,246,0.15); border-radius: 20px; padding: 14px 16px; margin-bottom: 16px; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(139,92,246,0.08);">
         <div style="width: 40px; height: 40px; background: var(--premium-gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
           <span style="color: #fff; font-size: 18px;">📲</span>
         </div>

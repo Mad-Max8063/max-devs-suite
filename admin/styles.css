@@ -1290,6 +1290,10 @@ body {
     opacity: 1;
 }
 
+.toast-error   { border-left: 4px solid #ef4444; }
+.toast-success { border-left: 4px solid #22c55e; }
+.toast-info    { border-left: 4px solid #8b5cf6; }
+
 /* ——— Animations ——— */
 @keyframes fadeSlideIn {
     from { opacity: 0; transform: translateY(12px); }
