@@ -36,12 +36,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-  <script type="module" crossorigin src="../assets/dashboard-D2h7jlSt-v2029.js"></script>
+  <script type="module" crossorigin src="../assets/dashboard-BA167Dqz-v2029.js"></script>
   <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX-v2029.js">
-  <link rel="modulepreload" crossorigin href="../assets/vendor-CWnJSrkj-v2029.js">
-  <link rel="modulepreload" crossorigin href="../assets/vendor-supabase-BW_Ct9fl-v2029.js">
-  <link rel="modulepreload" crossorigin href="../assets/supabase-BW7mDqrU-v2029.js">
-  <link rel="stylesheet" crossorigin href="../assets/dashboard-DXUZapGA-v2029.css">
+  <link rel="modulepreload" crossorigin href="../assets/vendor-Cgi6DKmr-v2029.js">
+  <link rel="modulepreload" crossorigin href="../assets/vendor-supabase-CZjsEvFF-v2029.js">
+  <link rel="modulepreload" crossorigin href="../assets/supabase-BfykovAz-v2029.js">
+  <link rel="stylesheet" crossorigin href="../assets/dashboard-CwV_de-i-v2029.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -190,6 +190,16 @@
                 <div class="page-title">
                     <h1>Solicitudes de Onboarding</h1>
                     <p>Clientes potenciales que completaron el formulario en la web.</p>
+                </div>
+
+                <div class="leads-filters" style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; align-items:center;">
+                    <input type="text" id="leadsSearch" placeholder="Buscar por nombre, teléfono o negocio..." style="flex:1; min-width:200px; padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='#8b5cf6'" onblur="this.style.borderColor='#e2e8f0'">
+                    <select id="leadsServiceFilter" style="padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; background:#fff; cursor:pointer; outline:none;">
+                        <option value="">Todos los servicios</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="GESTOR">Turnos</option>
+                        <option value="COMBO">Combo</option>
+                    </select>
                 </div>
 
                 <div class="leads-grid" id="leadsGrid">

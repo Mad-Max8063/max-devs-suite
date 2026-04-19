@@ -32,13 +32,13 @@
   # ─────────────────────────────────────────────────────────────
   # 4) Cache headers del manifest y service worker
   # ─────────────────────────────────────────────────────────────
-  <FilesMatch "manifest-v2029\.webmanifest$">
+  <FilesMatch "manifest-v2030\.webmanifest$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"
     Header set Pragma "no-cache"
     Header set Expires 0
   </FilesMatch>
 
-  <Files "sw-v2029.js">
+  <Files "sw-v2030.js">
     <IfModule mod_headers.c>
       Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
       Header set Pragma "no-cache"
@@ -49,7 +49,7 @@
   # ─────────────────────────────────────────────────────────────
   # 5) SPA fallback: cualquier otra URL → index.html (humanos).
   # ─────────────────────────────────────────────────────────────
-  RewriteCond %{REQUEST_URI} !^/card/sw-v2029\.js$
+  RewriteCond %{REQUEST_URI} !^/card/sw-v2030\.js$
   RewriteCond %{REQUEST_URI} !^/card/card_seo_proxy\.php$
   RewriteRule . /card/index.html [L]
 </IfModule>

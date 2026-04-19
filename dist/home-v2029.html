@@ -55,7 +55,7 @@
         }, true);
     </script>
     <meta name="description" content="Plataforma integral de soluciones digitales para tu negocio. Tarjeta Virtual + Gestor de Turnos.">
-    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="icon" type="image/png" href="./assets/favicon-nq4V4quh-v2029.png">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -96,13 +96,72 @@
         .view { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .view.active { display: block; opacity: 1; }
         .gradient-text { background: linear-gradient(135deg, #8B5CF6, #3B82F6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Estilos Onboarding Error */
+        .error-feedback-box { 
+            background: #fef2f2; 
+            border: 1px solid #fee2e2; 
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 24px; 
+            animation: slideIn 0.3s ease-out;
+            display: none;
+        }
+        .error-content { display: flex; align-items: flex-start; gap: 12px; color: #991b1b; font-size: 0.95rem; margin-bottom: 12px; font-weight: 500; }
+        .error-content i { margin-top: 3px; font-size: 1.1rem; }
+        .wa-fallback-btn { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            background: #25d366; 
+            color: white; 
+            padding: 8px 16px; 
+            border-radius: 99px; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+        }
+        .wa-fallback-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-    <!-- Deployment Trigger: 2026-04-16T00:08:00Z -->
-  <script type="module" crossorigin src="./assets/modulepreload-polyfill-B5Qt9EMX-v2029.js"></script>
-  <script type="module" crossorigin src="./assets/vendor-CWnJSrkj-v2029.js"></script>
-  <script type="module" crossorigin src="./assets/vendor-supabase-BW_Ct9fl-v2029.js"></script>
-  <script type="module" crossorigin src="./assets/supabase-BW7mDqrU-v2029.js"></script>
-  <script type="module" crossorigin src="./assets/landing-EJGDqnCV-v2029.js"></script>
+    <script>
+        // Funciones de navegación resilientes (Inyectadas en el source para evitar fallas por carga de módulos)
+        window.startOnboarding = function(plan) {
+            console.log('Iniciando onboarding para:', plan);
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            
+            if (landingView && onboardingView) {
+                landingView.classList.remove('active');
+                onboardingView.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Si existe el formulario, seleccionar el plan
+                const comboSelect = document.getElementById('combo-select');
+                if (comboSelect) {
+                    comboSelect.value = plan === 'combo' ? 'Pro Full' : 'Galería';
+                }
+            }
+        };
+
+        window.goBackToLanding = function() {
+            const landingView = document.getElementById('landing-view');
+            const onboardingView = document.getElementById('onboarding-view');
+            
+            if (landingView && onboardingView) {
+                onboardingView.classList.remove('active');
+                landingView.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+    </script>
+    <!-- Deployment Trigger: 2026-04-18T13:40:00Z -->
+  <script type="module" crossorigin src="./assets/main-R8W7N_78-v2029.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX-v2029.js">
+  <link rel="modulepreload" crossorigin href="./assets/vendor-Cgi6DKmr-v2029.js">
+  <link rel="modulepreload" crossorigin href="./assets/vendor-supabase-CZjsEvFF-v2029.js">
+  <link rel="modulepreload" crossorigin href="./assets/supabase-BfykovAz-v2029.js">
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary/20 selection:text-primary">
 
@@ -345,5 +404,23 @@
         </div>
     </footer>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+                regs.forEach(function(r) { r.unregister(); });
+            });
+            caches.keys().then(function(names) {
+                names.forEach(function(n) { caches.delete(n); });
+            });
+        }
+    </script>
+    <!-- Fallback if module fails -->
+    <script>
+        setTimeout(() => {
+            if (typeof window.startOnboarding === 'undefined') {
+                console.error('Landing script failed to load. Check console for MIME or CORS errors.');
+            }
+        }, 2000);
+    </script>
 </body>
 </html>
