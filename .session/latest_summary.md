@@ -1,54 +1,47 @@
-# Resumen de Sesión — Suito Platform
-**Fecha:** 2026-04-18 02:10 (GMT-3)
+# Resumen de Sesión — Suito Onboarding Optimization
+**Fecha:** 19 de Abril de 2026, 04:35 AM ART
 **Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Finalizar el sprint de 12 ítems de refactorización y estabilizar el sistema de captura de leads (landing) y el panel de administración tras fallos de producción detectados (RPC signatures, RLS y errores 404).
+Optimizar el flujo de captura de leads en Suito integrando los campos "Nombre del Negocio" y "Profesión" de forma global y opcional en el formulario de onboarding, asegurando que los datos se guarden correctamente en Supabase y se visualicen en el Admin Panel.
 
 ---
 
 ## ✅ Lo que se hizo
-- **Navegación Resiliente (Landing)**: Se movieron `startOnboarding` y `goBackToLanding` a un script inline en `home-v2029.html` para evitar `ReferenceError` si el módulo JS tarda en cargar.
-- **Fix 404 admin/config.js**: Se internalizó el objeto `CONFIG` dentro de `admin/app.js`, eliminando la dependencia del archivo externo que fallaba en producción.
-- **Vite Config Fix**: Se removió `landing/app.js` de los inputs explícitos para que Vite resuelva correctamente la ruta del script bundle desde el HTML.
-- **SQL fix (RPC compatibility)**: Se reescribió `update_business_profile_secure` en Supabase para aceptar parámetros individuales en lugar de JSONB, alineándola con el cliente JS.
-- **Lead Stabilization**: Implementado manejo de errores real en el formulario de registro, validación de inputs y fallback de botón de WhatsApp.
-- **Storage Security**: Creada política RLS en bucket `images` para permitir subidas anónimas únicamente en el path `leads/`.
+- **Modificación de UI (`home-v2029.html`):** Se integraron los campos de negocio y profesión en la sección general de contacto. Se eliminaron redundancias en las secciones dinámicas.
+- **Lógica de Envío (`landing/app.js`):** Se actualizó la captura de datos para incluir los nuevos campos globales en el objeto `details` del payload de Supabase.
+- **Flexibilidad:** Se eliminó el atributo `required` de los nuevos campos para permitir registros rápidos.
+- **Despliegue GitHub Actions:** Sincronización exitosa de la rama `main` con la rama `deploy` (Commit `ad69a0e`).
+- **Verificación en Vivo:** Confirmación visual del despliegue en `suito.pro` (bypass de caché HCDN verificado).
 
 ---
 
 ## ❌ Problemas encontrados
-- **MIME/Path Errors en Hostinger**: Detectados fallos de carga en assets empaquetados por Vite. Se resolvió mediante inlining selectivo y ajustes en `.htaccess`.
-- **Cache Zombi de HCDN**: Archivos viejos persistían en prod. Se forzó versión `v2029` y se añadió un fail-safe de recarga en el HTML.
+- **Caché Agresivo (HCDN):** El sitio inicial en producción no mostraba los cambios debido al sistema de caché de Hostinger. Se resolvió verificando mediante parámetros de purga (`?v=...`) y confirmando que la configuración de `.htaccess` ya previene esto para futuros despliegues de archivos HTML.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Monitoreo de Producción
-1. Verificar que los nuevos leads capturados lleguen correctamente con sus imágenes al bucket `images/leads/`.
-2. Confirmar que el contador de leads en el Admin Sidebar se actualice sin delay.
+### Prioridad 1 — Monitorización
+1. **Validar recepción de leads reales:** Confirmar con el usuario que los próximos leads que lleguen al Admin Panel muestren correctamente los nuevos campos opcionales.
 
-### Prioridad 2 — UX y Refinamiento
-1. Añadir feedback visual de "Cargando" (Spinners) en las subidas de imágenes del onboarding.
-2. Pulir la vista de éxito del formulario con una animación de confeti o similar.
-
-### Prioridad 3 — Infraestructura
-1. Revisar si es posible unificar todos los entry points de Vite bajo una sola subcarpeta `/dist/` limpia sin las copias de seguridad de carpetas assets actuales.
+### Prioridad 2 — UX/UI
+1. **Analítica simple:** Podría ser útil medir cuántos usuarios completan estos campos opcionales vs. cuántos no, para decidir si valdría la pena hacerlos obligatorios en el futuro.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repo URL**: `https://github.com/Mad-Max8063/max-devs-suite.git`
-- **Main Branch**: `main` (Despliega vía GitHub Actions a `deploy`)
-- **Bucket Storage**: `images` (path: `leads/`)
-- **Versión de Cache**: `v2029`
+- **Repo GitHub:** `Mad-Max8063/max-devs-suite`
+- **Commit SHA (main):** `ad69a0e6a3a5aaab4641e88c9ea6e40bbf788319`
+- **Commit SHA (deploy):** `969de817271bfe7d6895fc3cf49fee8d88f5f3d4`
+- **URL Producción:** [https://suito.pro](https://suito.pro)
+- **Tabla Supabase:** `public.leads` (columna `details` JSONB)
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Navigation Inlining**: Se prefirió ensuciar un poco el HTML con JS inline para garantizar que el funnel de ventas (onboarding) nunca se rompa por errores de carga de red/módulos.
-- **Config Inlining**: Se eliminó el archivo de configuración externo para reducir el número de peticiones HTTP críticas que bloquean el renderizado del dashboard.
-- **Vite Input Map**: Se delegó el descubrimiento de scripts del landing a Vite (vía HTML) en lugar de ser un entry point manual para evitar inconsistencias en el nombrado de archivos estáticos.
+- **JSONB para nuevos campos:** Se decidió no agregar columnas físicas a la tabla de base de datos para `business_name` y `profession` ya que la columna `details` (JSONB) permite escalabilidad inmediata sin migraciones de esquema y el Admin panel ya estaba preparado para leer desde allí.
+- **Campos Opcionales:** Se priorizó reducir la fricción en el primer paso del embudo (lead generation) sobre la obligatoriedad de los datos.
