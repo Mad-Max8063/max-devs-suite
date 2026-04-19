@@ -119,6 +119,9 @@ if (form) {
                 return;
             }
 
+            const bname = document.getElementById('biz-name')?.value.trim() || '';
+            const occupation = document.getElementById('user-occupation')?.value.trim() || '';
+
             // ——— Subida de imágenes ———
             let profileUrl = '';
             let coverUrl   = '';
@@ -157,16 +160,14 @@ if (form) {
             }
 
             // ——— Datos por servicio ———
-            let prof = '', ig = '', address = '', bname = '', bdep = '', bserv = '';
+            let ig = '', address = '', bdep = '', bserv = '';
 
             if (service === 'TARJETA' || service === 'COMBO') {
-                prof    = document.getElementById('card-prof')?.value.trim() || '';
                 ig      = document.getElementById('card-ig')?.value.trim() || '';
                 address = document.getElementById('card-address')?.value.trim() || '';
             }
 
             if (service === 'GESTOR' || service === 'COMBO') {
-                bname = document.getElementById('biz-name')?.value.trim() || '';
                 bdep  = document.getElementById('biz-deposit')?.value?.trim() || '';
                 bserv = document.getElementById('biz-service')?.value.trim() || '';
             }
@@ -180,7 +181,7 @@ if (form) {
                 profile_img_url: profileUrl || null,
                 cover_img_url:   coverUrl   || null,
                 details: {
-                    profession:      prof,
+                    profession:      occupation,
                     instagram:       ig,
                     address,
                     business_name:   bname,
