@@ -201,6 +201,18 @@ if (form) {
                 throw new Error('DATABASE_ERROR');
             }
 
+            // ——— Conditional success messaging ———
+            const successTitle = document.getElementById('success-title');
+            const successMsg = document.getElementById('success-message');
+
+            if (service === 'GESTOR') {
+                if (successTitle) successTitle.textContent = '¡Pre-inscripción exitosa! 🎉';
+                if (successMsg) successMsg.innerHTML = 'Gracias por pre-inscribirte. Te avisaremos apenas el gestor esté 100% operativo.';
+            } else {
+                if (successTitle) successTitle.textContent = '¡Solicitud recibida! 🎉';
+                if (successMsg) successMsg.innerHTML = 'Te contactaremos en menos de <strong>24 horas</strong> para activar tu cuenta.';
+            }
+
             // ——— Mostrar pantalla de éxito ———
             showOnly(successView);
             form.reset();

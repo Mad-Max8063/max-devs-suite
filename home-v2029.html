@@ -36,6 +36,15 @@
             if (sectionTarjeta) sectionTarjeta.style.display = isTarjeta ? 'block' : 'none';
             if (sectionGestor) sectionGestor.style.display = isGestor ? 'block' : 'none';
 
+            const footerText = document.getElementById('onboarding-footer-text');
+            if (footerText) {
+                if (serviceType === 'gestor') {
+                    footerText.textContent = 'Pre-inscribite y te avisamos apenas el gestor esté 100% operativo.';
+                } else {
+                    footerText.textContent = 'Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.';
+                }
+            }
+
             if (landingView) landingView.classList.remove('active');
             if (onboardingView) {
                 onboardingView.classList.add('active');
@@ -153,7 +162,7 @@
                 <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="mailto:hola@suito.pro">Contacto</a>
             </div>
             <div>
-                <button onclick="startOnboarding('combo')" class="bg-primary text-white px-6 py-2 rounded-full font-bold shadow-lg hover:shadow-primary/20 transition-all scale-95 hover:scale-100">
+                <button onclick="startOnboarding('tarjeta')" class="bg-primary text-white px-6 py-2 rounded-full font-bold shadow-lg hover:shadow-primary/20 transition-all scale-95 hover:scale-100">
                     Empezar Gratis
                 </button>
             </div>
@@ -175,7 +184,7 @@
                         Suito es la galería operativa para profesionales que buscan distinción. Automatización inteligente con una estética única y vibrante.
                     </p>
                     <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 pt-4">
-                        <button onclick="startOnboarding('combo')" class="w-full sm:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:brightness-110 transition-all ambient-shadow">
+                        <button onclick="startOnboarding('tarjeta')" class="w-full sm:w-auto bg-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:brightness-110 transition-all ambient-shadow">
                             Iniciá tu Suite
                         </button>
                         <a href="#soluciones" class="flex items-center space-x-3 text-on-surface font-bold group">
@@ -358,7 +367,7 @@
                 </div>
 
                 <div class="text-center pt-8">
-                    <p class="text-xs text-on-surface-variant mb-6 font-medium">Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.</p>
+                    <p id="onboarding-footer-text" class="text-xs text-on-surface-variant mb-6 font-medium">Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.</p>
                     <button type="submit" id="submit-btn" class="w-full bg-primary text-white py-4 rounded-full font-black text-xl shadow-xl hover:brightness-110 transition-all">
                         Enviar Solicitud 🚀
                     </button>
@@ -373,8 +382,8 @@
             <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <span class="material-symbols-outlined text-primary text-5xl">check_circle</span>
             </div>
-            <h2 class="text-4xl font-black tracking-tighter">¡Solicitud recibida! 🎉</h2>
-            <p class="text-on-surface-variant font-medium text-lg leading-relaxed">
+            <h2 id="success-title" class="text-4xl font-black tracking-tighter">¡Solicitud recibida! 🎉</h2>
+            <p id="success-message" class="text-on-surface-variant font-medium text-lg leading-relaxed">
                 Tu solicitud fue enviada exitosamente. El equipo de <strong>Suito</strong> la está revisando y te vamos a contactar en las próximas <strong>24 horas</strong> para activar tu suite.
             </p>
             <div class="glass-card rounded-2xl p-6 border border-white/40 text-sm text-on-surface-variant">
