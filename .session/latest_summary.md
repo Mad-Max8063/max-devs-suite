@@ -1,49 +1,49 @@
-# Resumen de Sesión — Suito Pre-Launch Phase
-**Fecha:** 2026-04-20 16:02 ART
+# Resumen de Sesión — Suito Pre-Launch & Pricing Strategy
+**Fecha:** 2026-04-20 16:08 ART
 **Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Deshabilitar temporalmente los pagos para el **Gestor de Turnos** y el **Pack Emprendedor** en la landing page de Suito, convirtiendo estos servicios en un flujo de pre-inscripción (lista de espera), manteniendo operativa únicamente la venta de la **Tarjeta Virtual**.
+1. Deshabilitar pagos para **Gestor de Turnos** y **Pack Emprendedor** (convertidos a pre-inscripción).
+2. Analizar y proponer una actualización de precios debido a la inflación acumulada en Argentina (>9% Jan-Mar).
+3. Asegurar la persistencia del estado para la próxima sesión.
 
 ---
 
-## ✅ Lo que se hizo
-- **`MiSuite/home-v2029.html`**:
-    - Reemplazados badges de "7 días gratis" por **"Próximamente"** en Turnos y Combo.
-    - Aplicado **desenfoque (`blur-sm`)** a los precios de Turnos y Combo.
-    - Eliminados atributos `data-price-*` para evitar sobrescritura dinámica.
-    - Botones actualizados a **"Avisarme al lanzar"**.
-    - Actualizada función `startOnboarding` para incluir el plan `combo`.
-- **`MiSuite/landing/app.js`**:
-    - Actualizada lógica de éxito para mostrar mensaje de **"Pre-inscripción exitosa"** al seleccionar COMBO o GESTOR.
-- **Distribución**:
-    - Actualizado `dist/home-v2029.html` con los mismos cambios.
-- **Despliegue**:
-    - Push exitoso a `main` que activó el deployment en Hostinger.
-- **Verificación**:
-    - Verificación manual mediante navegador confirmando que los cambios están **en vivo** en `https://suito.pro/home-v2029.html`.
+## ✅ Lo que se hizo (y quedó en vivo)
+- **Deployment Exitoso**: Se subieron los cambios a `main`. La Action de GitHub construyó y desplegó en `https://suito.pro/home-v2029.html`.
+- **UI de Pre-inscripción**: 
+    - Precios de Turnos y Combo están blureados.
+    - Botones dicen "Avisarme al lanzar".
+    - La **Tarjeta Virtual** sigue operativa con flujo de pago normal.
+- **Análisis de Precios**:
+    - Se confirmó que los precios actuales ($4.900 / $9.900 / $12.900) están desactualizados vs mercado (~$6k-12k iniciales).
+    - Se propuso un **reposicionamiento estratégico (+30%)**: $6.500 / $12.900 / $16.900.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Activación de Pagos
-1. Cuando el Gestor de Turnos esté operativo, restaurar los badges de prueba y quitar el `blur-sm`.
-2. Restaurar los atributos `data-price-plan` y `data-price-period`.
-3. Ajustar `app.js` para que el éxito derive al flujo de pago de MP.
+### Prioridad 1 — Actualización de Precios
+1. **Definir Opción**: Confirmar si aplicamos la **Opción B** (+30%) o un ajuste menor.
+2. **Ejecutar Cambios**: 
+    - Actualizar fallbacks en `admin/config.js` y `home-v2029.html`.
+    - Aplicar el incremento en la base de datos Supabase (vía Admin Panel o script SQL).
+
+### Prioridad 2 — Verificación de Leads
+1. Monitorear los primeros ingresos de leads tras el cambio a pre-inscripción para asegurar que el mensaje de éxito es el correcto.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
 - **Repo GitHub**: `Mad-Max8063/max-devs-suite`
-- **Branch**: `main`
-- **Último Commit (Production)**: `3cde5f8e4a760dfe672eb18bcd875f350b7e08bd`
-- **URL de Verificación**: `https://suito.pro/home-v2029.html#precios`
+- **Último Commit (Deploy)**: `048fa18` (Session summary v1)
+- **Repo URL**: `https://github.com/Mad-Max8063/max-devs-suite`
+- **Market Research**: Planes iniciales en Argentina Abril 2026: $6.000 - $12.000 ARS.
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Bypass de HCDN**: Se verificó que el deployment en Hostinger es efectivo y que el uso de archivos versionados (`-v2029`) mitiga problemas de caché severos.
-- **UI de Pre-inscripción**: Se optó por el desenfoque en lugar de ocultar los precios para generar curiosidad técnica sin permitir la transacción, manteniendo la estética "vibrante" solicitada.
+- **Estrategia Anti-Inflación**: Se recomendó subir los precios proactivamente para mantener el estatus "Premium" y no quedar debajo del costo operativo/inflación.
+- **Persistencia**: Se mantiene el uso de archivos versionados para evitar problemas de caché en Hostinger.
