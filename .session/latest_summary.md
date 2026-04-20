@@ -1,51 +1,49 @@
-# Resumen de Sesión — Suito Platform
-**Fecha:** 2026-04-20 01:45 (Local)
-**Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite.git)
+# Resumen de Sesión — Suito Pre-Launch Phase
+**Fecha:** 2026-04-20 16:02 ART
+**Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Estabilizar errores críticos en producción (duplicación de planes, acceso denegado a edición) y mejorar la interactividad de la landing page reemplazando el placeholder de la tarjeta por una versión real y 3D.
+Deshabilitar temporalmente los pagos para el **Gestor de Turnos** y el **Pack Emprendedor** en la landing page de Suito, convirtiendo estos servicios en un flujo de pre-inscripción (lista de espera), manteniendo operativa únicamente la venta de la **Tarjeta Virtual**.
 
 ---
 
 ## ✅ Lo que se hizo
-- **Bug Fix (Banner Suscripción):** Se corrigió lógica en `shared/SubscriptionBanner.js` para que usuarios vitalicios (`is_premium: true`) no vean el countdown de 3 días aunque tengan datos de trial antiguos.
-- **Bug Fix (Acceso Denegado):** Se refactorizó `admin/clients.js` para evitar que el `edit_token` se regenere en cada actualización administrativa, permitiendo que los links enviados a clientes sigan funcionando.
-- **Admin Fix:** Se actualizó `admin/app.js` para que el panel administrativo muestre el link real del cliente (con su token específico) en lugar de un token maestro hardcodeado.
-- **Mejora UI Landing:** Se reemplazó el cuadrado azul genérico en la sección "Soluciones" por la imagen real de la tarjeta de Max Devs.
-- **Efecto 3D Tilt:** Se inyectó CSS y Vanilla JS para un efecto de inclinación 3D dinámico que sigue el cursor del mouse.
-- **Deploy:** Se pushearon todos los cambios a `main` y se confirmó el despliegue exitoso a producción.
-
----
-
-## ❌ Problemas encontrados
-- **Colisión de estados:** Los usuarios vitalicios con registros previos de trial causaban que el banner de "3 días restantes" apareciera por error. Resuelto con un early return por `is_premium`.
-- **Rotación de tokens:** Cada vez que el admin aprobaba un usuario, el link de edición cambiaba, bloqueando al usuario real. Resuelto persistiendo el token existente.
+- **`MiSuite/home-v2029.html`**:
+    - Reemplazados badges de "7 días gratis" por **"Próximamente"** en Turnos y Combo.
+    - Aplicado **desenfoque (`blur-sm`)** a los precios de Turnos y Combo.
+    - Eliminados atributos `data-price-*` para evitar sobrescritura dinámica.
+    - Botones actualizados a **"Avisarme al lanzar"**.
+    - Actualizada función `startOnboarding` para incluir el plan `combo`.
+- **`MiSuite/landing/app.js`**:
+    - Actualizada lógica de éxito para mostrar mensaje de **"Pre-inscripción exitosa"** al seleccionar COMBO o GESTOR.
+- **Distribución**:
+    - Actualizado `dist/home-v2029.html` con los mismos cambios.
+- **Despliegue**:
+    - Push exitoso a `main` que activó el deployment en Hostinger.
+- **Verificación**:
+    - Verificación manual mediante navegador confirmando que los cambios están **en vivo** en `https://suito.pro/home-v2029.html`.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Validación de Usuario
-1. Verificar con usuarios reales si el acceso al editor de tarjeta es ahora consistente.
-2. Confirmar que no hay más reportes de "Acceso Denegado".
-
-### Prioridad 2 — Pulido de la Landing
-1. Ajustar sensibilidad del Tilt si el usuario lo prefiere más sutil.
-2. Optimizar carga de `card-demo.jpg` si es necesario (actualmente 21KB).
+### Prioridad 1 — Activación de Pagos
+1. Cuando el Gestor de Turnos esté operativo, restaurar los badges de prueba y quitar el `blur-sm`.
+2. Restaurar los atributos `data-price-plan` y `data-price-period`.
+3. Ajustar `app.js` para que el éxito derive al flujo de pago de MP.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repo:** `Mad-Max8063/max-devs-suite`
-- **Último Commit:** `aceb9ed` (feat: replace placeholder with real card image and add 3D tilt effect)
-- **URL Producción:** [suito.pro](https://suito.pro)
-- **Tarjeta Demo:** [suito.pro/card/max-devs-solutions](https://suito.pro/card/max-devs-solutions)
+- **Repo GitHub**: `Mad-Max8063/max-devs-suite`
+- **Branch**: `main`
+- **Último Commit (Production)**: `3cde5f8e4a760dfe672eb18bcd875f350b7e08bd`
+- **URL de Verificación**: `https://suito.pro/home-v2029.html#precios`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Persistencia de Tokens:** Se decidió NO regenerar el `edit_token` durante las actualizaciones de perfil para evitar fricción con el usuario final.
-- **Vanilla JS para Tilt:** Se optó por una implementación nativa sin librerías externas para mantener la velocidad de carga de la landing page al máximo.
-- **Ambient Shadow:** Se aplicó una sombra púrpura translúcida en hover que complementa la paleta de colores de Suito.
+- **Bypass de HCDN**: Se verificó que el deployment en Hostinger es efectivo y que el uso de archivos versionados (`-v2029`) mitiga problemas de caché severos.
+- **UI de Pre-inscripción**: Se optó por el desenfoque en lugar de ocultar los precios para generar curiosidad técnica sin permitir la transacción, manteniendo la estética "vibrante" solicitada.
