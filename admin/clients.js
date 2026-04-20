@@ -187,8 +187,8 @@ function clientToBusiness(clientData, userId = null) {
         foto_url:       clientData.foto_url                || null,
         cover_url:      clientData.cover_url               || null,
         gallery_images: clientData.gallery_images          || [],
-        // Ensure edit_token exists for new clients (crypto-secure)
-        edit_token:     clientData.edit_token              || (() => { const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); })(),
+        // Map edit_token only if provided to avoid accidental rotation during partial updates
+        edit_token:     clientData.edit_token,
         // --- New Monetization Fields ---
         subscription_status: clientData.subscription_status || undefined,
         trial_ends_at:       clientData.trial_ends_at       || undefined,
@@ -239,7 +239,14 @@ async function performMigration() {
 
     console.log(`[Migration] Migrating ${clients.length} client(s) to businesses...`);
 
-    const rows = clients.map(c => clientToBusiness(c, userId));
+    const rows = clients.map(c => {
+        if (!c.edit_token) {
+            c.edit_token = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+        return clientToBusiness(c, userId);
+    });
 
     const { error } = await supabase.from('businesses').insert(rows);
 
@@ -276,6 +283,12 @@ export async function addClient(clientData) {
 
     // Nuevos clientes tienen user_id = null — el cliente lo reclamará al registrarse
     // (turnos via claim_business RPC, tarjeta via edit_token en el panel)
+    // Ensure edit_token exists for new clients
+    if (!clientData.edit_token) {
+        clientData.edit_token = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    }
     const row = clientToBusiness(clientData);
 
     const { data, error } = await supabase

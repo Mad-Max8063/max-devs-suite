@@ -509,7 +509,8 @@ function openModal(client = null) {
 
         const getEditorUrl = () => {
             const slug = client.slug || client.id;
-            return `https://suito.pro/edit/${slug}?token=reini26`;
+            const token = client.edit_token || 'reini26';
+            return `https://suito.pro/edit/${slug}?token=${token}`;
         };
 
         galleryBtn.onclick = () => {
