@@ -38,7 +38,7 @@
 
             const footerText = document.getElementById('onboarding-footer-text');
             if (footerText) {
-                if (serviceType === 'gestor') {
+                if (serviceType === 'gestor' || serviceType === 'combo') {
                     footerText.textContent = 'Pre-inscribite y te avisamos apenas el gestor esté 100% operativo.';
                 } else {
                     footerText.textContent = 'Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.';
@@ -337,11 +337,11 @@
 
                     <!-- Plan: Gestor de Turnos -->
                     <div id="plan-turnos" class="glass-card rounded-[2.5rem] p-8 border border-white/40 ambient-shadow text-left relative">
-                        <span class="inline-block bg-tertiary/10 text-tertiary font-bold text-xs px-3 py-1 rounded-full mb-4">7 días gratis</span>
+                        <span class="inline-block bg-amber-500/10 text-amber-600 font-bold text-xs px-3 py-1 rounded-full mb-4">Próximamente</span>
                         <h3 class="text-2xl font-black tracking-tight mb-2">Gestor de Turnos</h3>
                         <p class="text-on-surface-variant text-sm mb-6">Agenda 24/7 con reservas automáticas, recordatorios y cobro de señas.</p>
                         <div class="mb-6">
-                            <span class="text-4xl font-black" data-price-plan="turnos" data-price-period="monthly">$9.900</span>
+                            <span class="text-4xl font-black blur-sm">$9.900</span>
                             <span class="text-on-surface-variant text-sm">/mes</span>
                         </div>
                         <ul class="space-y-3 text-sm text-on-surface-variant mb-8">
@@ -351,18 +351,18 @@
                             <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Panel de gestión profesional</li>
                         </ul>
                         <button onclick="startOnboarding('gestor')" class="w-full bg-slate-900 text-white py-3 rounded-full font-bold hover:bg-primary transition-all">
-                            Probar gratis
+                            Avisarme al lanzar
                         </button>
                     </div>
 
                     <!-- Plan: Combo (Highlighted) -->
                     <div id="plan-combo" class="glass-card rounded-[2.5rem] p-8 border-2 border-primary/40 ambient-shadow text-left relative overflow-hidden" style="background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(236,72,153,0.05));">
                         <span class="absolute top-0 right-0 bg-primary text-white font-bold text-xs px-4 py-1 rounded-bl-xl">Mejor valor</span>
-                        <span class="inline-block bg-primary/10 text-primary font-bold text-xs px-3 py-1 rounded-full mb-4 mt-2">7 días gratis</span>
+                        <span class="inline-block bg-amber-500/10 text-amber-600 font-bold text-xs px-3 py-1 rounded-full mb-4 mt-2">Próximamente</span>
                         <h3 class="text-2xl font-black tracking-tight mb-2">Pack Emprendedor</h3>
                         <p class="text-on-surface-variant text-sm mb-6">Tarjeta + Turnos juntos. Todo lo que necesitás en un solo lugar.</p>
                         <div class="mb-6">
-                            <span class="text-4xl font-black" data-price-plan="combo" data-price-period="monthly">$12.900</span>
+                            <span class="text-4xl font-black blur-sm">$12.900</span>
                             <span class="text-on-surface-variant text-sm">/mes</span>
                         </div>
                         <ul class="space-y-3 text-sm text-on-surface-variant mb-8">
@@ -372,7 +372,7 @@
                             <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Soporte prioritario</li>
                         </ul>
                         <button onclick="startOnboarding('combo')" class="w-full bg-gradient-to-r from-primary to-pink-500 text-white py-3 rounded-full font-bold hover:shadow-lg hover:shadow-primary/25 transition-all">
-                            Probar gratis
+                            Avisarme al lanzar
                         </button>
                     </div>
                 </div>

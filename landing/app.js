@@ -207,7 +207,7 @@ if (form) {
             const successTitle = document.getElementById('success-title');
             const successMsg = document.getElementById('success-message');
 
-            if (service === 'GESTOR') {
+            if (service === 'GESTOR' || service === 'COMBO') {
                 if (successTitle) successTitle.textContent = '¡Pre-inscripción exitosa! 🎉';
                 if (successMsg) successMsg.innerHTML = 'Gracias por pre-inscribirte. Te avisaremos apenas el gestor esté 100% operativo.';
             } else {
