@@ -188,7 +188,11 @@ async function renderRecentClients() {
                     <div class="client-cell">
                         <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.business || c.name)}&background=${getPlanColor(c.plan)}&color=fff&size=32" alt="${escapeHtml(c.name)}">
                         <div>
-                            <strong>${escapeHtml(c.business || c.name)}</strong>
+                            <strong>
+                                ${escapeHtml(c.business || c.name)}
+                                ${c.is_premium ? '<i class="fa-solid fa-crown tier-icon vitalicio" title="Plan Vitalicio"></i>' : ''}
+                                ${c.free_until && new Date(c.free_until) > new Date() ? '<i class="fa-solid fa-gift tier-icon gift" title="Plan Bonificado"></i>' : ''}
+                            </strong>
                             <small style="display:block;color:var(--text-muted);font-size:12px">${escapeHtml(c.name)}</small>
                         </div>
                     </div>
@@ -241,7 +245,11 @@ async function renderClients() {
                 <div class="client-card-header">
                     <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.business || c.name)}&background=${getPlanColor(c.plan)}&color=fff&size=48" alt="${escapeHtml(c.name)}">
                     <div>
-                        <h4>${escapeHtml(c.business || c.name)}</h4>
+                        <h4>
+                            ${escapeHtml(c.business || c.name)}
+                            ${c.is_premium ? '<i class="fa-solid fa-crown tier-icon vitalicio" title="Plan Vitalicio"></i>' : ''}
+                            ${c.free_until && new Date(c.free_until) > new Date() ? '<i class="fa-solid fa-gift tier-icon gift" title="Plan Bonificado"></i>' : ''}
+                        </h4>
                         <span class="badge-service ${escapeHtml(c.plan)}">${getPlanLabel(c.plan)}</span>
                     </div>
                     <span class="status ${escapeHtml(c.status)}">${c.status === 'active' ? 'Activo' : 'Inactivo'}</span>
@@ -530,6 +538,14 @@ function openModal(client = null) {
         galleryControls.style.display = 'none';
     }
 
+    // --- Plan Especial Container ---
+    const planEspecial = document.getElementById('planEspecialContainer');
+    if (client) {
+        planEspecial.style.display = 'block';
+    } else {
+        planEspecial.style.display = 'none';
+    }
+
     modal.classList.add('active');
     document.getElementById('clientName').focus();
 }
@@ -581,6 +597,68 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+
+// ——— Plan Especial Logic ———
+window.bonificarPlan = async function(days) {
+    if (!editingClientId) return;
+    
+    try {
+        const clients = await getClients();
+        const client = clients.find(c => c.id === editingClientId);
+        
+        let baseDate = new Date();
+        // Si ya tiene una fecha de bonificación futura, sumar a partir de ahí
+        if (client.free_until && new Date(client.free_until) > new Date()) {
+            baseDate = new Date(client.free_until);
+        }
+        
+        const newDate = new Date(baseDate.getTime() + (days * 24 * 60 * 60 * 1000));
+        const free_until = newDate.toISOString().split('T')[0];
+        
+        await updateClient(editingClientId, { 
+            ...client,
+            free_until 
+        });
+        
+        showToast(`¡Plan bonificado ${days} días! (Hasta ${free_until})`, 'success');
+        
+        // Actualizar UI en vivo
+        document.getElementById('clientFreeUntil').value = free_until;
+        await renderDashboard();
+        if (currentSection === 'clients') await renderClients();
+        
+    } catch (err) {
+        console.error('[bonificarPlan] error:', err);
+        showToast('Error al bonificar plan', 'error');
+    }
+};
+
+window.setVitalicio = async function() {
+    if (!editingClientId) return;
+    
+    if (!confirm('¿Convertir este cliente a Vitalicio? Tendrá acceso premium permanente.')) return;
+    
+    try {
+        const clients = await getClients();
+        const client = clients.find(c => c.id === editingClientId);
+        
+        await updateClient(editingClientId, { 
+            ...client,
+            is_premium: true 
+        });
+        
+        showToast('¡Cliente convertido a VITALICIO! 👑', 'success');
+        
+        // Actualizar UI en vivo
+        document.getElementById('clientPremium').checked = true;
+        await renderDashboard();
+        if (currentSection === 'clients') await renderClients();
+        
+    } catch (err) {
+        console.error('[setVitalicio] error:', err);
+        showToast('Error al establecer vitalicio', 'error');
+    }
+};
 
 // ——— Leads Section (Supabase) ———
 let _leadsDebounceTimer = null;
@@ -766,18 +844,28 @@ window._activateLead = async function(id) {
     if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Activando...'; }
 
     try {
+        const now = new Date();
         const plan = lead.service_type.toLowerCase();
+        
+        // Trial calculation: 3 days for Tarjeta, 7 days for Turnos/Combo
+        const trialDays = plan === 'tarjeta' ? 3 : 7;
+        const trialEnd = new Date(now);
+        trialEnd.setDate(trialEnd.getDate() + trialDays);
+
+        // Price lock calculation: 90 days from now
+        const priceLockEnd = new Date(now);
+        priceLockEnd.setDate(priceLockEnd.getDate() + 90);
+
+        // Get current price from memory cache
+        const currentPrice = currentPricing[plan]?.monthly || 0;
+
         const slug = (lead.details?.business_name || lead.name)
             .toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/\s+/g, '-')
             .replace(/[^a-z0-9-]/g, '');
 
-        const trialEnd = new Date();
-        trialEnd.setDate(trialEnd.getDate() + 30);
-
         // Único insert: admin/CRM fields + business profile fields en una sola llamada.
-        // addClient() ahora escribe directamente en la tabla businesses.
         const newClient = await addClient({
             // Campos admin/CRM
             name:           lead.name,
@@ -788,6 +876,13 @@ window._activateLead = async function(id) {
             plan:           plan,
             status:         'active',
             notes:          `Activado desde lead #${lead.id}. Profesión: ${lead.details?.profession || '—'}. Origen: ${lead.details?.origin || '—'}.`,
+            
+            // --- New Monetization Fields (Hybrid-Trial) ---
+            subscription_status: 'trial',
+            trial_ends_at:       trialEnd.toISOString(),
+            locked_price:        currentPrice,
+            price_lock_ends_at:  priceLockEnd.toISOString(),
+
             // Campos perfil de negocio
             foto_url:             lead.profile_img_url || '',
             cover_url:            lead.cover_img_url  || '',
@@ -796,7 +891,7 @@ window._activateLead = async function(id) {
             location:             lead.details?.address    || '',
             valor_sena:           lead.details?.deposit ? Number(lead.details.deposit) : 2000,
             is_premium:           false,
-            fecha_vencimiento:    trialEnd.toISOString().split('T')[0],
+            fecha_vencimiento:    trialEnd.toISOString().split('T')[0], // Sync for legacy checks
             notificaciones_email: true,
             recordatorios_activos:true,
             active_modules: plan === 'tarjeta' ? ['card'] :

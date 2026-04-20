@@ -35,6 +35,11 @@ export interface Profile {
     CoverURL?: string;
     GalleryImages?: { image_url: string; caption?: string }[];
     ActiveModules?: string[];
+    // Monetization fields
+    subscription_status?: 'trial' | 'active' | 'past_due' | 'canceled' | 'none';
+    trial_ends_at?: string;
+    locked_price?: number;
+    price_lock_ends_at?: string;
 }
 
 export interface Appointment {
@@ -159,6 +164,10 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         CoverURL: data.cover_url || '',
         GalleryImages: data.gallery_images || [],
         ActiveModules: data.active_modules || ['appointments', 'card'],
+        subscription_status: data.subscription_status || 'none',
+        trial_ends_at: data.trial_ends_at,
+        locked_price: data.locked_price,
+        price_lock_ends_at: data.price_lock_ends_at,
     };
 }
 

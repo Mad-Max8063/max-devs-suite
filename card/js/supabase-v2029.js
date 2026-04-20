@@ -182,7 +182,13 @@ export async function getCard(slug) {
         activeModules: activeModules,
         slug: business.slug,
         edit_token: business.edit_token || '',
-        gallery: gallery
+        gallery: gallery,
+        // Nuevos campos de monetización
+        subscription_status: business.subscription_status || 'basic',
+        trial_ends_at: business.trial_ends_at || null,
+        free_until: business.free_until || null,
+        locked_price: business.locked_price || 0,
+        price_lock_ends_at: business.price_lock_ends_at || null
     };
 
     return cardData;

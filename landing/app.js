@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.localStorage.setItem('lead_ref', ref);
         }
     }
+
+    import('./pricing-loader.js').then(m => m.initDynamicPricing());
 });
 
 // ——— Navigation helpers ———

@@ -15,6 +15,7 @@ import {
     updateBusinessProfileSecure,
     updateActiveModulesSecure,
 } from './supabase-v2029.js';
+import { injectSubscriptionBanner } from '../../shared/SubscriptionBanner.js';
 
 export function renderClientPanel(container, card) {
     const data = {
@@ -45,6 +46,12 @@ export function renderClientPanel(container, card) {
 
     container.innerHTML = buildPanelHTML(data);
     wirePanelEvents(container, data);
+
+    // Inject Subscription Banner at the top
+    const bannerContainer = container.querySelector('#subscription-banner-root');
+    if (bannerContainer) {
+        injectSubscriptionBanner('subscription-banner-root', card);
+    }
 }
 
 // ——— HTML ———
@@ -52,6 +59,9 @@ export function renderClientPanel(container, card) {
 function buildPanelHTML(data) {
     return `
     <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
+
+      <!-- Subscription Banner -->
+      <div id="subscription-banner-root" style="margin-bottom: 20px;"></div>
 
       <!-- Header Premium -->
       <div style="text-align: center; margin-bottom: 20px; padding: 28px 16px 20px; background: var(--premium-gradient); border-radius: 28px; position: relative; overflow: hidden;">

@@ -4,6 +4,8 @@ import { useApp, useProfile, useAppointments } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import BottomNavigation from '../components/BottomNavigation';
 import DemoBanner from '../components/DemoBanner';
+import { SubscriptionBanner } from '../components/SubscriptionBanner';
+import { resolveAccessPriority } from '../utils/access-resolver';
 
 const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -68,6 +70,10 @@ const WelcomePage: React.FC = () => {
   const hasAppointments = activeModules.includes('appointments');
   const hasCard = activeModules.includes('card');
 
+  const hasAccess = resolveAccessPriority(profile);
+  const isExpired = profile?.trial_ends_at ? new Date(profile.trial_ends_at) < new Date() : false;
+  const isHardLocked = !hasAccess && isExpired;
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-on-surface font-sans relative overflow-hidden">
       
@@ -99,9 +105,28 @@ const WelcomePage: React.FC = () => {
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto pb-32 no-scrollbar px-6">
+        
+        {/* Subscription Banner */}
+        <SubscriptionBanner />
 
-        {/* Hero Stats Card */}
-        {hasAppointments && (
+        {isHardLocked ? (
+          <div className="mt-10 text-center animate-fade-in">
+             <div className="size-20 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-6">
+                <span className="material-symbols-outlined text-[40px]">lock</span>
+             </div>
+             <h2 className="text-2xl font-black tracking-tighter mb-4">Agenda Bloqueada</h2>
+             <p className="text-sm text-on-surface-variant opacity-70 mb-8 leading-relaxed">
+               Tu período de prueba ha finalizado. Para seguir gestionando tus turnos y recibiendo reservas de clientes, por favor activá tu suscripción.
+             </p>
+             <div className="p-6 bg-primary/5 rounded-3xl border border-primary/10 mb-8">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Precio Protegido</p>
+                <p className="text-lg font-black tracking-tight">Congelá tu precio por 90 días</p>
+             </div>
+          </div>
+        ) : (
+          <>
+            {/* Hero Stats Card */}
+            {hasAppointments && (
           <div className="mt-6 mb-8 animate-scale-in">
             <div className="glass-card ambient-shadow rounded-[2rem] p-7 overflow-hidden relative border-white/60">
               <div className="flex justify-between items-start mb-6">
@@ -240,7 +265,9 @@ const WelcomePage: React.FC = () => {
                     </button>
                 </div>
             </div>
-        </div>
+          </div>
+          </>
+        )}
 
       </main>
 

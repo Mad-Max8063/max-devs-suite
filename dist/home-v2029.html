@@ -147,40 +147,10 @@
         .wa-fallback-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-    <script>
-        // Funciones de navegación resilientes (Inyectadas en el source para evitar fallas por carga de módulos)
-        window.startOnboarding = function(plan) {
-            console.log('Iniciando onboarding para:', plan);
-            const landingView = document.getElementById('landing-view');
-            const onboardingView = document.getElementById('onboarding-view');
-            
-            if (landingView && onboardingView) {
-                landingView.classList.remove('active');
-                onboardingView.classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-                // Si existe el formulario, seleccionar el plan
-                const comboSelect = document.getElementById('combo-select');
-                if (comboSelect) {
-                    comboSelect.value = plan === 'combo' ? 'Pro Full' : 'Galería';
-                }
-            }
-        };
-
-        window.goBackToLanding = function() {
-            const landingView = document.getElementById('landing-view');
-            const onboardingView = document.getElementById('onboarding-view');
-            
-            if (landingView && onboardingView) {
-                onboardingView.classList.remove('active');
-                landingView.classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        };
-    </script>
     <!-- Deployment Trigger: 2026-04-18T13:40:00Z -->
-  <script type="module" crossorigin src="./assets/main-CyND1ntv-v2029.js"></script>
+  <script type="module" crossorigin src="./assets/main-pyU1jZWt-v2029.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX-v2029.js">
+  <link rel="modulepreload" crossorigin href="./assets/preload-helper-Dp1pzeXC-v2029.js">
   <link rel="modulepreload" crossorigin href="./assets/vendor-Cgi6DKmr-v2029.js">
   <link rel="modulepreload" crossorigin href="./assets/vendor-supabase-CZjsEvFF-v2029.js">
   <link rel="modulepreload" crossorigin href="./assets/supabase-BfykovAz-v2029.js">
@@ -195,6 +165,7 @@
             </div>
             <div class="hidden md:flex items-center space-x-12">
                 <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="#soluciones">Soluciones</a>
+                <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="#precios">Precios</a>
                 <a class="text-slate-600 font-medium hover:text-primary transition-colors" href="mailto:hola@suito.pro">Contacto</a>
             </div>
             <div>
@@ -303,6 +274,111 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="precios" class="py-24 px-6">
+            <div class="max-w-[1200px] mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-4">Precios transparentes en pesos argentinos</h2>
+                <p class="text-on-surface-variant font-medium text-lg max-w-2xl mx-auto mb-4">
+                    Evitá los impuestos del 60% en plataformas en dólares (Calendly, Linktree). Tu negocio merece herramientas locales, sin sorpresas.
+                </p>
+                <span class="inline-block bg-tertiary/10 text-tertiary font-bold text-sm px-4 py-2 rounded-full mb-12">
+                    🔒 Precio fijo en pesos por 3 meses para nuevos usuarios
+                </span>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[1100px] mx-auto">
+                    <!-- Plan: Tarjeta Virtual -->
+                    <div id="plan-tarjeta" class="glass-card rounded-[2.5rem] p-8 border border-white/40 ambient-shadow text-left relative">
+                        <span class="inline-block bg-primary/10 text-primary font-bold text-xs px-3 py-1 rounded-full mb-4">3 días gratis</span>
+                        <h3 class="text-2xl font-black tracking-tight mb-2">Tarjeta Virtual</h3>
+                        <p class="text-on-surface-variant text-sm mb-6">Tu identidad digital profesional con galería, contactos y diseño premium.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-black" data-price-plan="tarjeta" data-price-period="monthly">$4.900</span>
+                            <span class="text-on-surface-variant text-sm">/mes</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-on-surface-variant mb-8">
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Diseño premium sin marca de agua</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Galería de imágenes extendida</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Botón de contacto y redes</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> PWA instalable</li>
+                <!-- Strategy: Anti-Foreign-Paltform Copy -->
+                <div class="max-w-[800px] mx-auto mb-16 p-6 bg-primary/5 rounded-[2rem] border border-primary/20">
+                    <p class="text-sm font-bold text-primary mb-2">🇦🇷 PAGÁ EN PESOS, SIN SORPRESAS</p>
+                    <p class="text-on-surface-variant text-sm">
+                        A diferencia de plataformas extranjeras (Calendly, Linktree, etc), Suito es 100% local. 
+                        <strong>Ahorrá un 60% de impuestos</strong> al pagar directamente en ARS con Mercado Pago. 
+                        Además, congelamos tu precio por los primeros 3 meses.
+                    </p>
+                </div>
+
+                <div id="pricing-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                    <!-- Plan: Tarjeta Virtual -->
+                    <div id="plan-tarjeta" class="glass-card rounded-[2.5rem] p-8 border border-white/40 ambient-shadow text-left relative">
+                        <span class="inline-block bg-secondary/10 text-secondary font-bold text-xs px-3 py-1 rounded-full mb-4">3 días gratis</span>
+                        <h3 class="text-2xl font-black tracking-tight mb-2">Tarjeta Virtual</h3>
+                        <p class="text-on-surface-variant text-sm mb-6">Tu perfil profesional premium. Compartí tus redes, galería y contacto en un toque.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-black" data-price-plan="tarjeta" data-price-period="monthly">$4.900</span>
+                            <span class="text-on-surface-variant text-sm">/mes</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-on-surface-variant mb-8">
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Perfil PWA optimizado</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Galería de imágenes premium</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Sin marca de agua Suito</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> Exportación vCard directa</li>
+                        </ul>
+                        <button onclick="startOnboarding('tarjeta')" class="w-full bg-slate-900 text-white py-3 rounded-full font-bold hover:bg-primary transition-all">
+                            Probar gratis
+                        </button>
+                    </div>
+
+                    <!-- Plan: Gestor de Turnos -->
+                    <div id="plan-turnos" class="glass-card rounded-[2.5rem] p-8 border border-white/40 ambient-shadow text-left relative">
+                        <span class="inline-block bg-tertiary/10 text-tertiary font-bold text-xs px-3 py-1 rounded-full mb-4">7 días gratis</span>
+                        <h3 class="text-2xl font-black tracking-tight mb-2">Gestor de Turnos</h3>
+                        <p class="text-on-surface-variant text-sm mb-6">Agenda 24/7 con reservas automáticas, recordatorios y cobro de señas.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-black" data-price-plan="turnos" data-price-period="monthly">$9.900</span>
+                            <span class="text-on-surface-variant text-sm">/mes</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-on-surface-variant mb-8">
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Reservas online 24/7</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Recordatorios automáticos</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Cobro de señas con Mercado Pago</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Panel de gestión profesional</li>
+                        </ul>
+                        <button onclick="startOnboarding('gestor')" class="w-full bg-slate-900 text-white py-3 rounded-full font-bold hover:bg-primary transition-all">
+                            Probar gratis
+                        </button>
+                    </div>
+
+                    <!-- Plan: Combo (Highlighted) -->
+                    <div id="plan-combo" class="glass-card rounded-[2.5rem] p-8 border-2 border-primary/40 ambient-shadow text-left relative overflow-hidden" style="background: linear-gradient(135deg, rgba(139,92,246,0.05), rgba(236,72,153,0.05));">
+                        <span class="absolute top-0 right-0 bg-primary text-white font-bold text-xs px-4 py-1 rounded-bl-xl">Mejor valor</span>
+                        <span class="inline-block bg-primary/10 text-primary font-bold text-xs px-3 py-1 rounded-full mb-4 mt-2">7 días gratis</span>
+                        <h3 class="text-2xl font-black tracking-tight mb-2">Pack Emprendedor</h3>
+                        <p class="text-on-surface-variant text-sm mb-6">Tarjeta + Turnos juntos. Todo lo que necesitás en un solo lugar.</p>
+                        <div class="mb-6">
+                            <span class="text-4xl font-black" data-price-plan="combo" data-price-period="monthly">$12.900</span>
+                            <span class="text-on-surface-variant text-sm">/mes</span>
+                        </div>
+                        <ul class="space-y-3 text-sm text-on-surface-variant mb-8">
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Todo de Tarjeta Virtual</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Todo de Gestor de Turnos</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Ahorrá vs. planes separados</li>
+                            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-tertiary text-base">check_circle</span> Soporte prioritario</li>
+                        </ul>
+                        <button onclick="startOnboarding('combo')" class="w-full bg-gradient-to-r from-primary to-pink-500 text-white py-3 rounded-full font-bold hover:shadow-lg hover:shadow-primary/25 transition-all">
+                            Probar gratis
+                        </button>
+                    </div>
+                </div>
+
+                <p class="text-on-surface-variant text-sm mt-8">
+                    Precio congelado por 3 meses desde la contratación. Cobrado en ARS a valor oficial, sin impuestos al dólar.
+                </p>
             </div>
         </section>
     </main>
@@ -453,7 +529,7 @@
                 names.forEach(function(n) { caches.delete(n); });
             });
         }
-    </script>
+    </script>
     <!-- Fallback if module fails -->
     <script>
         setTimeout(() => {

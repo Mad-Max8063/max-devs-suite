@@ -3,6 +3,7 @@ import { Navigate, useLocation, useParams, useSearchParams } from 'react-router-
 import { logger } from '../utils/logger';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/AppContext';
+import { resolveAccessPriority } from '../utils/access-resolver';
 
 const MASTER_TOKEN = 'reini26';
 
@@ -54,40 +55,48 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
 
     // Subscription expiration check (skip for demo mode)
-    if (slug && slug !== 'demo' && profile?.FechaVencimiento) {
-        const today = new Date().toISOString().split('T')[0];
-        if (profile.FechaVencimiento < today) {
+    if (slug && slug !== 'demo' && profile) {
+        const hasAccess = resolveAccessPriority(profile);
+        
+        if (!hasAccess) {
+            const expDate = profile.trial_ends_at || profile.free_until || profile.FechaVencimiento || null;
+            const formattedDate = expDate 
+                ? new Date(expDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })
+                : 'Recientemente';
+
             return (
                 <div className="flex flex-col items-center justify-center min-h-screen bg-background-light dark:bg-background-dark px-6 text-center">
                     <div className="size-24 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/20 flex items-center justify-center mb-6 animate-success-pop">
-                        <span className="material-symbols-outlined text-amber-500 text-[48px]">hourglass_disabled</span>
+                        <span className="material-symbols-outlined text-amber-500 text-[48px]">lock</span>
                     </div>
                     <h1 className="text-2xl font-bold text-text-primary-light dark:text-white mb-2">
-                        Tu suscripción venció
+                        Acceso Restringido
                     </h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 max-w-xs leading-relaxed">
-                        Tu período de acceso finalizó el <strong>{new Date(profile.FechaVencimiento + 'T12:00:00').toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>.
+                        Tu período de acceso finalizó el <strong>{formattedDate}</strong>.
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-xs leading-relaxed">
-                        Para renovar y seguir usando tu gestor, escribinos:
+                        Para activar tu plan y seguir usando el gestor de turnos, suscribite:
                     </p>
                     <div className="space-y-3 w-full max-w-xs">
                         <a
-                            href="https://wa.me/5491162621406?text=Hola!%20Quiero%20renovar%20mi%20suscripción%20de%20TurnosPro"
+                            href="https://suito.pro/#precios"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-green-500/25 transition-all active:scale-[0.98]"
+                            className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                         >
-                            <span className="material-symbols-outlined text-[20px]">chat</span>
-                            Escribinos por WhatsApp
+                            <span className="material-symbols-outlined text-[20px]">payments</span>
+                            Ver Planes de Suscripción
                         </a>
-                        <button
-                            onClick={() => { window.location.hash = '/demo'; window.location.reload(); }}
-                            className="w-full flex items-center justify-center gap-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-3 px-4 rounded-xl transition-colors"
+                        <a
+                            href="https://wa.me/5491162621406?text=Hola!%20Tengo%20problemas%20con%20mi%20suscripción%20en%20el%20gestor"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl transition-colors"
                         >
-                            <span className="material-symbols-outlined text-[18px]">visibility</span>
-                            Ver modo demo
-                        </button>
+                            <span className="material-symbols-outlined text-[18px]">chat</span>
+                            Soporte Técnico
+                        </a>
                     </div>
                 </div>
             );

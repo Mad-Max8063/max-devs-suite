@@ -5,6 +5,7 @@
  */
 
 import { downloadVCard } from './vcard.js';
+import { resolveAccessPriority } from '../../shared/access-resolver.js';
 
 const CARD_DATA = {
     profile: {
@@ -96,10 +97,18 @@ function buildCardHTML(data) {
     const website = data.website || '';
     const bookingUrl = data.bookingUrl || data.booking_url || '';
     const isPremium = data.isPremium || false;
-    const gallery = data.gallery || [];
+    const hasAccess = resolveAccessPriority(data);
+    const rawGallery = data.gallery || [];
+    const gallery = hasAccess ? rawGallery : rawGallery.slice(0, 2);
 
     return `
-        <div class="card-container animate-fade-in">
+        ${!hasAccess ? `
+        <div class="trial-banner">
+            Muestra limitada (Trial Vencido) 
+            <a href="https://suito.pro?ref=expired" target="_blank">Activar Premium</a>
+        </div>
+        ` : ''}
+        <div class="card-container animate-fade-in${!hasAccess ? ' card-degraded' : ''}">
             <!-- Cover & Avatar -->
             <div class="card-header">
                 <div class="card-cover-wrapper">
@@ -187,7 +196,7 @@ function buildCardHTML(data) {
             <!-- Footer -->
             <footer class="card-footer">
                 <div class="footer-divider"></div>
-                ${(!isPremium || data.forceWatermark) ? `
+                ${(!hasAccess || data.forceWatermark) ? `
                     <div class="suito-referral">
                         <p class="referral-text">¿Querés una tarjeta como esta?</p>
                         <a href="https://suito.pro?ref=card" target="_blank" class="referral-link">Obtené la tuya en Suito.pro</a>

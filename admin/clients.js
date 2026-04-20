@@ -158,6 +158,11 @@ function businessToClient(b) {
         cover_url:      b.cover_url || '',
         edit_token:     b.edit_token || null,
         created_at:     b.created_at,
+        // --- New Monetization Fields ---
+        subscription_status: b.subscription_status || 'basic',
+        trial_ends_at:       b.trial_ends_at || null,
+        locked_price:        b.locked_price || null,
+        price_lock_ends_at:  b.price_lock_ends_at || null,
     };
 }
 
@@ -183,7 +188,12 @@ function clientToBusiness(clientData, userId = null) {
         cover_url:      clientData.cover_url               || null,
         gallery_images: clientData.gallery_images          || [],
         // Ensure edit_token exists for new clients (crypto-secure)
-        edit_token:     clientData.edit_token              || (() => { const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); })()
+        edit_token:     clientData.edit_token              || (() => { const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(''); })(),
+        // --- New Monetization Fields ---
+        subscription_status: clientData.subscription_status || undefined,
+        trial_ends_at:       clientData.trial_ends_at       || undefined,
+        locked_price:        clientData.locked_price        || undefined,
+        price_lock_ends_at:  clientData.price_lock_ends_at  || undefined
     };
     if (userId) row.user_id = userId;
 

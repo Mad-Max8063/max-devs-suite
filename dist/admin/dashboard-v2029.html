@@ -36,7 +36,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-  <script type="module" crossorigin src="../assets/dashboard-BA167Dqz-v2029.js"></script>
+  <script type="module" crossorigin src="../assets/dashboard-CrniLgtB-v2029.js"></script>
   <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-B5Qt9EMX-v2029.js">
   <link rel="modulepreload" crossorigin href="../assets/vendor-Cgi6DKmr-v2029.js">
   <link rel="modulepreload" crossorigin href="../assets/vendor-supabase-CZjsEvFF-v2029.js">
@@ -497,6 +497,27 @@
                     <label for="clientNotes">Notas</label>
                     <textarea id="clientNotes" rows="3" placeholder="Notas internas sobre el cliente..."></textarea>
                 </div>
+                <!-- ——— Plan Especial Overrides ——— -->
+                <div class="plan-especial-box" id="planEspecialContainer" style="display: none;">
+                    <div class="plan-especial-title">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Control de Plan Especial (Admin)
+                    </div>
+                    <div class="plan-especial-buttons">
+                        <button type="button" class="btn-bonificar" onclick="bonificarPlan(30)">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>1 Mes</span>
+                        </button>
+                        <button type="button" class="btn-bonificar" onclick="bonificarPlan(90)">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>3 Meses</span>
+                        </button>
+                        <button type="button" class="btn-bonificar vitalicio" onclick="setVitalicio()">
+                            <i class="fa-solid fa-crown"></i>
+                            <span>Vitalicio</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" id="modalCancel">Cancelar</button>
                     <button type="submit" class="primary-btn">
