@@ -146,6 +146,24 @@
         }
         .wa-fallback-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos 3D Tilt */
+        .tilt-card-container {
+            perspective: 1200px;
+        }
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+            will-change: transform;
+        }
+        .tilt-card:hover {
+            box-shadow: 0 45px 100px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.08);
+        }
+        .tilt-card img {
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
     </style>
     <!-- Deployment Trigger: 2026-04-18T13:40:00Z -->
 </head>
@@ -247,8 +265,12 @@
                                 <p class="text-on-surface-variant font-medium">Tu identidad digital concentrada en un diseño mesh espectacular. Mandale a tus clientes toda la info con un click.</p>
                                 <button onclick="startOnboarding('tarjeta')" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition-all">Configurar la mía</button>
                             </div>
-                            <div class="w-full md:w-1/2 flex justify-center">
-                                <div class="w-48 h-80 bg-gradient-to-br from-primary to-secondary rounded-3xl shadow-2xl opacity-80 backdrop-blur-3xl transform rotate-3 scale-90"></div>
+                            <div class="w-full md:w-1/2 flex justify-center tilt-card-container">
+                                <a href="https://suito.pro/card/max-devs-solutions" target="_blank" rel="noopener noreferrer" id="card-preview-link" aria-label="Ver tarjeta de Max Devs Solutions" class="tilt-card block relative group">
+                                    <img src="./assets/card-demo.jpg" alt="Suito Premium Card Demo" class="w-56 h-auto transition-transform duration-500 group-hover:scale-[1.02] ambient-shadow">
+                                    <!-- Overlay de distincion sutil -->
+                                    <div class="absolute inset-0 rounded-[2.5rem] ring-1 ring-white/20 pointer-events-none"></div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -508,6 +530,23 @@
                 names.forEach(function(n) { caches.delete(n); });
             });
         }
+    </script>
+    <script>
+    (function() {
+        var card = document.getElementById('card-preview-link');
+        if (!card) return;
+        card.addEventListener('mousemove', function(e) {
+            var rect = card.getBoundingClientRect();
+            var x = (e.clientX - rect.left) / rect.width;
+            var y = (e.clientY - rect.top) / rect.height;
+            var rotateY = (x - 0.5) * 25;
+            var rotateX = (0.5 - y) * 25;
+            card.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+        });
+        card.addEventListener('mouseleave', function() {
+            card.style.transform = 'rotateX(0) rotateY(0)';
+        });
+    })();
     </script>
     <script type="module" src="./landing/app.js"></script>
     <!-- Fallback if module fails -->
