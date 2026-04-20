@@ -51,8 +51,7 @@ jobs:
           # .htaccess (Apache routing rules)
           cp public/.htaccess dist/.htaccess 2>/dev/null || :
 
-          # composer.json vacío para compatibilidad con Hostinger
-          echo '{}' > dist/composer.json
+
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
