@@ -18,6 +18,14 @@ export async function injectSubscriptionBanner(containerId, business) {
   const status = business.subscription_status || 'basic';
   const now = new Date();
   const trialEnd = business.trial_ends_at ? new Date(business.trial_ends_at) : null;
+  const isPremium = business.is_premium === true;
+  const isActive = status === 'active';
+
+  if (isPremium || isActive) {
+    container.replaceChildren();
+    container.hidden = true;
+    return;
+  }
   
   let bannerHTML = '';
   let bgColor = 'bg-blue-600';
@@ -37,10 +45,12 @@ export async function injectSubscriptionBanner(containerId, business) {
     buttonText = 'Recuperar Premium';
   } else {
     // Fully active or bonified - don't show banner
-    container.innerHTML = '';
+    container.replaceChildren();
+    container.hidden = true;
     return;
   }
 
+  container.hidden = false;
   container.innerHTML = `
     <div class="${bgColor} text-white p-3 md:p-4 rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
       <div class="flex items-center gap-3">
