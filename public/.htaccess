@@ -1,5 +1,5 @@
 # MiSuite Plataforma Unificada v1.0.9
-DirectoryIndex home-v2029.html index.html
+DirectoryIndex index.html home-v2029.html
 
 # ——— Cache Control (Anti-HCDN) ———
 <FilesMatch "\.(html|htm|js|css|json|webmanifest)$">
@@ -70,5 +70,5 @@ DirectoryIndex home-v2029.html index.html
   RewriteRule ^turnos(/.*)?$ turnos/index.html [L]
 
   # D. Raíz: Landing
-  RewriteRule ^$ home-v2029.html [L]
+  RewriteRule ^$ index.html [L]
 </IfModule>

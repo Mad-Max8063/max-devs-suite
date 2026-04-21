@@ -29,7 +29,7 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         // Punto de entrada principal (Landing)
-        main:   resolve(__dirname, 'home-v2029.html'),
+        main:   resolve(__dirname, 'index.html'),
         // Admin Panel (Vanilla JS)
         dashboard: resolve(__dirname, 'admin/dashboard-v2029.html'),
         // Tarjeta Virtual (Vanilla JS)
