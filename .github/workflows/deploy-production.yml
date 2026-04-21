@@ -51,6 +51,8 @@ jobs:
           # .htaccess (Apache routing rules)
           cp public/.htaccess dist/.htaccess 2>/dev/null || :
 
+          # Dummy composer.json para engañar al Auto-Deploy de Hostinger
+          echo '{"name": "suito/static-deploy", "description": "Bypass Hostinger PHP check"}' > dist/composer.json
 
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
