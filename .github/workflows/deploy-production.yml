@@ -55,6 +55,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_MASTER_TOKEN: ${{ secrets.VITE_MASTER_TOKEN }}
       
       - name: 🚀 Publish dist/ to deploy branch
         uses: peaceiris/actions-gh-pages@v4
