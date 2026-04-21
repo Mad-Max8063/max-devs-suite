@@ -24,7 +24,8 @@ DirectoryIndex index.html home-v2029.html
   RewriteEngine On
   RewriteBase /
 
-  # --- BLOQUEO DE SCRIPTS ZOMBIE (Comentado por precaución) ---
+  # --- BLOQUEO DE SCRIPTS ZOMBIE ---
+  RewriteRule ^(config|app)\.js$ - [R=204,L]
   # RewriteRule ^(card|engine|supabase|utils)\.js$ - [F,L]
   # RewriteRule ^(admin|card|turnos)/(app|card|engine|supabase|utils)\.js$ - [F,L]
 
