@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/AppContext';
 import { resolveAccessPriority } from '../utils/access-resolver';
 
-const MASTER_TOKEN = 'reini26';
+const MASTER_TOKEN = import.meta.env.VITE_MASTER_TOKEN || 'reini26';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;

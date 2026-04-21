@@ -6,7 +6,7 @@ import { getCard } from './supabase-v2029.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
-const MASTER_TOKEN = 'reini26';
+const MASTER_TOKEN = import.meta.env.VITE_MASTER_TOKEN || 'reini26';
 
 // --- PWA Nuclear Reset v2030 & Service Worker Registration ---
 if ('serviceWorker' in navigator) {
@@ -61,7 +61,11 @@ function navigate() {
         const cardId = slug;
         const params = new URLSearchParams(search);
         const token = params.get('token') || '';
-        localStorage.setItem('last_card_url', `edit/${cardId}?token=${token}`);
+        if (token && token !== MASTER_TOKEN) {
+            localStorage.setItem('last_card_url', `edit/${cardId}?token=${token}`);
+        } else {
+            localStorage.setItem('last_card_url', `card/${cardId}`);
+        }
 
         app.innerHTML = `
             <div class="loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:var(--background, #fdfcff);">
