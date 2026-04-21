@@ -216,6 +216,12 @@ if (form) {
             }
 
             // ——— Mostrar pantalla de éxito ———
+            if (successTitle) {
+                successTitle.textContent = (service === 'GESTOR' || service === 'COMBO')
+                    ? 'Pre-inscripcion exitosa!'
+                    : 'Solicitud recibida!';
+            }
+
             showOnly(successView);
             form.reset();
 
@@ -226,6 +232,7 @@ if (form) {
             if (submitBtn) {
                 submitBtn.textContent = 'Enviar Solicitud 🚀';
                 submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Solicitud →';
             }
         }
     });
