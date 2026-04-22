@@ -158,6 +158,9 @@ export function useAvailableSlots() {
                         if (hour === currentHour && min > currentMin + 30) return true;
                         return false;
                     });
+                }
+
+                // --- Freemium Hard-Lock ---
                 if (!isPremiumActive && isTrialExpired) {
                     availableSlots = availableSlots.slice(0, MAX_FREE_SLOTS);
                 }
