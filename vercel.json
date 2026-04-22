@@ -1,0 +1,10 @@
+{
+  "framework": "vite",
+  "buildCommand": "vite build && mkdir -p dist/turnos && cp -r turnos/public/* dist/turnos/ 2>/dev/null || true && cp card/favicon.png dist/card/favicon.png 2>/dev/null || true && cp favicon.svg dist/card/favicon.svg 2>/dev/null || true",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/card/(.*)", "destination": "/card/index.html" },
+    { "source": "/edit/(.*)", "destination": "/card/index.html" },
+    { "source": "/turnos/(.*)", "destination": "/turnos/index.html" }
+  ]
+}

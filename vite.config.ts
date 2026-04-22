@@ -20,8 +20,8 @@ const mpaFallback = {
 export default defineConfig(({ command }) => ({
   plugins: [react(), mpaFallback],
 
-  // Base path relativo para soportar cualquier estructura de carpetas (subcarpetas o subdominios)
-  base: './',
+  // Base path absoluto para soportar el router SPA de Vercel
+  base: '/',
 
   build: {
     outDir: 'dist',
