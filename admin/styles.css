@@ -1472,6 +1472,105 @@ body {
     transform: none;
 }
 
+/* ——— Subscription & Premium UI ——— */
+.premium-card {
+    background: linear-gradient(135deg, var(--bg-surface) 0%, #1a1f2b 100%);
+    border: 1px solid rgba(139,92,246,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.subscription-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+}
+
+@media (max-width: 992px) {
+    .subscription-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.subscription-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
+    animation: fadeSlideIn 0.5s ease;
+    border: 1px solid transparent;
+}
+
+.subscription-banner.trial {
+    background: rgba(139,92,246,0.1);
+    border-color: rgba(139,92,246,0.2);
+    color: var(--accent-purple-light);
+}
+
+.subscription-banner.expired {
+    background: rgba(239,68,68,0.1);
+    border-color: rgba(239,68,68,0.2);
+    color: var(--accent-red);
+}
+
+.subscription-banner.premium {
+    background: rgba(16,185,129,0.1);
+    border-color: rgba(16,185,129,0.2);
+    color: var(--accent-green-light);
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.banner-content i {
+    font-size: 20px;
+}
+
+.upgrade-btn {
+    background: var(--gradient-purple);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+}
+
+.faq-item strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.faq-item p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
 /* Dashboard hidden by default (shown by JS after auth) */
 .dashboard-container {
     display: none;

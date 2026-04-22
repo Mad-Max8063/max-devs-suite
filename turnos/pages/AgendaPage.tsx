@@ -137,16 +137,15 @@ const AgendaPage: React.FC = () => {
 
       {/* List */}
       <main className="flex-1 overflow-y-auto no-scrollbar pb-24">
+        <div className="max-w-6xl mx-auto w-full px-4 lg:px-6">
 
         {/* Helper Tip */}
-        {filter === 'Pendiente' && (
-          <div className="mx-4 mt-3 mb-1 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl flex gap-3 items-start border border-blue-100 dark:border-blue-800">
+          <div className="mt-3 mb-1 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl flex gap-3 items-start border border-blue-100 dark:border-blue-800">
             <span className="material-symbols-outlined text-blue-500 text-[18px] mt-0.5 shrink-0">info</span>
             <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
               Chequeá tu Mercado Pago. Si recibiste la seña, entrá al turno y marcalo como <b>Confirmado</b> ✅
             </p>
           </div>
-        )}
 
         {/* Loading State */}
         {loading && (
@@ -184,16 +183,18 @@ const AgendaPage: React.FC = () => {
         {/* Today Section */}
         {todayAppointments.length > 0 && (
           <>
-            <div className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-4 py-3 border-b border-gray-100 dark:border-gray-800/50">
+            <div className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 mt-6 border-b border-gray-100 dark:border-gray-800/50">
               <h3 className="text-base font-bold leading-tight capitalize">Hoy — {formatDate(today)}</h3>
             </div>
-            {todayAppointments.map(apt => (
-              <AppointmentCard
-                key={apt.ID}
-                appointment={apt}
-                onClick={() => navigate(`/${slug}/detail/${apt.ID}`)}
-              />
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              {todayAppointments.map(apt => (
+                <AppointmentCard
+                  key={apt.ID}
+                  appointment={apt}
+                  onClick={() => navigate(`/${slug}/detail/${apt.ID}`)}
+                />
+              ))}
+            </div>
           </>
         )}
 
@@ -202,20 +203,23 @@ const AgendaPage: React.FC = () => {
           <>
             {Array.from(new Set(futureAppointments.map(a => a.Fecha))).map(date => (
               <React.Fragment key={date}>
-                <div className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-4 py-3 mt-4 border-b border-gray-100 dark:border-gray-800/50">
+                <div className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 mt-8 border-b border-gray-100 dark:border-gray-800/50">
                   <h3 className="text-base font-bold leading-tight capitalize">{formatDate(date)}</h3>
                 </div>
-                {futureAppointments.filter(a => a.Fecha === date).map(apt => (
-                  <AppointmentCard
-                    key={apt.ID}
-                    appointment={apt}
-                    onClick={() => navigate(`/${slug}/detail/${apt.ID}`)}
-                  />
-                ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {futureAppointments.filter(a => a.Fecha === date).map(apt => (
+                    <AppointmentCard
+                      key={apt.ID}
+                      appointment={apt}
+                      onClick={() => navigate(`/${slug}/detail/${apt.ID}`)}
+                    />
+                  ))}
+                </div>
               </React.Fragment>
             ))}
           </>
         )}
+        </div>
       </main>
 
       {/* Bottom Navigation */}
@@ -245,7 +249,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onClick 
   return (
     <div
       onClick={onClick}
-      className="mx-4 mt-3 flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 cursor-pointer hover:border-primary/30 transition-colors group relative overflow-hidden"
+      className="flex items-center gap-4 bg-surface-light dark:bg-surface-dark px-4 py-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 cursor-pointer hover:border-primary/30 transition-colors group relative overflow-hidden"
     >
       {/* Status Line Indicator */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${isPending ? 'bg-orange-400' : 'bg-emerald-500'}`}></div>

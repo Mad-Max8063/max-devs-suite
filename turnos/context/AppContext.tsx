@@ -27,6 +27,10 @@ interface AppState {
     // Services
     services: Service[];
     selectedCategoryId: string | null;
+
+    // SaaS Logic
+    isPremiumActive: boolean;
+    isTrialExpired: boolean;
 }
 
 interface AppActions {
@@ -359,6 +363,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     );
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>('barberia');
 
+    const isPremiumActive = profile?.IsPremium || profile?.subscription_status === 'active';
+
+    const isTrialExpired = React.useMemo(() => {
+        if (!profile?.trial_ends_at) return false;
+        const trialEnd = new Date(profile.trial_ends_at).getTime();
+        return Date.now() > trialEnd;
+    }, [profile?.trial_ends_at]);
+
     const { isConfigured, isDemo, shouldCallApi } = useApiMode(slug);
 
     useEffect(() => {
@@ -581,7 +593,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         currentAppointment, services, selectedCategoryId,
         setSlug, refreshProfile, updateProfile,
         refreshAppointments, updateAppointmentStatusAction,
-        loadAppointmentById, refreshServices, saveServicesToBackend
+        loadAppointmentById, refreshServices, saveServicesToBackend,
+        isPremiumActive, isTrialExpired
     ]);
 
     return (

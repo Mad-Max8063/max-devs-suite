@@ -11,6 +11,10 @@
   --color-background: #121212;
   --color-on-surface: #F5F5F5;
   --color-on-surface-variant: #A0A0A0;
+  
+  /* Glass Surface Tokens */
+  --color-glass-surface: rgba(30, 30, 30, 0.4);
+  --color-glass-border: rgba(212, 175, 55, 0.1);
 
   /* Fonts */
   --font-display: 'Plus Jakarta Sans', sans-serif;
@@ -28,13 +32,38 @@ h1, h2, h3, .font-extrabold, .font-display {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Gold & Obsidian Decoratives */
+/* Suito Premium Glassmorphism */
 .glass-card { 
     background: rgba(30, 30, 30, 0.7); 
     backdrop-filter: blur(24px); 
     -webkit-backdrop-filter: blur(24px); 
     border: 1px solid rgba(212, 175, 55, 0.15);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.glass-dashboard {
+  background: var(--color-glass-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Grid Helpers */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.sticky-panel {
+  @apply lg:sticky lg:top-24 lg:h-fit;
 }
 
 .mesh-gradient-bg {
@@ -129,19 +158,31 @@ h1, h2, h3, .font-extrabold, .font-display {
 /* Toast notification */
 @keyframes toastIn {
   from {
-    transform: translateY(-100%);
+    transform: translate(-50%, -100%);
     opacity: 0;
   }
 
   to {
-    transform: translateY(0);
+    transform: translate(-50%, 0);
     opacity: 1;
+  }
+}
+
+/* Confetti Falling */
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
   }
 }
 
 /* Utility classes */
 .animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out both;
+  animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .animate-scale-in {
@@ -153,5 +194,6 @@ h1, h2, h3, .font-extrabold, .font-display {
 }
 
 .animate-toast-in {
-  animation: toastIn 0.3s ease-out both;
+  animation: toastIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
 }
+

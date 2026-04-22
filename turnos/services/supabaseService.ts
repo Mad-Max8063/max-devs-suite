@@ -574,9 +574,8 @@ export async function registerUser(
 
     if (!authData.user) throw new Error('Error al crear usuario');
 
-    // Create business profile with 30-day trial
-    const trialEnd = new Date();
-    trialEnd.setDate(trialEnd.getDate() + 30);
+    // Create business profile with 7-day trial (explicit milliseconds calculation)
+    const trial_ends_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { error: bizError } = await supabase
         .from('businesses')
@@ -588,8 +587,10 @@ export async function registerUser(
             valor_sena: 2000,
             notificaciones_email: true,
             recordatorios_activos: true,
-            fecha_vencimiento: trialEnd.toISOString().split('T')[0],
+            fecha_vencimiento: trial_ends_at.split('T')[0],
             is_premium: false,
+            subscription_status: 'trialing',
+            trial_ends_at
         });
 
     if (bizError) {
@@ -601,9 +602,9 @@ export async function registerUser(
 
     return {
         user: {
-            email,
             slug,
-            createdAt: new Date().toISOString(),
+            subscription_status: 'trialing',
+            trial_ends_at
         },
         token: authData.session?.access_token || '',
     };
@@ -681,6 +682,35 @@ export async function uploadBusinessImage(
     return data.publicUrl;
 }
 
+/**
+ * Updates the subscription status of a business.
+ * Used for testing and payment integration (e.g. Mercado Pago webhooks).
+ */
+export async function updateSubscriptionStatus(
+    slug: string,
+    status: 'trialing' | 'active' | 'expired' | 'canceled',
+    isPremium: boolean,
+    trialEndsAt?: string
+): Promise<void> {
+    const updateData: any = {
+        subscription_status: status,
+        is_premium: isPremium
+    };
+
+    if (trialEndsAt) {
+        updateData.trial_ends_at = trialEndsAt;
+        updateData.fecha_vencimiento = trialEndsAt.split('T')[0];
+    }
+
+    const { error } = await supabase
+        .from('businesses')
+        .update(updateData)
+        .eq('slug', slug);
+
+    if (error) throw new Error(error.message);
+    logger.info(`Subscription updated for ${slug}: ${status} (Premium: ${isPremium})`);
+}
+
 // ============================================
 // EXPORT — same interface as sheetsService
 // ============================================
@@ -713,6 +743,7 @@ export const sheetsService = {
     // Auth
     registerUser,
     loginUser,
+    updateSubscriptionStatus,
 };
 
 export default sheetsService;

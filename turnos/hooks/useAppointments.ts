@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { sheetsService, CreateAppointmentData, Appointment } from '../services/sheetsService';
 import { DEFAULT_SCHEDULE } from './useSchedule';
 import { useApiMode } from './useApiMode';
+import { useApp } from '../context/AppContext';
 
 /**
  * Hook for creating new appointments
@@ -94,6 +95,10 @@ export function useAvailableSlots() {
                     });
                 }
 
+                if (!isPremiumActive && isTrialExpired) {
+                    data = data.slice(0, MAX_FREE_SLOTS);
+                }
+
                 setSlots(data);
             } else {
                 // Demo mode: Calculate available slots based on schedule
@@ -153,6 +158,8 @@ export function useAvailableSlots() {
                         if (hour === currentHour && min > currentMin + 30) return true;
                         return false;
                     });
+                if (!isPremiumActive && isTrialExpired) {
+                    availableSlots = availableSlots.slice(0, MAX_FREE_SLOTS);
                 }
 
                 setSlots(availableSlots);

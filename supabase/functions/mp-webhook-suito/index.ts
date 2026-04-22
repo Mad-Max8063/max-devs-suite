@@ -37,15 +37,16 @@ serve(async (req) => {
           .from('businesses')
           .update({
             subscription_status: 'active',
-            paid_until: nextPaymentDate.toISOString(),
-            // Ensure legacy flag is also updated for 100% compatibility
             is_premium: true,
-            fecha_vencimiento: nextPaymentDate.toISOString().split('T')[0]
+            paid_until: nextPaymentDate.toISOString(),
+            fecha_vencimiento: nextPaymentDate.toISOString().split('T')[0],
+            // Once paid, trial ends explicitly to avoid logic collisions
+            trial_ends_at: null 
           })
           .eq('id', businessId)
 
         if (error) throw error
-        console.log(`Business ${businessId} upgraded to ACTIVE from Webhook.`)
+        console.log(`[SUCCESS] Business ${businessId} upgraded to PREMIUM ACTIVE. Trial cleared.`)
       }
     }
 

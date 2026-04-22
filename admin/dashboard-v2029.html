@@ -66,6 +66,9 @@
                 <li data-section="products">
                     <a href="#"><i class="fa-solid fa-cube"></i> <span>Mis Productos</span></a>
                 </li>
+                <li data-section="subscription" id="nav-subscription" style="display:none;">
+                    <a href="#"><i class="fa-solid fa-crown" style="color:var(--accent-amber)"></i> <span>Suscripción</span></a>
+                </li>
             </ul>
 
             <div class="sidebar-footer">
@@ -105,6 +108,9 @@
                     <h1>Dashboard</h1>
                     <p>Bienvenido al centro de control de Suito</p>
                 </div>
+
+                <!-- Subscription Alert Banner -->
+                <div id="subscription-alert-container"></div>
 
                 <!-- Stats Cards -->
                 <div class="stats-grid" id="statsGrid">
@@ -203,6 +209,40 @@
                 <div class="empty-state" id="emptyLeads" style="display:none;">
                     <i class="fa-solid fa-inbox"></i>
                     <p>No hay solicitudes pendientes.</p>
+                </div>
+            </div>
+
+            <!-- ============ SECTION: Subscription ============ -->
+            <div class="content-wrapper section-content" id="section-subscription" style="display:none;">
+                <div class="page-title">
+                    <h1>Mi Suscripción</h1>
+                    <p>Gestioná tu plan y facturación de Suito.</p>
+                </div>
+
+                <div class="subscription-grid">
+                    <!-- Current Plan Card -->
+                    <div class="dashboard-panel premium-card" id="current-subscription-card">
+                        <div class="panel-body">
+                            <div class="loading">Cargando información de suscripción...</div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Info / FAQ -->
+                    <div class="dashboard-panel">
+                        <div class="panel-header">
+                            <h2>Preguntas Frecuentes</h2>
+                        </div>
+                        <div class="panel-body">
+                            <div class="faq-item">
+                                <strong>¿Qué incluye el plan Premium?</strong>
+                                <p>Acceso ilimitado a turnos, confirmaciones por WhatsApp, y remoción de marca de agua de Suito.</p>
+                            </div>
+                            <div class="faq-item" style="margin-top:15px;">
+                                <strong>¿Cómo funciona el pago?</strong>
+                                <p>El pago se procesa vía Mercado Pago de forma segura. Tu cuenta se activa instantáneamente al confirmarse el pago.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

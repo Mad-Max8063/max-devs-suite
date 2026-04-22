@@ -24,6 +24,9 @@ let currentPricing = null; // loaded from Supabase on init
 // In-memory cache for leads — avoids unsafe JSON serialization in onclick attrs
 const _leadsCache = new Map();
 
+// Business Profile State
+let userBusiness = null;
+
 // ——— Init ———
 document.addEventListener('DOMContentLoaded', async () => {
     currentPricing = await getPricing();
@@ -34,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initFilters();
     initSearch();
     initMobile();
+    await checkSubscriptionStatus(); // Load business data first
     await renderDashboard();
     checkNewLeads();
 });
@@ -83,10 +87,12 @@ async function switchSection(section) {
     if (section === 'clients') await renderClients();
     if (section === 'leads') await renderLeads();
     if (section === 'pricing') renderPricing();
+    if (section === 'subscription') renderSubscription();
 }
 
 // ——— Dashboard ———
 async function renderDashboard() {
+    renderSubscriptionBanner();
     await renderStats();
     renderPricingQuick();
     await renderRecentClients();
@@ -806,21 +812,176 @@ window._deliverClient = async function(id) {
     }
 
     if (hasTurnos) {
-        if (!client.edit_token) {
-            showToast('⚠️ Este cliente no tiene edit_token — guardá los cambios antes de enviar el link.');
-            return;
-        }
-        message += `📅 *Tu Gestor de Turnos:*\n`;
-        message += `🔐 Crear contraseña (1ra vez): ${baseUrl}/turnos/#/register?slug=${slug}&token=${client.edit_token}\n`;
-        message += `📊 Tu panel: ${baseUrl}/turnos/#/${slug}/\n`;
-        message += `_Usá el mismo email con el que te registramos._\n\n`;
+        message += `🗓️ *Tu Gestor de Turnos:*\n`;
+        message += `${baseUrl}/turnos/#/${slug}\n\n`;
     }
 
-    message += `¡Cualquier duda avisame! 💪`;
+    message += `¡Cualquier duda avisame! ✨`;
 
-    const waUrl = `https://wa.me/549${client.whatsapp}?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, '_blank');
+    const win = window.open(`https://wa.me/549${encodeURIComponent(client.whatsapp)}?text=${encodeURIComponent(message)}`, '_blank');
 };
+
+// ——— Subscription Logic ———
+
+async function checkSubscriptionStatus() {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data: business, error } = await supabase
+            .from('businesses')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        userBusiness = business;
+        
+        // If it's a business owner, show subscription tab
+        if (userBusiness) {
+            document.getElementById('nav-subscription').style.display = 'block';
+        }
+    } catch (err) {
+        console.error('[checkSubscriptionStatus] error:', err);
+    }
+}
+
+function renderSubscriptionBanner() {
+    const container = document.getElementById('subscription-alert-container');
+    if (!userBusiness) {
+        container.innerHTML = '';
+        return;
+    }
+
+    const isPremium = userBusiness.is_premium;
+    const trialEnds = userBusiness.trial_ends_at ? new Date(userBusiness.trial_ends_at) : null;
+    const isExpired = trialEnds && trialEnds < new Date() && !isPremium;
+
+    if (isPremium) {
+        container.innerHTML = `
+            <div class="subscription-banner premium">
+                <div class="banner-content">
+                    <i class="fa-solid fa-crown"></i>
+                    <div>
+                        <strong>Suscripción Premium Activa</strong>
+                        <p>Tenés acceso ilimitado a todas las herramientas.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (isExpired) {
+        container.innerHTML = `
+            <div class="subscription-banner expired">
+                <div class="banner-content">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <div>
+                        <strong>Periodo de prueba expirado</strong>
+                        <p>Tus servicios están pausados. Activá Premium para continuar.</p>
+                    </div>
+                </div>
+                <button class="upgrade-btn" onclick="switchSection('subscription')">Activar Ahora</button>
+            </div>
+        `;
+    } else if (trialEnds) {
+        const diff = Math.ceil((trialEnds - new Date()) / (1000 * 60 * 60 * 24));
+        container.innerHTML = `
+            <div class="subscription-banner trial">
+                <div class="banner-content">
+                    <i class="fa-solid fa-clock"></i>
+                    <div>
+                        <strong>Periodo de prueba activo</strong>
+                        <p>Te quedan ${diff} días para probar Suito gratis.</p>
+                    </div>
+                </div>
+                <button class="upgrade-btn" onclick="switchSection('subscription')">Pasar a Premium</button>
+            </div>
+        `;
+    }
+}
+
+function renderSubscription() {
+    const container = document.getElementById('current-subscription-card');
+    if (!userBusiness) {
+        container.innerHTML = '<div class="panel-body"><p>No hay un negocio vinculado a esta cuenta.</p></div>';
+        return;
+    }
+
+    const isPremium = userBusiness.is_premium;
+    const planLabel = userBusiness.plan === 'combo' ? 'Pack Emprendedor' : (userBusiness.plan === 'turnos' ? 'Gestor de Turnos' : 'Tarjeta Virtual');
+    
+    container.innerHTML = `
+        <div class="panel-header">
+            <h2>Plan Actual: ${planLabel}</h2>
+            <span class="status ${isPremium ? 'active' : 'inactive'}">${isPremium ? 'Premium' : 'Free Trial'}</span>
+        </div>
+        <div class="panel-body">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                    <h3 style="font-size:24px; margin-bottom:8px;">${isPremium ? 'Acceso Vitalicio ✨' : 'Suscripción Mensual'}</h3>
+                    <p style="color:var(--text-muted); font-size:14px; max-width:400px;">
+                        ${isPremium 
+                            ? 'Gracias por ser parte de Suito. Tenés acceso total a todas las funcionalidades de por vida.' 
+                            : 'Activá el estado Premium para desbloquear turnos ilimitados y eliminar la marca de agua.'}
+                    </p>
+                </div>
+                ${!isPremium ? `
+                    <div style="text-align:right;">
+                        <div style="font-size:32px; font-weight:700;">$${currentPricing[userBusiness.plan].monthly.toLocaleString('es-AR')}</div>
+                        <div style="color:var(--text-muted); font-size:12px; margin-bottom:12px;">por mes</div>
+                        <button class="primary-btn" style="width:100%;" onclick="handlePaySubscription()">
+                            <i class="fa-solid fa-bolt"></i> Activar Premium
+                        </button>
+                    </div>
+                ` : `
+                    <div class="stat-icon purple" style="width:80px; height:80px; font-size:40px;">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                `}
+            </div>
+            
+            <div style="margin-top:32px; border-top:1px solid var(--border); padding-top:20px;">
+                <h4 style="font-size:14px; margin-bottom:16px; color:var(--text-secondary);">Beneficios incluidos:</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div class="client-detail"><i class="fa-solid fa-check" style="color:var(--accent-green)"></i> Turnos ilimitados</div>
+                    <div class="client-detail"><i class="fa-solid fa-check" style="color:var(--accent-green)"></i> WhatsApp automático</div>
+                    <div class="client-detail"><i class="fa-solid fa-check" style="color:var(--accent-green)"></i> Sin marca de agua</div>
+                    <div class="client-detail"><i class="fa-solid fa-check" style="color:var(--accent-green)"></i> Perfil optimizado</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+window.handlePaySubscription = async function() {
+    const btn = event.target.closest('button');
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando pago...';
+
+    try {
+        // Call the Edge Function to generate checkout
+        const { data, error } = await supabase.functions.invoke('create-pricing-checkout', {
+            body: { 
+                plan_type: userBusiness.plan,
+                business_id: userBusiness.id,
+                email: userBusiness.email
+            }
+        });
+
+        if (error) throw error;
+        if (data && data.checkout_url) {
+            window.location.href = data.checkout_url;
+        } else {
+            throw new Error('No se recibió la URL de pago');
+        }
+    } catch (err) {
+        console.error('[handlePaySubscription] error:', err);
+        showToast('Error al conectar con Mercado Pago. Reintentá en unos minutos.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    }
+}
 
 window._copyLink = async function(id) {
     const clients = await getClients();
