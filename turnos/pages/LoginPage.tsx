@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import SuitoLogo from '../components/SuitoLogo';
 const features = [
     { icon: 'block', text: 'Chau plante 👋', desc: 'Seña obligatoria = clientes comprometidos', color: 'from-orange-400 to-rose-500' },
     { icon: 'payments', text: 'Cobrás antes', desc: 'Te entra la seña automática por MP', color: 'from-emerald-400 to-teal-600' },
@@ -51,13 +51,10 @@ const LoginPage: React.FC = () => {
             <div className="flex flex-col items-center pt-16 pb-8 px-6 z-10 relative animate-fade-in-up">
                 <div className="relative mb-6">
                     <div className="absolute inset-0 bg-primary/20 rounded-[2rem] blur-2xl scale-150" />
-                    <div className="relative size-24 rounded-[2.5rem] bg-white border border-white/40 flex items-center justify-center ambient-shadow">
-                        <span className="material-symbols-outlined text-primary text-[44px]">content_cut</span>
+                    <div className="relative w-48 h-24 flex items-center justify-center">
+                        <SuitoLogo />
                     </div>
                 </div>
-                <h1 className="text-4xl font-black tracking-tighter text-on-surface text-center leading-none mb-2">
-                    Suito <span className="text-primary italic">Pro</span>
-                </h1>
                 <p className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.3em] opacity-40 text-center">
                     Gestión Editorial para Emprendedores
                 </p>

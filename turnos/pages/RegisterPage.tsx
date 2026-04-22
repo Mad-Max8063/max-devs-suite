@@ -3,7 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BUSINESS_CATEGORIES } from '../constants';
 import { supabase } from '../services/supabaseClient';
-
+import SuitoLogo from '../components/SuitoLogo';
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -119,13 +119,18 @@ const RegisterPage: React.FC = () => {
             <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
 
             {/* Header */}
-            <header className="flex items-center pt-10 pb-4 px-6 z-20 sticky top-0 bg-white/40 backdrop-blur-xl">
+            <header className="flex items-center justify-between pt-10 pb-4 px-6 z-20 sticky top-0 bg-white/40 backdrop-blur-xl">
                 <Link
                     to="/login"
                     className="flex items-center justify-center size-10 rounded-2xl bg-white border border-black/5 ambient-shadow hover:scale-105 transition-all"
                 >
                     <span className="material-symbols-outlined text-primary text-[20px]">arrow_back</span>
                 </Link>
+                <div className="flex-1 flex justify-end">
+                    <div className="w-24 h-12">
+                        <SuitoLogo />
+                    </div>
+                </div>
             </header>
 
             <div className="text-left px-8 pt-6 pb-8 animate-fade-in-up">

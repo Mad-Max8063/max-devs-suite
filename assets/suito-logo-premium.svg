@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 200" width="100%" height="100%">
+  <defs>
+    <filter id="pro-metal" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 15 -5" in="noise" result="bumpMap" />
+      <feSpecularLighting in="bumpMap" surfaceScale="2" specularConstant="1.2" specularExponent="30" lightingColor="#FCEABB" result="specular">
+        <fePointLight x="100" y="-50" z="200" />
+      </feSpecularLighting>
+      <feComponentTransfer in="specular" result="specularAlpha">
+         <feFuncA type="linear" slope="0.8" />
+      </feComponentTransfer>
+      <feComponentTransfer in="SourceGraphic" result="baseGraphic" />
+      <feComposite in="specularAlpha" in2="baseGraphic" operator="in" result="specularOverlay" />
+      <feComposite in="specularOverlay" in2="baseGraphic" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litGraphic" />
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+    <linearGradient id="premium-gold" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C9A66B" />
+      <stop offset="25%" stop-color="#E5CB9A" />
+      <stop offset="50%" stop-color="#FFF2D6" />
+      <stop offset="75%" stop-color="#E5CB9A" />
+      <stop offset="100%" stop-color="#9C793F" />
+    </linearGradient>
+  </defs>
+  <path d="M 120 50 C 150 40, 170 60, 160 80 C 150 100, 110 100, 100 120 C 90 140, 110 160, 140 150 C 155 145, 160 135, 160 135 L 150 125 C 150 125, 130 140, 120 130 C 110 120, 140 110, 150 90 C 160 70, 130 50, 110 60 Z" fill="url(#premium-gold)" filter="url(#pro-metal)" />
+  <g fill="url(#premium-gold)" filter="url(#pro-metal)" transform="translate(180, 0)">
+    <path d="M 0 100 v 35 c 0 10, 15 10, 20 5 v -40 h 10 v 50 h -10 v -5 c -5 5 -20 10 -30 -5 v -40 z" />
+    <path d="M 45 100 h 10 v 50 h -10 z" />
+    <circle cx="50" cy="85" r="6" />
+    <path d="M 70 80 h 10 v 20 h 10 v 10 h -10 v 25 c 0 5, 5 5, 10 5 v 10 c -15 0 -20 -5 -20 -15 v -25 h -10 v -10 h 10 z" />
+    <path d="M 105 125 c 0 -15, 15 -25, 25 -25 c 10 0, 25 10, 25 25 c 0 15, -15 25, -25 25 c -10 0, -25 -10, -25 -25 z M 115 125 c 0 10, 10 15, 15 15 c 5 0, 15 -5, 15 -15 c 0 -10, -10 -15, -15 -15 c -5 0, -15 5, -15 15 z" />
+  </g>
+</svg>
