@@ -5,31 +5,31 @@
 
 /* ——— Design Tokens ——— */
 :root {
-    --bg-deep: #0a0d14;
-    --bg-primary: #0f1219;
-    --bg-surface: #161b25;
-    --bg-elevated: #1c2230;
-    --bg-hover: #222938;
-    --border: #2a3142;
-    --border-light: #343d52;
+    --bg-deep: #050505;
+    --bg-primary: #0a0a0a;
+    --bg-surface: #111111;
+    --bg-elevated: #1a1a1a;
+    --bg-hover: #222222;
+    --border: rgba(212, 175, 55, 0.15);
+    --border-light: rgba(212, 175, 55, 0.3);
     
     --text-primary: #f0f2f5;
     --text-secondary: #a8b3c5;
     --text-muted: #6b7a90;
     
-    --accent-purple: #8b5cf6;
-    --accent-purple-light: #a78bfa;
-    --accent-blue: #3b82f6;
-    --accent-blue-light: #60a5fa;
+    --accent-purple: #D4AF37;
+    --accent-purple-light: #FDE073;
+    --accent-blue: #AA7C11;
+    --accent-blue-light: #D4AF37;
     --accent-green: #10b981;
     --accent-green-light: #34d399;
     --accent-red: #ef4444;
     --accent-amber: #f59e0b;
     
-    --gradient-purple: linear-gradient(135deg, #8b5cf6, #6366f1);
-    --gradient-blue: linear-gradient(135deg, #3b82f6, #06b6d4);
+    --gradient-purple: linear-gradient(135deg, #D4AF37, #AA7C11);
+    --gradient-blue: linear-gradient(135deg, #AA7C11, #5C4000);
     --gradient-green: linear-gradient(135deg, #10b981, #059669);
-    --gradient-combo: linear-gradient(135deg, #8b5cf6, #ec4899);
+    --gradient-combo: linear-gradient(135deg, #FDE073, #D4AF37);
     
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -39,8 +39,8 @@
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
     --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
-    --shadow-glow-purple: 0 0 20px rgba(139,92,246,0.15);
-    --shadow-glow-blue: 0 0 20px rgba(59,130,246,0.15);
+    --shadow-glow-purple: 0 0 20px rgba(212, 175, 55, 0.15);
+    --shadow-glow-blue: 0 0 20px rgba(170, 124, 17, 0.15);
     
     --sidebar-width: 260px;
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -156,7 +156,7 @@ body {
 }
 
 .nav-links li.active a {
-    background: rgba(139, 92, 246, 0.12);
+    background: rgba(212, 175, 55, 0.12);
     color: var(--accent-purple-light);
 }
 
@@ -333,10 +333,10 @@ body {
     flex-shrink: 0;
 }
 
-.stat-icon.purple { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
-.stat-icon.blue { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
-.stat-icon.green { background: rgba(16,185,129,0.15); color: var(--accent-green); }
-.stat-icon.gradient { background: rgba(139,92,246,0.1); color: var(--accent-purple-light); }
+.stat-icon.purple { background: rgba(212,175,55,0.15); color: var(--accent-purple); }
+.stat-icon.blue { background: rgba(170,124,17,0.15); color: var(--accent-blue); }
+.stat-icon.green { background: rgba(253,224,115,0.15); color: var(--accent-green); }
+.stat-icon.gradient { background: rgba(212,175,55,0.1); color: var(--accent-purple-light); }
 
 .stat-details h3 {
     font-size: 12px;
@@ -453,9 +453,9 @@ body {
     letter-spacing: 0.3px;
 }
 
-.badge-service.tarjeta { background: rgba(59,130,246,0.15); color: var(--accent-blue-light); }
-.badge-service.turnos { background: rgba(16,185,129,0.15); color: var(--accent-green-light); }
-.badge-service.combo { background: rgba(139,92,246,0.15); color: var(--accent-purple-light); }
+.badge-service.tarjeta { background: rgba(170,124,17,0.15); color: var(--accent-blue-light); }
+.badge-service.turnos { background: rgba(253,224,115,0.15); color: var(--accent-green-light); }
+.badge-service.combo { background: rgba(212,175,55,0.15); color: var(--accent-purple-light); }
 
 .status {
     display: inline-block;
@@ -465,7 +465,7 @@ body {
     font-weight: 600;
 }
 
-.status.active { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+.status.active { background: rgba(253,224,115,0.15); color: var(--accent-green); }
 .status.inactive { background: rgba(239,68,68,0.15); color: var(--accent-red); }
 
 /* ——— Action Buttons ——— */
@@ -507,8 +507,8 @@ body {
 .price-item:hover { transform: translateX(4px); }
 
 .price-item.combo-highlight {
-    background: rgba(139,92,246,0.08);
-    border: 1px solid rgba(139,92,246,0.2);
+    background: rgba(212,175,55,0.08);
+    border: 1px solid rgba(212,175,55,0.2);
 }
 
 .price-info {
@@ -543,7 +543,7 @@ body {
 }
 
 .discount-badge {
-    background: rgba(139,92,246,0.2);
+    background: rgba(212,175,55,0.2);
     color: var(--accent-purple-light);
     padding: 2px 8px;
     border-radius: 12px;
@@ -600,8 +600,8 @@ body {
 .pill:hover { background: var(--bg-hover); }
 
 .pill.active {
-    background: rgba(139,92,246,0.15);
-    border-color: rgba(139,92,246,0.3);
+    background: rgba(212,175,55,0.15);
+    border-color: rgba(212,175,55,0.3);
     color: var(--accent-purple-light);
 }
 
@@ -722,8 +722,8 @@ body {
 }
 
 .pricing-card.featured {
-    border-color: rgba(139,92,246,0.4);
-    background: linear-gradient(to bottom, rgba(139,92,246,0.06), var(--bg-surface));
+    border-color: rgba(212,175,55,0.4);
+    background: linear-gradient(to bottom, rgba(212,175,55,0.06), var(--bg-surface));
 }
 
 .pricing-badge {
@@ -776,7 +776,7 @@ body {
 }
 
 .pricing-savings {
-    background: rgba(16,185,129,0.1);
+    background: rgba(253,224,115,0.1);
     color: var(--accent-green);
     padding: 6px 12px;
     border-radius: 20px;
@@ -1475,7 +1475,7 @@ body {
 /* ——— Subscription & Premium UI ——— */
 .premium-card {
     background: linear-gradient(135deg, var(--bg-surface) 0%, #1a1f2b 100%);
-    border: 1px solid rgba(139,92,246,0.3);
+    border: 1px solid rgba(212,175,55,0.3);
     position: relative;
     overflow: hidden;
 }
@@ -1487,7 +1487,7 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -1515,8 +1515,8 @@ body {
 }
 
 .subscription-banner.trial {
-    background: rgba(139,92,246,0.1);
-    border-color: rgba(139,92,246,0.2);
+    background: rgba(212,175,55,0.1);
+    border-color: rgba(212,175,55,0.2);
     color: var(--accent-purple-light);
 }
 
@@ -1527,8 +1527,8 @@ body {
 }
 
 .subscription-banner.premium {
-    background: rgba(16,185,129,0.1);
-    border-color: rgba(16,185,129,0.2);
+    background: rgba(253,224,115,0.1);
+    border-color: rgba(253,224,115,0.2);
     color: var(--accent-green-light);
 }
 
@@ -1556,7 +1556,7 @@ body {
 
 .upgrade-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+    box-shadow: 0 4px 12px rgba(212,175,55,0.3);
 }
 
 .faq-item strong {

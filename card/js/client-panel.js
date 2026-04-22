@@ -122,7 +122,7 @@ function buildPanelHTML(data) {
                 <div class="card-avatar-container" style="bottom: -50px;">
                     <label style="cursor: pointer; display: block; position: relative; transition: transform 0.2s;">
                         <div class="card-avatar-ring" style="width: 110px; height: 110px; border: 5px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                            <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/card/assets/suito-logo.png'}" class="card-avatar">
+                            <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/assets/favicon.svg'}" class="card-avatar">
                         </div>
                         <div style="position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); border: 3px solid #fff;">
                             <span class="material-symbols-outlined" style="font-size: 18px; font-weight: bold;">photo_camera</span>

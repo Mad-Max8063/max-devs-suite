@@ -43,7 +43,7 @@ const CARD_DATA = {
     ],
     gallery: [
         { url: "/card/assets/cover.png", title: "Suito Gold & Obsidian Project" },
-        { url: "/card/assets/suito-logo.png", title: "Brand Identity" }
+        { url: "/assets/favicon.svg", title: "Brand Identity" }
     ]
 };
 
@@ -145,7 +145,7 @@ function buildCardHTML(data) {
                 </div>
                 <div class="card-avatar-container">
                     <div class="card-avatar-ring">
-                        ${(photo && !photo.includes('suito-logo')) ? `<img src="${photo}" alt="${name}" class="card-avatar">` : 
+                        ${(photo && !photo.includes('favicon.svg')) ? `<img src="${photo}" alt="${name}" class="card-avatar">` : 
                         (isPremium ? 
                         `<svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
                            <defs>

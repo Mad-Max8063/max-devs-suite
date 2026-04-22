@@ -94,7 +94,7 @@ export async function getCard(slug) {
             phone: '5491162621406',
             email: 'hola@suito.pro',
             location: 'Buenos Aires, Argentina',
-            photo: '/card/assets/suito-logo.png',
+            photo: '/assets/favicon.svg',
             coverPhoto: '/card/assets/cover.png',
             primary_color: '#8B5CF6',
             instagram: 'suito.pro',
@@ -167,7 +167,7 @@ export async function getCard(slug) {
         email: business.email || '',
         location: business.location || '',
         // Mapeo blindado: buscamos en todas las variantes posibles
-        photo: business.foto_url || business.photo_url || business.photo || '/card/assets/suito-logo.png',
+        photo: business.foto_url || business.photo_url || business.photo || '/assets/favicon.svg',
         coverPhoto: business.cover_url || business.coverPhoto || '',
         primary_color: business.color_primario || '#8B5CF6',
         instagram: business.instagram || '',
