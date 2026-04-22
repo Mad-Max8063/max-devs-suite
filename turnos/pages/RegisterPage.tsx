@@ -336,7 +336,7 @@ const RegisterPage: React.FC = () => {
 
                 <div className="py-8 text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                     <p className="text-[9px] font-bold text-on-surface-variant opacity-30 uppercase tracking-[0.2em]">
-                        Simplificá tu vida · Suito Luminous Edition
+                        Simplificá tu vida · Suito Gold & Obsidian Edition
                     </p>
                 </div>
             </main>

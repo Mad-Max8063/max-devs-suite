@@ -183,8 +183,10 @@ export async function getCard(slug) {
         slug: business.slug,
         edit_token: business.edit_token || '',
         gallery: gallery,
-        // Nuevos campos de monetización
+        // Campos de monetización y tiempo
+        created_at: business.created_at,
         subscription_status: business.subscription_status || 'basic',
+        plan_status: business.plan_status || business.subscription_status || 'basic',
         trial_ends_at: business.trial_ends_at || null,
         free_until: business.free_until || null,
         locked_price: business.locked_price || 0,

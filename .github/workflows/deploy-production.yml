@@ -35,6 +35,8 @@ jobs:
 
           # Favicon en subcarpeta card
           cp card/favicon.png dist/card/favicon.png 2>/dev/null || :
+          cp favicon.svg dist/favicon.svg 2>/dev/null || :
+          cp favicon.svg dist/card/favicon.svg 2>/dev/null || :
 
           # PWA assets de card (sw-v2030.js + manifest-v2030.webmanifest)
           cp public/card/sw-v2030.js dist/card/sw-v2030.js 2>/dev/null || :

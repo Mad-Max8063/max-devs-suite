@@ -3,6 +3,7 @@
 // ============================================
 
 import { getCard } from './supabase-v2029.js';
+import { getSubscriptionStatus } from './engine-v2029.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
@@ -69,8 +70,18 @@ function navigate() {
 
         app.innerHTML = `
             <div class="loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:var(--background, #fdfcff);">
-                <div class="card-avatar-ring" style="width:80px; height:80px; margin-bottom:20px; animation: suito-pulse 2s infinite; border: 3px solid var(--primary);">
-                    <img src="/card/assets/suito-logo.png" style="width:100%; height:100%; border-radius:50%; object-fit:cover; background: #fff;">
+                <div class="card-avatar-ring" style="width:80px; height:80px; margin-bottom:20px; animation: suito-pulse 2s infinite; border: 3px solid var(--primary); background: #1A1A1A;">
+                    <svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+                      <defs>
+                        <linearGradient id="suitoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#D4AF37" />
+                          <stop offset="50%" stop-color="#F9E498" />
+                          <stop offset="100%" stop-color="#B8860B" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="60" cy="60" r="45" stroke="url(#suitoGold)" stroke-width="4" />
+                      <path d="M60 28V35M60 85V92M72 45C72 38 65 35 60 35C52 35 48 40 48 45C48 55 72 55 72 65C72 75 65 85 55 85C48 85 45 80 45 75" stroke="url(#suitoGold)" stroke-width="6" stroke-linecap="round" />
+                    </svg>
                 </div>
                 <h2 style="color:var(--primary); font-size:1.5rem; margin-bottom:8px; font-weight:700;">Suito Editor</h2>
                 <div class="spinner" style="border-top-color:var(--primary); width:24px; height:24px; border-width:3px;"></div>
@@ -109,13 +120,15 @@ function navigate() {
             app.innerHTML = '';
             app.appendChild(editView);
 
-            // Premium clients get full editing panel; basic clients get gallery-only
-            const panelModule = card.isPremium
+            // Premium/Trial clients get full editing panel; basic clients get gallery-only
+            const status = getSubscriptionStatus(card);
+            const isPremium = status === 'premium';
+            const panelModule = isPremium
                 ? import('./client-panel.js')
                 : import('./gallery-editor.js');
 
             panelModule.then((mod) => {
-                if (card.isPremium) {
+                if (isPremium) {
                     mod.renderClientPanel(editView, card);
                 } else {
                     mod.renderGalleryEditor(editView, card);
@@ -228,7 +241,19 @@ function showPasswordGate() {
     app.innerHTML = `
       <div class="password-gate">
         <div class="gate-card">
-          <div class="gate-icon">🔒</div>
+          <div class="gate-icon" style="width:48px; height:48px; margin: 0 auto;">
+            <svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+               <defs>
+                 <linearGradient id="suitoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                   <stop offset="0%" stop-color="#D4AF37" />
+                   <stop offset="50%" stop-color="#F9E498" />
+                   <stop offset="100%" stop-color="#B8860B" />
+                 </linearGradient>
+               </defs>
+               <circle cx="60" cy="60" r="45" stroke="url(#suitoGold)" stroke-width="4" />
+               <path d="M60 28V35M60 85V92M72 45C72 38 65 35 60 35C52 35 48 40 48 45C48 55 72 55 72 65C72 75 65 85 55 85C48 85 45 80 45 75" stroke="url(#suitoGold)" stroke-width="6" stroke-linecap="round" />
+            </svg>
+          </div>
           <h2>Acceso restringido</h2>
           <p>Ingresá el código de acceso para crear tarjetas</p>
           <form id="gate-form" autocomplete="off">

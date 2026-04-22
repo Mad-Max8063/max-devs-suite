@@ -209,7 +209,7 @@ const LoginPage: React.FC = () => {
                         🇦🇷 Únite a +500 emprendedores
                     </p>
                     <p className="text-[9px] font-bold text-primary opacity-60">
-                        Simple. Profesional. Luminous.
+                        Simplificá tu vida · Suito Gold & Obsidian Edition.
                     </p>
                 </div>
             </div>

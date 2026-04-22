@@ -61,7 +61,7 @@ $img     = isset($row['cover_url']) && $row['cover_url']
     ? (string) $row['cover_url']
     : (isset($row['foto_url']) && $row['foto_url']
         ? (string) $row['foto_url']
-        : 'https://suito.pro/favicon.png');
+        : 'https://suito.pro/favicon.svg');
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host   = $_SERVER['HTTP_HOST'] ?? 'suito.pro';

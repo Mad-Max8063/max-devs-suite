@@ -3,14 +3,14 @@
 @config "./tailwind.config.js";
 
 @theme {
-  /* Luminous Curator Palette */
-  --color-primary: #8B5CF6;
-  --color-secondary: #3B82F6;
-  --color-tertiary: #10B981;
-  --color-surface: #F9F9F9;
-  --color-background: #FFFFFF;
-  --color-on-surface: #1A1C1C;
-  --color-on-surface-variant: #494454;
+  /* Gold & Obsidian Premium Palette */
+  --color-primary: #D4AF37;
+  --color-secondary: #E5C158;
+  --color-tertiary: #A67C00;
+  --color-surface: #1E1E1E;
+  --color-background: #121212;
+  --color-on-surface: #F5F5F5;
+  --color-on-surface-variant: #A0A0A0;
 
   /* Fonts */
   --font-display: 'Plus Jakarta Sans', sans-serif;
@@ -20,35 +20,37 @@
 /* Global styles */
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: #FFFFFF;
+  background-color: #121212;
+  color: #F5F5F5;
 }
 
 h1, h2, h3, .font-extrabold, .font-display {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Luminous Curator Decoratives */
+/* Gold & Obsidian Decoratives */
 .glass-card { 
-    background: rgba(255, 255, 255, 0.4); 
+    background: rgba(30, 30, 30, 0.7); 
     backdrop-filter: blur(24px); 
     -webkit-backdrop-filter: blur(24px); 
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .mesh-gradient-bg {
     background-image: 
-      radial-gradient(at 0% 0%, #8B5CF6 0px, transparent 50%),
-      radial-gradient(at 100% 0%, #3B82F6 0px, transparent 50%),
-      radial-gradient(at 100% 100%, #10B981 0px, transparent 50%),
-      radial-gradient(at 0% 100%, #A78BFA 0px, transparent 50%);
+      radial-gradient(at 20% 0%, rgba(212, 175, 55, 0.15) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(184, 134, 11, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(166, 124, 0, 0.15) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(229, 193, 88, 0.1) 0px, transparent 50%);
 }
 
 .ambient-shadow { 
-    box-shadow: 0 40px 80px rgba(139, 92, 246, 0.08); 
+    box-shadow: 0 40px 80px rgba(212, 175, 55, 0.08); 
 }
 
 .gradient-text { 
-    background: linear-gradient(135deg, #8B5CF6, #3B82F6); 
+    background: linear-gradient(135deg, #D4AF37, #A67C00); 
     -webkit-background-clip: text; 
     background-clip: text; 
     -webkit-text-fill-color: transparent; 
