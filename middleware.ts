@@ -1,6 +1,3 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
 export const config = {
   matcher: [
     /*
@@ -12,34 +9,42 @@ export const config = {
   ],
 };
 
-export default function middleware(req: NextRequest) {
-  const url = req.nextUrl;
+export default function middleware(req: Request) {
+  const url = new URL(req.url);
   const hostname = req.headers.get('host') || '';
 
   // 1. Evitar bucles infinitos
   if (url.pathname.startsWith('/turnos') || url.pathname.startsWith('/card')) {
-    return NextResponse.next();
+    return new Response(null, { headers: { 'x-middleware-next': '1' } });
   }
 
   // 2. Identificar dominios principales
   const rootDomains = ['suito.pro', 'www.suito.pro', 'max-devs-suite.vercel.app'];
   const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith('.vercel.app'));
 
-  // Si es el dominio principal, no hacemos nada, dejamos que vercel.json maneje la landing
   if (isRootDomain) {
-    return NextResponse.next();
+    return new Response(null, { headers: { 'x-middleware-next': '1' } });
   }
 
   // 3. Resolución de subdominios
   const subdomain = hostname.split('.')[0];
   
-  if (subdomain === 'www') return NextResponse.next();
-
-  if (subdomain === 'admin') {
-    return NextResponse.rewrite(new URL('/admin/dashboard-v2029.html', req.url));
+  if (subdomain === 'www') {
+    return new Response(null, { headers: { 'x-middleware-next': '1' } });
   }
 
-  // Por defecto: subdominios de negocios (tenants) van al Gestor de Turnos
-  // Importante: No cambiamos la URL en el navegador, solo el archivo servido
-  return NextResponse.rewrite(new URL('/turnos/index.html', req.url));
+  // REESCRITURA MANUAL (Raw headers)
+  let targetPath = '/turnos/index.html';
+  
+  if (subdomain === 'admin') {
+    targetPath = '/admin/dashboard-v2029.html';
+  }
+
+  const rewriteUrl = new URL(targetPath, req.url);
+
+  return new Response(null, {
+    headers: {
+      'x-middleware-rewrite': rewriteUrl.toString(),
+    },
+  });
 }
