@@ -13,8 +13,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
-  // Base path - subfolder for Hostinger deployment
-  base: '/turnos/',
+  // Base path - root for Vercel deployment
+  base: '/',
 
   // PWA: Include public directory with manifest, icons, and service worker
   publicDir: 'public',
