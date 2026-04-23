@@ -2,14 +2,32 @@ import React from 'react';
 import './index.css';
 import { logger } from './utils/logger';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import App from './src/app/App';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TenantProvider } from './context/TenantContext';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutos: reduce carga en Supabase
+      gcTime: 1000 * 60 * 15,    // 15 minutos: recolección de basura optimizada
+      retry: 1,                 // 1 reintento para fallos efímeros de red
+      refetchOnWindowFocus: false, // Evita refetch innecesario al cambiar de pestaña
+    },
+  },
+});
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <TenantProvider>
+          <App />
+        </TenantProvider>
+      </QueryClientProvider>
     </React.StrictMode>
   );
 }
