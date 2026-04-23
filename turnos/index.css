@@ -1,6 +1,5 @@
 @import "tailwindcss";
-
-@config "./tailwind.config.js";
+@config "../tailwind.config.js";
 
 @theme {
   /* Gold & Obsidian Premium Palette */
