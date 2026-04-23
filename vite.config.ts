@@ -38,10 +38,10 @@ export default defineConfig(({ command }) => ({
         turnos: resolve(__dirname, 'turnos/index.html'),
       },
       output: {
-        // Hashes únicos más versionado forzado para evadir caché persistente de HCDN
-        entryFileNames: 'assets/[name]-[hash]-v2029.js',
-        chunkFileNames: 'assets/[name]-[hash]-v2029.js',
-        assetFileNames: 'assets/[name]-[hash]-v2029.[ext]',
+        // Hashes únicos estándar de Vite
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id: string) {
           if (!id.includes('node_modules')) return;
           if (id.includes('/react-router') || id.includes('@remix-run')) return 'vendor-router';
