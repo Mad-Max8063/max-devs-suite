@@ -26,8 +26,14 @@ export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const resolved = resolveApp(window.location.hostname);
       const slug = resolved.tenantId; // En el resolver, tenantId es el slug del subdominio
 
-      if (!slug || (resolved.type !== 'TENANT' && window.location.hostname !== 'localhost')) {
-        setState({ tenantId: null, tenantSlug: null, isInvalid: true, isLoading: false });
+      if (!slug) {
+        // Si no hay slug, pero es la app principal de turnos o admin, no es "inválido", 
+        // simplemente es el modo global.
+        if (resolved.type === 'TURNOS' || resolved.type === 'ADMIN') {
+          setState({ tenantId: null, tenantSlug: null, isInvalid: false, isLoading: false });
+        } else {
+          setState({ tenantId: null, tenantSlug: null, isInvalid: true, isLoading: false });
+        }
         return;
       }
 
