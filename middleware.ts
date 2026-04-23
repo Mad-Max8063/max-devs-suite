@@ -1,41 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { next } from '@vercel/edge';
 
 export const config = {
   matcher: [
     /*
-     * Match all paths except for:
-     * 1. /api routes
-     * 2. /_next (Next.js internals)
-     * 3. /static (inside /public)
-     * 4. all root files inside /public (e.g. /favicon.ico)
-     * 5. files with extensions (assets, images, etc.)
+     * Match all paths except:
+     * 1. /assets, /public, /static
+     * 2. Files with extensions (.js, .css, .png, etc.)
      */
-    '/((?!api|_next|static|[\\w-]+\\.\\w+).*)',
+    '/((?!assets|static|.*\\..*).*)',
   ],
 };
 
-export default function middleware(req: NextRequest) {
-  const url = req.nextUrl;
+export default function middleware(req: Request) {
+  const url = new URL(req.url);
   const hostname = req.headers.get('host') || '';
 
-  // Definir dominios principales (Landing)
-  const rootDomains = ['suito.pro', 'www.suito.pro', 'localhost:5173', 'max-devs-suite.vercel.app'];
-  const isRootDomain = rootDomains.some(domain => hostname === domain || hostname.endsWith('.vercel.app'));
+  // 1. Evitar bucles: Si la URL ya contiene /turnos/ o /card/, no hacemos nada
+  if (url.pathname.startsWith('/turnos') || url.pathname.startsWith('/card')) {
+    return next();
+  }
 
-  // Si es el dominio principal, permitimos que vercel.json maneje las rutas normales
+  // 2. Identificar dominios raíz
+  const rootDomains = ['suito.pro', 'www.suito.pro', 'max-devs-suite.vercel.app'];
+  const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith('.vercel.app'));
+
   if (isRootDomain) {
-    return NextResponse.next();
+    return next();
   }
 
-  // Extraer subdominio
+  // 3. Lógica de Subdominios
   const subdomain = hostname.split('.')[0];
+  
+  if (subdomain === 'www') return next();
 
-  // Caso 1: Panel de administración
   if (subdomain === 'admin') {
-    return NextResponse.rewrite(new URL('/admin/dashboard-v2029.html', req.url));
+    url.pathname = `/admin/dashboard-v2029.html`;
+    return Response.rewrite(url);
   }
 
-  // Caso 2: App de Turnos (subdominio técnico o tenant dinámico)
-  // Cualquier otro subdominio (ej: barberia, spa, turnos) va al gestor de turnos
-  return NextResponse.rewrite(new URL('/turnos/index.html', req.url));
+  // Por defecto, cualquier subdominio (ej: barberia) va al gestor de turnos
+  // Reescribimos internamente a /turnos/index.html
+  url.pathname = `/turnos/index.html`;
+  return Response.rewrite(url);
 }
