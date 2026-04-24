@@ -47,6 +47,7 @@ ON public.businesses FOR SELECT
 USING (true);
 
 DROP POLICY IF EXISTS "Solo dueños editan su negocio" ON public.businesses;
+DROP POLICY IF EXISTS "Dueños y Admins gestionan negocios" ON public.businesses;
 CREATE POLICY "Dueños y Admins gestionan negocios"
 ON public.businesses FOR ALL
 USING (auth.uid() = user_id OR public.is_super_admin(auth.uid()))
