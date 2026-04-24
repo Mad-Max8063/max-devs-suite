@@ -61,12 +61,18 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   background-color: var(--background);
   color: var(--on-surface);
   line-height: 1.5;
-  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -89,6 +95,11 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
 }
 
 .app-container.landing-mode {
@@ -484,6 +495,7 @@ body {
 
 .gallery-item img {
   width: 100%;
+  max-width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
@@ -1116,10 +1128,18 @@ body {
     transform: none;
 }
 
+@media (max-width: 767px) {
+  .app-container,
+  .card-container {
+    width: 100%;
+  }
+}
+
 /* ——— Breakpoint: Mobile (≤ 480px) — All phones ——— */
 @media (max-width: 480px) {
   .app-container,
   .card-container {
+    width: 100%;
     max-width: 100%;
     border-radius: 0;
     margin-top: 0;
@@ -1127,7 +1147,7 @@ body {
   }
 
   .card-body {
-    padding: 8px 20px 28px;
+    padding: 8px 16px 28px;
     gap: 18px;
   }
 
@@ -1168,11 +1188,18 @@ body {
   }
 
   .masonry-gallery {
+    width: 100%;
     gap: 6px;
   }
 
   .gallery-item {
+    width: 100%;
     border-radius: 12px;
+  }
+
+  .gallery-item img {
+    width: 100%;
+    max-width: 100%;
   }
 
   .card-actions {
