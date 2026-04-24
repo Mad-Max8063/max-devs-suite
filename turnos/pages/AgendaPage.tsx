@@ -44,28 +44,30 @@ const AgendaPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark">
+    <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
+      {/* Mesh Background Decorative */}
+      <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
       {slug && <DemoBanner slug={slug} />}
 
       {/* Header con Estado de Carga */}
-      <header className="flex items-center px-4 py-3 justify-between bg-surface-light dark:bg-surface-dark sticky top-0 z-10 border-b border-gray-100 dark:border-gray-800 shadow-sm">
+      <header className="flex items-center px-4 py-3 justify-between bg-background/60 backdrop-blur-xl sticky top-0 z-10 border-b border-white/5">
         <div className="flex items-center gap-2">
           <div className="text-primary bg-primary/10 rounded-full p-2 flex items-center justify-center">
             <span className="material-symbols-outlined text-[20px]">calendar_month</span>
           </div>
         </div>
-        <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] text-center">Agenda</h2>
+        <h2 className="text-lg font-black leading-tight tracking-tighter text-center">Agenda</h2>
         <button
           onClick={() => refetch()}
           disabled={isLoading}
-          className="flex items-center justify-center rounded-full p-2 text-text-primary-light dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="flex items-center justify-center rounded-full p-2 text-white hover:bg-white/5 transition-colors disabled:opacity-50"
         >
           <span className={`material-symbols-outlined ${isLoading ? 'animate-spin' : ''}`}>refresh</span>
         </button>
       </header>
 
       {/* Mini Stats Row */}
-      <div className="bg-surface-light dark:bg-surface-dark px-4 pt-2 pb-3 border-b border-gray-100 dark:border-gray-800">
+      <div className="bg-surface/40 backdrop-blur-md px-4 pt-2 pb-3 border-b border-white/5">
         <div className="grid grid-cols-3 gap-2">
           <StatCard value={stats.todayCount} label="hoy" color="primary" />
           <StatCard value={stats.pending} label="a validar" color="amber" />
@@ -78,8 +80,8 @@ const AgendaPage: React.FC = () => {
       </div>
 
       {/* Filtros Multi-tenant */}
-      <div className="px-4 py-3 bg-surface-light dark:bg-surface-dark border-b border-gray-50 dark:border-gray-800/50">
-        <div className="flex h-10 w-full items-center justify-center rounded-lg bg-[#f3f0f4] dark:bg-gray-800 p-1">
+      <div className="px-4 py-3 bg-background border-b border-white/5">
+        <div className="flex h-10 w-full items-center justify-center rounded-2xl bg-surface/60 p-1 border border-white/5">
           <FilterButton 
             active={filter === 'Pendiente'} 
             onClick={() => setFilter('Pendiente')} 
@@ -99,7 +101,7 @@ const AgendaPage: React.FC = () => {
 
       <main className="flex-1 overflow-y-auto no-scrollbar pb-24">
         <div className="max-w-6xl mx-auto w-full px-4 lg:px-6">
-          <div className="mt-3 mb-1 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl flex gap-3 items-start border border-blue-100 dark:border-blue-800">
+          <div className="mt-3 mb-1 p-3 bg-blue-500/10 dark:bg-blue-900/10 rounded-xl flex gap-3 items-start border border-blue-500/20 dark:border-blue-800">
             <span className="material-symbols-outlined text-blue-500 text-[18px] mt-0.5 shrink-0">info</span>
             <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
               Chequeá tu Mercado Pago. Si recibiste la seña, entrá al turno y marcalo como <b>Confirmado</b> ✅
@@ -110,22 +112,22 @@ const AgendaPage: React.FC = () => {
 
           {tenantInvalid && (
             <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
-              <div className="size-20 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mb-5">
+              <div className="size-20 rounded-full bg-red-500/10 dark:bg-red-900/20 flex items-center justify-center mb-5">
                 <span className="material-symbols-outlined text-4xl text-red-500">error</span>
               </div>
               <h3 className="font-bold text-lg mb-1">Acceso Denegado</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-[260px] leading-relaxed">
+              <p className="text-gray-400 text-sm max-w-[260px] leading-relaxed">
                 No pudimos validar tu acceso a este negocio. Por favor, verificá la URL.
               </p>
             </div>
           )}
 
           {isError && !tenantInvalid && (
-            <div className="mx-4 mt-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800 animate-in fade-in zoom-in duration-300">
-              <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+            <div className="mx-4 mt-3 p-4 bg-red-500/10 rounded-xl border border-red-500/20 animate-in fade-in zoom-in duration-300">
+              <p className="text-red-400 text-sm font-medium">
                 No pudimos cargar tu agenda. Por favor, reintenta en unos momentos.
               </p>
-              <p className="text-[10px] text-red-400 mt-1 opacity-70">
+              <p className="text-[10px] text-red-400/70 mt-1">
                 PostgREST Code: {(queryError as any)?.code || 'NETWORK_FAILURE'}
               </p>
             </div>
@@ -140,7 +142,7 @@ const AgendaPage: React.FC = () => {
               {/* Sección Hoy */}
               {todayAppointments.length > 0 && (
                 <>
-                  <div className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 mt-6 border-b border-gray-100 dark:border-gray-800/50">
+                  <div className="bg-background py-3 mt-6 border-b border-white/5">
                     <h3 className="text-base font-bold leading-tight capitalize">Hoy — {formatDate(today)}</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
@@ -160,7 +162,7 @@ const AgendaPage: React.FC = () => {
                 <>
                   {Array.from(new Set(futureAppointments.map(a => a.Fecha))).map(date => (
                     <React.Fragment key={date}>
-                      <div className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 mt-8 border-b border-gray-100 dark:border-gray-800/50">
+                      <div className="bg-background py-3 mt-8 border-b border-white/5">
                         <h3 className="text-base font-bold leading-tight capitalize">{formatDate(date)}</h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
@@ -190,27 +192,27 @@ const AgendaPage: React.FC = () => {
 
 const StatCard: React.FC<{ value: string | number; label: string; color: 'primary' | 'amber' | 'emerald' }> = ({ value, label, color }) => {
   const colors = {
-    primary: 'bg-primary/5 dark:bg-primary/10 text-primary',
-    amber: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400',
-    emerald: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
+    primary: 'bg-primary/10 text-primary',
+    amber: 'bg-amber-500/10 text-amber-400',
+    emerald: 'bg-emerald-500/10 text-emerald-400',
   };
   return (
     <div className={`${colors[color]} rounded-xl px-3 py-2 text-center transition-all hover:scale-[1.02]`}>
       <p className="text-lg font-black">{value}</p>
-      <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{label}</p>
+      <p className="text-[10px] text-on-surface/50 font-medium">{label}</p>
     </div>
   );
 };
 
 const FilterButton: React.FC<{ active: boolean; onClick: () => void; label: string; count: number; badgeColor: 'orange' | 'emerald' }> = ({ active, onClick, label, count, badgeColor }) => {
   const badgeColors = {
-    orange: 'bg-orange-100 text-orange-600',
-    emerald: 'bg-emerald-100 text-emerald-600',
+    orange: 'bg-orange-500/20 text-orange-400',
+    emerald: 'bg-emerald-500/20 text-emerald-400',
   };
   return (
     <button
       onClick={onClick}
-      className={`flex-1 h-full rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2 ${active ? 'bg-white dark:bg-surface-dark text-primary shadow-sm' : 'text-text-secondary-light dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+      className={`flex-1 h-full rounded-md text-sm font-semibold transition-all flex items-center justify-center gap-2 ${active ? 'bg-surface text-on-surface shadow-sm' : 'text-on-surface/50 hover:bg-white/5'}`}
     >
       <span>{label}</span>
       {count > 0 && <span className={`${badgeColors[badgeColor]} text-[10px] px-1.5 py-0.5 rounded-full font-bold`}>{count}</span>}
@@ -221,15 +223,15 @@ const FilterButton: React.FC<{ active: boolean; onClick: () => void; label: stri
 const AgendaSkeleton = () => (
   <div className="mt-6 space-y-4 animate-pulse">
     {[1, 2, 3].map(i => (
-      <div key={i} className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl w-full" />
+      <div key={i} className="h-20 bg-surface rounded-xl w-full" />
     ))}
   </div>
 );
 
 const EmptyAgendaState: React.FC<{ filter: string }> = ({ filter }) => (
   <div className="flex flex-col items-center justify-center py-16 px-8 text-center animate-in fade-in slide-in-from-bottom-4">
-    <div className="size-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center mb-5">
-      <span className="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500">
+    <div className="size-20 rounded-full bg-surface flex items-center justify-center mb-5 border border-white/5">
+      <span className="material-symbols-outlined text-4xl text-on-surface/20">
         {filter === 'Pendiente' ? 'done_all' : 'event_available'}
       </span>
     </div>

@@ -113,16 +113,16 @@ const RegisterPage: React.FC = () => {
     const isSubmitting = isLoading || isClaiming;
 
     return (
-        <div className="flex flex-col min-h-screen bg-white text-on-surface font-sans relative overflow-hidden">
+        <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
 
             {/* Mesh Background Decorative */}
             <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
 
             {/* Header */}
-            <header className="flex items-center justify-between pt-10 pb-4 px-6 z-20 sticky top-0 bg-white/40 backdrop-blur-xl">
+            <header className="flex items-center justify-between pt-10 pb-4 px-6 z-20 sticky top-0 bg-background/60 backdrop-blur-xl border-b border-white/5">
                 <Link
                     to="/login"
-                    className="flex items-center justify-center size-10 rounded-2xl bg-white border border-black/5 ambient-shadow hover:scale-105 transition-all"
+                    className="flex items-center justify-center size-10 rounded-2xl bg-surface border border-white/10 ambient-shadow hover:scale-105 transition-all"
                 >
                     <span className="material-symbols-outlined text-primary text-[20px]">arrow_back</span>
                 </Link>
@@ -148,10 +148,10 @@ const RegisterPage: React.FC = () => {
 
                         {/* Si viene del admin: mostrar slug como referencia, ocultar campos de negocio */}
                         {preSlug ? (
-                            <div className="bg-primary/5 border border-primary/20 rounded-[1.5rem] p-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Tu panel en Suito</p>
-                                <p className="text-sm font-bold text-primary">suito.pro/turnos/#{preSlug}</p>
-                                <p className="text-[10px] text-on-surface-variant opacity-50 mt-1">
+                            <div className="bg-primary/10 border border-primary/20 rounded-[1.5rem] p-4">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Tu panel en Suito</p>
+                                <p className="text-sm font-bold text-white opacity-90">suito.pro/turnos/#{preSlug}</p>
+                                <p className="text-[10px] text-on-surface-variant opacity-60 mt-1">
                                     Usá el mismo email con el que te registró el admin
                                 </p>
                             </div>
@@ -170,7 +170,7 @@ const RegisterPage: React.FC = () => {
                                             type="text"
                                             value={businessName}
                                             onChange={(e) => setBusinessName(e.target.value)}
-                                            className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                            className="block w-full rounded-[1.5rem] border border-white/10 bg-surface/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:text-white/20 transition-all ambient-shadow outline-none"
                                             placeholder="Ej: Max Barber Shop"
                                             required
                                         />
@@ -191,8 +191,8 @@ const RegisterPage: React.FC = () => {
                                                 className={`
                                                     p-3 rounded-2xl border transition-all text-left flex items-center gap-3
                                                     ${selectedCategory === cat.id
-                                                        ? 'border-primary bg-primary/5 shadow-inner'
-                                                        : 'border-black/5 bg-white/40 hover:bg-white ambient-shadow'
+                                                        ? 'border-primary bg-primary/10 shadow-inner'
+                                                        : 'border-white/5 bg-surface/40 hover:bg-surface/60 ambient-shadow'
                                                     }
                                                 `}
                                             >
@@ -205,18 +205,18 @@ const RegisterPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Slug Preview */}
+                                 {/* Slug Preview */}
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1 opacity-40">
                                         Tu Enlace Profesional
                                     </label>
-                                    <div className="bg-black/5 rounded-[1.5rem] p-4 border border-black/5 flex items-center gap-2">
+                                    <div className="bg-white/5 rounded-[1.5rem] p-4 border border-white/5 flex items-center gap-2">
                                         <span className="text-[10px] font-black text-on-surface-variant opacity-30">suito.pro/</span>
                                         <input
                                             type="text"
                                             value={slug}
                                             onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                                            className="flex-1 bg-transparent text-sm font-bold text-primary focus:outline-none"
+                                            className="flex-1 bg-transparent text-sm font-bold text-primary focus:outline-none placeholder:text-primary/20"
                                             placeholder="tu-negocio"
                                             required
                                         />
@@ -238,7 +238,7 @@ const RegisterPage: React.FC = () => {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                    className="block w-full rounded-[1.5rem] border border-white/10 bg-surface/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:text-white/20 transition-all ambient-shadow outline-none"
                                     placeholder="hola@tuempresa.com"
                                     required
                                     autoComplete="email"
@@ -259,7 +259,7 @@ const RegisterPage: React.FC = () => {
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-12 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                    className="block w-full rounded-[1.5rem] border border-white/10 bg-surface/60 pl-12 pr-12 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:text-white/20 transition-all ambient-shadow outline-none"
                                     placeholder="Secreto de 6+ caracteres"
                                     required
                                     autoComplete="new-password"
@@ -289,7 +289,7 @@ const RegisterPage: React.FC = () => {
                                     type={showPassword ? 'text' : 'password'}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                    className="block w-full rounded-[1.5rem] border border-white/10 bg-surface/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:text-white/20 transition-all ambient-shadow outline-none"
                                     placeholder="Repetí tu contraseña"
                                     required
                                     autoComplete="new-password"

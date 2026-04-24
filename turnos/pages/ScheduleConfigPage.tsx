@@ -88,7 +88,9 @@ const ScheduleConfigPage: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark">
+    <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
+        {/* Mesh Background Decorative */}
+        <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
             {/* Demo Modal */}
             <DemoSaveModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
 
@@ -96,23 +98,23 @@ const ScheduleConfigPage: React.FC = () => {
             {slug && <DemoBanner slug={slug} />}
 
             {/* Top App Bar */}
-            <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-surface-light dark:bg-surface-dark border-b border-gray-100 dark:border-gray-800 shadow-sm">
+            <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-4 bg-background/60 backdrop-blur-xl border-b border-white/5">
                 <button
                     onClick={() => navigate(`/${slug}/config`)}
-                    className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full active:bg-gray-100 dark:active:bg-gray-800"
+                    className="flex items-center justify-center w-10 h-10 -ml-2 rounded-2xl bg-surface border border-white/10 text-white hover:scale-105 transition-all"
                 >
                     <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h1 className="text-lg font-bold tracking-tight text-center flex-1">
-                    Horarios de Atención
+                <h1 className="text-lg font-black tracking-tighter text-center flex-1">
+                    Horarios
                 </h1>
                 <button
                     onClick={handleSave}
                     disabled={saving || savingBlocked}
                     className="flex items-center px-2 py-1"
                 >
-                    <span className={`font-bold text-base ${saved ? 'text-green-500' : 'text-primary'}`}>
-                        {saving || savingBlocked ? 'Guardando...' : saved ? '¡Guardado!' : 'Guardar'}
+                    <span className={`font-black text-base transition-all ${saved ? 'text-green-500' : 'text-primary hover:scale-105'}`}>
+                        {saving || savingBlocked ? '...' : saved ? '¡OK!' : 'Guardar'}
                     </span>
                 </button>
             </div>
@@ -126,8 +128,8 @@ const ScheduleConfigPage: React.FC = () => {
                 ) : (
                     <>
                         {/* Duration Selector */}
-                        <div className="px-4 py-4 bg-surface-light dark:bg-surface-dark border-b border-gray-100 dark:border-gray-800">
-                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                        <div className="px-4 py-6 bg-surface/40 backdrop-blur-md border-b border-white/5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary mb-3 block ml-1">
                                 Duración de cada turno
                             </label>
                             <div className="flex gap-2 flex-wrap">
@@ -135,9 +137,9 @@ const ScheduleConfigPage: React.FC = () => {
                                     <button
                                         key={mins}
                                         onClick={() => setDuration(mins)}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${schedule.duracionTurno === mins
-                                            ? 'bg-primary text-white shadow-md'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                        className={`px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${schedule.duracionTurno === mins
+                                            ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
+                                            : 'bg-surface border border-white/10 text-on-surface/50 hover:bg-white/5'
                                             }`}
                                     >
                                         {mins} min
@@ -147,22 +149,22 @@ const ScheduleConfigPage: React.FC = () => {
                         </div>
 
                         {/* Day Tabs */}
-                        <div className="px-4 py-3 bg-surface-light dark:bg-surface-dark border-b border-gray-100 dark:border-gray-800 overflow-x-auto">
+                        <div className="px-4 py-4 bg-background border-b border-white/5 overflow-x-auto no-scrollbar">
                             <div className="flex gap-2">
                                 {DAYS_OF_WEEK.map((day) => (
                                     <button
                                         key={day.id}
                                         onClick={() => setSelectedDay(day.id)}
-                                        className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${selectedDay === day.id
-                                            ? 'bg-primary text-white shadow-md'
+                                        className={`flex-shrink-0 px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${selectedDay === day.id
+                                            ? 'bg-primary text-white shadow-lg'
                                             : schedule.horariosPorDia[day.id]?.length
-                                                ? 'bg-primary/10 text-primary border border-primary/30'
-                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                                                ? 'bg-primary/10 text-primary border border-primary/20'
+                                                : 'bg-surface border border-white/5 text-on-surface/30'
                                             }`}
                                     >
                                         {day.short}
                                         {schedule.horariosPorDia[day.id]?.length > 0 && (
-                                            <span className="ml-1 text-xs opacity-70">
+                                            <span className="ml-1 opacity-70">
                                                 ({schedule.horariosPorDia[day.id].length})
                                             </span>
                                         )}
@@ -197,9 +199,9 @@ const ScheduleConfigPage: React.FC = () => {
                                         <button
                                             key={slot}
                                             onClick={() => toggleSlot(selectedDay, slot)}
-                                            className={`py-2.5 rounded-lg text-sm font-medium transition-all border ${isSelected
-                                                ? 'bg-primary text-white border-primary shadow-md'
-                                                : 'bg-white dark:bg-surface-dark border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary/50'
+                                            className={`py-3 rounded-2xl text-xs font-black transition-all border ${isSelected
+                                                ? 'bg-primary text-white border-primary shadow-lg scale-105'
+                                                : 'bg-surface/60 border-white/10 text-on-surface/40 hover:border-primary/50'
                                                 }`}
                                         >
                                             {slot}

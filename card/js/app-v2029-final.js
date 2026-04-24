@@ -69,9 +69,12 @@ function navigate() {
         }
 
         app.innerHTML = `
-            <div class="loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:var(--background, #fdfcff);">
-                <div class="card-avatar-ring" style="width:80px; height:80px; margin-bottom:20px; animation: suito-pulse 2s infinite; border: 3px solid var(--primary); background: #1A1A1A;">
-                    <svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+            <div class="loading-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#121212; position:relative; overflow:hidden;">
+                {/* Mesh Background Decorative */}
+                <div style="position:fixed; inset:0; background-image: radial-gradient(at 20% 0%, rgba(212, 175, 55, 0.1) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(184, 134, 11, 0.05) 0px, transparent 50%); filter:blur(60px); z-index:0;"></div>
+                
+                <div class="card-avatar-ring" style="width:100px; height:100px; margin-bottom:24px; animation: suito-pulse 2s infinite; border: 3px solid rgba(212, 175, 55, 0.3); background: #1E1E1E; border-radius: 50%; display:flex; align-items:center; justify-content:center; z-index:1; position:relative;">
+                    <svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:70%; height:70%;">
                       <defs>
                         <linearGradient id="suitoGold" x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stop-color="#D4AF37" />
@@ -83,15 +86,15 @@ function navigate() {
                       <path d="M60 28V35M60 85V92M72 45C72 38 65 35 60 35C52 35 48 40 48 45C48 55 72 55 72 65C72 75 65 85 55 85C48 85 45 80 45 75" stroke="url(#suitoGold)" stroke-width="6" stroke-linecap="round" />
                     </svg>
                 </div>
-                <h2 style="color:var(--primary); font-size:1.5rem; margin-bottom:8px; font-weight:700;">Suito Editor</h2>
-                <div class="spinner" style="border-top-color:var(--primary); width:24px; height:24px; border-width:3px;"></div>
-                <p style="color:var(--text-secondary); margin-top:16px; font-weight:500;">Preparando tu panel mágico...</p>
+                <h2 style="color:#D4AF37; font-size:1.8rem; margin-bottom:8px; font-weight:900; letter-spacing:-0.05em; z-index:1; position:relative;">Suito Editor</h2>
+                <div class="spinner" style="border-top-color:#D4AF37; width:24px; height:24px; border-width:3px; z-index:1; position:relative;"></div>
+                <p style="color:rgba(255,255,255,0.5); margin-top:16px; font-weight:600; font-size:0.9rem; z-index:1; position:relative;">Preparando tu panel mágico...</p>
             </div>
             <style>
                 @keyframes suito-pulse {
-                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.5); }
-                    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }
-                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.3); }
+                    70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
                 }
             </style>
         `;

@@ -75,7 +75,7 @@ const WelcomePage: React.FC = () => {
   const isHardLocked = !hasAccess && isExpired;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white text-on-surface font-sans relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
       
       {/* Mesh Background Decorative */}
       <div className="fixed inset-0 mesh-gradient-bg opacity-[0.07] -z-10" />
@@ -84,7 +84,7 @@ const WelcomePage: React.FC = () => {
       <DemoBanner slug={slug} />
 
       {/* Header */}
-      <header className="px-6 pt-12 pb-6 w-full z-20 sticky top-0 bg-white/60 backdrop-blur-xl border-b border-white/40">
+      <header className="px-6 pt-12 pb-6 w-full z-20 sticky top-0 bg-background/60 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center justify-between">
           <div className="animate-fade-in-up">
             <h1 className="text-xl font-black tracking-tighter text-primary leading-none mb-1">
@@ -95,7 +95,7 @@ const WelcomePage: React.FC = () => {
           <div className="flex items-center gap-3">
              <button
               onClick={handleLogout}
-              className="size-10 rounded-2xl bg-white border border-black/5 flex items-center justify-center text-on-surface-variant hover:bg-red-50 hover:text-red-500 transition-all shrink-0 ambient-shadow"
+              className="size-10 rounded-2xl bg-surface border border-white/10 flex items-center justify-center text-on-surface-variant hover:bg-red-500/10 hover:text-red-500 transition-all shrink-0 ambient-shadow"
             >
               <span className="material-symbols-outlined text-[20px]">logout</span>
             </button>
@@ -140,20 +140,20 @@ const WelcomePage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-white/40 border border-white/60 rounded-3xl p-5">
+                <div className="bg-surface/40 border border-white/5 rounded-3xl p-5">
                   <p className="text-4xl font-black tracking-tighter mb-1 text-primary">{stats.todayCount}</p>
                   <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Agendados</p>
                 </div>
-                <div className="bg-white/40 border border-white/60 rounded-3xl p-5">
+                <div className="bg-surface/40 border border-white/5 rounded-3xl p-5">
                   <p className="text-4xl font-black tracking-tighter mb-1 text-tertiary">${valorSena}</p>
                   <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Valor Seña</p>
                 </div>
               </div>
 
               {stats.pendingCount > 0 && (
-                <button
+                 <button
                   onClick={() => navigate(`/${slug}/agenda`)}
-                  className="w-full bg-white border border-primary/20 text-primary py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-white transition-all ambient-shadow"
+                  className="w-full bg-surface border border-primary/20 text-primary py-4 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary hover:text-white transition-all ambient-shadow"
                 >
                   <span className="material-symbols-outlined text-amber-500">notification_important</span>
                   {stats.pendingCount === 1
@@ -173,72 +173,72 @@ const WelcomePage: React.FC = () => {
         {/* Tools Grid */}
         <div className="grid grid-cols-2 gap-4 mb-10">
             {hasAppointments && (
-              <button
+               <button
                 onClick={() => navigate(`/${slug}/agenda`)}
-                className="group flex flex-col gap-4 p-5 bg-white border border-black/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
+                className="group flex flex-col gap-4 p-5 bg-surface/40 border border-white/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
               >
-                <div className="size-12 rounded-2xl bg-primary/5 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-[24px]">calendar_today</span>
                 </div>
                 <div>
-                  <p className="font-black text-sm tracking-tight">Ver Agenda</p>
+                  <p className="font-black text-sm tracking-tight text-white">Ver Agenda</p>
                   <p className="text-[10px] font-bold text-on-surface-variant opacity-50">Calendario completo</p>
                 </div>
               </button>
             )}
 
-            <button
+             <button
               onClick={() => navigate(`/${slug}/config`)}
-              className="group flex flex-col gap-4 p-5 bg-white border border-black/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
+              className="group flex flex-col gap-4 p-5 bg-surface/40 border border-white/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
             >
-              <div className="size-12 rounded-2xl bg-secondary/5 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="size-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-[24px]">store</span>
               </div>
               <div>
-                <p className="font-black text-sm tracking-tight">Mi Negocio</p>
+                <p className="font-black text-sm tracking-tight text-white">Mi Negocio</p>
                 <p className="text-[10px] font-bold text-on-surface-variant opacity-50">Perfil y servicios</p>
               </div>
             </button>
 
-            <button
+             <button
               onClick={handleShareApp}
-              className="group flex flex-col gap-4 p-5 bg-white border border-black/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
+              className="group flex flex-col gap-4 p-5 bg-surface/40 border border-white/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
             >
-              <div className="size-12 rounded-2xl bg-tertiary/5 text-tertiary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="size-12 rounded-2xl bg-tertiary/10 text-tertiary flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-[24px]">qr_code_2</span>
               </div>
               <div>
-                <p className="font-black text-sm tracking-tight">Compartir</p>
+                <p className="font-black text-sm tracking-tight text-white">Compartir</p>
                 <p className="text-[10px] font-bold text-on-surface-variant opacity-50">Link para clientes</p>
               </div>
             </button>
 
-            {hasAppointments && (
+             {hasAppointments && (
               <button
                 onClick={() => navigate(`/${slug}/schedule`)}
-                className="group flex flex-col gap-4 p-5 bg-white border border-black/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
+                className="group flex flex-col gap-4 p-5 bg-surface/40 border border-white/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow"
               >
-                <div className="size-12 rounded-2xl bg-violet-100/30 text-violet-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="size-12 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined text-[24px]">timer</span>
                 </div>
                 <div>
-                  <p className="font-black text-sm tracking-tight">Horarios</p>
+                  <p className="font-black text-sm tracking-tight text-white">Horarios</p>
                   <p className="text-[10px] font-bold text-on-surface-variant opacity-50">Franjas horarias</p>
                 </div>
               </button>
             )}
             
-            {hasCard && (
+             {hasCard && (
               <button
                 onClick={() => navigate(`/${slug}/identidad`)}
-                className="group flex flex-col gap-4 p-5 bg-white border border-black/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow col-span-2"
+                className="group flex flex-col gap-4 p-5 bg-surface/40 border border-white/5 rounded-[2rem] text-left transition-all hover:bg-surface ambient-shadow col-span-2"
               >
                 <div className="flex items-center gap-5">
                     <div className="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:rotate-12 transition-transform">
                     <span className="material-symbols-outlined text-[30px]">style</span>
                     </div>
                     <div>
-                    <p className="font-black text-lg tracking-tighter">Identidad Visual</p>
+                    <p className="font-black text-lg tracking-tighter text-white">Identidad Visual</p>
                     <p className="text-xs font-bold text-on-surface-variant opacity-50">Personalizar mi Tarjeta Virtual Premium</p>
                     </div>
                     <div className="ml-auto">
@@ -253,15 +253,15 @@ const WelcomePage: React.FC = () => {
         <div className="mb-12">
             <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10">
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Tu Enlace Público</p>
-                <div className="flex items-center justify-between gap-4">
-                    <code className="text-xs font-bold text-on-surface-variant truncate flex-1">
+                 <div className="flex items-center justify-between gap-4">
+                    <code className="text-xs font-bold text-white opacity-60 truncate flex-1">
                         {`${window.location.origin}/#/${slug}/booking`}
                     </code>
                     <button 
                         onClick={() => copyToClipboard(`${window.location.origin}/#/${slug}/booking`)}
-                        className="p-3 bg-white rounded-xl border border-black/5 active:scale-95 transition-all"
+                        className="p-3 bg-surface rounded-xl border border-white/10 active:scale-95 transition-all"
                     >
-                        <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                        <span className="material-symbols-outlined text-[18px] text-white">content_copy</span>
                     </button>
                 </div>
             </div>

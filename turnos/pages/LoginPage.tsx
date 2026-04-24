@@ -42,7 +42,7 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="relative flex min-h-screen flex-col overflow-hidden bg-white text-on-surface font-sans">
+        <div className="relative flex min-h-screen flex-col overflow-hidden bg-background text-on-surface font-sans">
             
             {/* Mesh Background Decorative */}
             <div className="fixed inset-0 mesh-gradient-bg opacity-[0.08] -z-10" />
@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
                     {features.map((f, i) => (
                         <div
                             key={i}
-                            className={`absolute inset-0 flex items-center gap-4 p-5 rounded-[2rem] bg-white/40 backdrop-blur-xl border border-white/60 shadow-sm transition-all duration-700 ease-out ${i === activeFeature
+                            className={`absolute inset-0 flex items-center gap-4 p-5 rounded-[2rem] bg-surface/40 backdrop-blur-xl border border-white/10 shadow-sm transition-all duration-700 ease-out ${i === activeFeature
                                 ? 'opacity-100 translate-y-0 scale-100'
                                 : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
                                 }`}
@@ -86,7 +86,7 @@ const LoginPage: React.FC = () => {
                         <button
                             key={i}
                             onClick={() => setActiveFeature(i)}
-                            className={`rounded-full transition-all duration-500 ${i === activeFeature ? 'w-8 h-1.5 bg-primary' : 'w-1.5 h-1.5 bg-black/10'
+                            className={`rounded-full transition-all duration-500 ${i === activeFeature ? 'w-8 h-1.5 bg-primary' : 'w-1.5 h-1.5 bg-white/20'
                                 }`}
                         />
                     ))}
@@ -98,11 +98,11 @@ const LoginPage: React.FC = () => {
                 <div className="glass-card ambient-shadow rounded-[3rem] p-7 overflow-hidden border-white/60">
 
                     {/* Tab switcher */}
-                    <div className="flex p-1.5 bg-black/5 mb-8 rounded-[1.5rem]">
+                    <div className="flex p-1.5 bg-white/5 mb-8 rounded-[1.5rem]">
                         <button
                             onClick={() => setTab('login')}
                             className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${tab === 'login'
-                                ? 'bg-white text-primary shadow-sm'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
                                 : 'text-on-surface-variant opacity-40 hover:opacity-100'
                                 }`}
                         >
@@ -111,7 +111,7 @@ const LoginPage: React.FC = () => {
                         <button
                             onClick={() => setTab('register')}
                             className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${tab === 'register'
-                                ? 'bg-white text-primary shadow-sm'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
                                 : 'text-on-surface-variant opacity-40 hover:opacity-100'
                                 }`}
                         >
@@ -133,7 +133,7 @@ const LoginPage: React.FC = () => {
                                     type="email"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                    className="block w-full rounded-[1.5rem] border border-white/10 bg-surface/60 pl-12 pr-4 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:text-white/20 transition-all ambient-shadow outline-none"
                                     placeholder="tu@negocio.com"
                                     autoComplete="email"
                                 />
@@ -152,7 +152,7 @@ const LoginPage: React.FC = () => {
                                     type={showPass ? 'text' : 'password'}
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
-                                    className="block w-full rounded-[1.5rem] border border-black/5 bg-white/60 pl-12 pr-12 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:text-on-surface-variant/30 transition-all ambient-shadow"
+                                    className="block w-full rounded-[1.5rem] border border-white/10 bg-surface/60 pl-12 pr-12 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:text-white/20 transition-all ambient-shadow outline-none"
                                     placeholder="Tu clave secreta"
                                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                                 />
@@ -188,14 +188,14 @@ const LoginPage: React.FC = () => {
                         </button>
 
                         <div className="flex items-center gap-4 py-2">
-                            <div className="h-px bg-black/5 flex-1" />
+                            <div className="h-px bg-white/5 flex-1" />
                             <span className="text-[10px] font-black text-on-surface-variant opacity-20 uppercase tracking-widest">o</span>
-                            <div className="h-px bg-black/5 flex-1" />
+                            <div className="h-px bg-white/5 flex-1" />
                         </div>
 
                         <button
                             onClick={handleDemo}
-                            className="w-full py-4 rounded-[1.5rem] border border-primary/20 text-primary font-black text-[10px] uppercase tracking-widest bg-white/40 hover:bg-white active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                            className="w-full py-4 rounded-[1.5rem] border border-primary/20 text-primary font-black text-[10px] uppercase tracking-widest bg-primary/5 hover:bg-primary/10 active:scale-95 transition-all flex items-center justify-center gap-2 group"
                         >
                             <span className="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">auto_awesome</span>
                             Explorar Versión Demo

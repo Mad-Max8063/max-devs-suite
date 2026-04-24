@@ -129,17 +129,17 @@ const BookingPage: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-white text-on-surface font-sans relative overflow-hidden">
+        <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
             
             {/* Mesh Background Decorative */}
             <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
 
             {/* Top Bar */}
-            <header className="fixed top-0 w-full z-40 bg-white/40 backdrop-blur-xl border-b border-black/5 px-6 py-4 flex justify-between items-center">
+            <header className="fixed top-0 w-full z-40 bg-background/60 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-4">
                     <button 
                         onClick={() => navigate(-1)} 
-                        className="size-10 rounded-2xl bg-white border border-black/5 ambient-shadow flex items-center justify-center active:scale-95 transition-all"
+                        className="size-10 rounded-2xl bg-surface border border-white/10 ambient-shadow flex items-center justify-center active:scale-95 transition-all"
                     >
                         <span className="material-symbols-outlined text-primary text-[20px]">arrow_back</span>
                     </button>
@@ -181,8 +181,8 @@ const BookingPage: React.FC = () => {
                                                 className={`
                                                     w-full text-left p-5 rounded-[2rem] border transition-all relative overflow-hidden
                                                     ${isSelected 
-                                                        ? 'bg-primary/5 border-primary ambient-shadow' 
-                                                        : 'bg-white/40 border-black/5 ambient-shadow hover:bg-white'
+                                                        ? 'bg-primary/10 border-primary/40 ambient-shadow' 
+                                                        : 'bg-surface/40 border-white/5 ambient-shadow hover:bg-surface/60'
                                                     }
                                                 `}
                                             >
@@ -201,7 +201,7 @@ const BookingPage: React.FC = () => {
                                                     </div>
                                                     <div className={`
                                                         size-8 rounded-full border-2 flex items-center justify-center transition-all
-                                                        ${isSelected ? 'bg-primary border-primary' : 'border-black/5'}
+                                                        ${isSelected ? 'bg-primary border-primary' : 'border-white/10'}
                                                     `}>
                                                         {isSelected && <span className="material-symbols-outlined text-white text-[18px]">check</span>}
                                                     </div>
@@ -231,11 +231,11 @@ const BookingPage: React.FC = () => {
 
                             <div className="glass-card ambient-shadow rounded-[2.5rem] p-6 border-white/60">
                                 <div className="flex justify-between items-center mb-6 px-2">
-                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="size-8 rounded-xl bg-black/5 flex items-center justify-center hover:bg-black/10 transition-colors">
+                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="size-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
                                         <span className="material-symbols-outlined text-on-surface-variant text-[18px]">west</span>
                                     </button>
                                     <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Seleccioná un día</p>
-                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="size-8 rounded-xl bg-black/5 flex items-center justify-center hover:bg-black/10 transition-colors">
+                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="size-8 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
                                         <span className="material-symbols-outlined text-on-surface-variant text-[18px]">east</span>
                                     </button>
                                 </div>
@@ -305,7 +305,7 @@ const BookingPage: React.FC = () => {
                                                         py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border
                                                         ${isSelected 
                                                             ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30' 
-                                                            : 'bg-white/40 border-black/5 ambient-shadow hover:bg-white'
+                                                            : 'bg-surface/40 border-white/5 ambient-shadow hover:bg-surface/60'
                                                         }
                                                     `}
                                                 >
@@ -382,7 +382,7 @@ const BookingPage: React.FC = () => {
                                             type="text"
                                             value={clientName}
                                             onChange={(e) => setClientName(e.target.value)}
-                                            className="w-full rounded-[1.25rem] border border-black/5 bg-white/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:opacity-20"
+                                            className="w-full rounded-[1.25rem] border border-white/10 bg-surface/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:opacity-20 outline-none transition-all"
                                             placeholder="Ej: Max Power"
                                         />
                                     </div>
@@ -392,7 +392,7 @@ const BookingPage: React.FC = () => {
                                             type="tel"
                                             value={clientPhone}
                                             onChange={(e) => setClientPhone(e.target.value.replace(/[^0-9]/g, ''))}
-                                            className="w-full rounded-[1.25rem] border border-black/5 bg-white/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-on-surface placeholder:opacity-20"
+                                            className="w-full rounded-[1.25rem] border border-white/10 bg-surface/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:opacity-20 outline-none transition-all"
                                             placeholder="Ej: 1123456789"
                                         />
                                     </div>

@@ -168,7 +168,9 @@ const BusinessConfigPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark">
+    <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
+      {/* Mesh Background Decorative */}
+      <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
 
       {/* Demo Modal */}
       <DemoSaveModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
@@ -219,14 +221,14 @@ const BusinessConfigPage: React.FC = () => {
       {slug && <DemoBanner slug={slug} />}
 
       {/* Top App Bar */}
-      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-surface-light dark:bg-surface-dark border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
-        <button onClick={() => navigate(-1)} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full active:bg-gray-100 dark:active:bg-gray-800 text-gray-900 dark:text-white transition-colors">
+      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-4 bg-background/60 backdrop-blur-xl border-b border-white/5">
+        <button onClick={() => navigate(-1)} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-2xl bg-surface border border-white/10 text-white hover:scale-105 transition-all">
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
-        <h1 className="text-lg font-bold tracking-tight text-center flex-1">Configuración</h1>
-        <button onClick={handleSave} disabled={saving} className="flex items-center justify-end px-2 py-1 rounded-lg">
-          <span className={`font-bold text-base transition-colors ${saved ? 'text-green-500' : 'text-primary hover:text-primary/80'}`}>
-            {saving ? 'Guardando...' : saved ? '¡Guardado!' : 'Guardar'}
+        <h1 className="text-lg font-black tracking-tighter text-center flex-1">Configuración</h1>
+        <button onClick={handleSave} disabled={saving} className="flex items-center justify-end px-2 py-1">
+          <span className={`font-black text-base transition-all ${saved ? 'text-green-500' : 'text-primary hover:scale-105'}`}>
+            {saving ? '...' : saved ? '¡OK!' : 'Guardar'}
           </span>
         </button>
       </div>
@@ -299,7 +301,7 @@ const BusinessConfigPage: React.FC = () => {
                 type="text"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-xl text-base text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 shadow-sm"
+                className="w-full pl-11 pr-4 py-4 bg-surface/60 border border-white/10 rounded-2xl text-base text-white placeholder-white/20 focus:outline-none focus:border-primary transition-all duration-200 shadow-inner outline-none"
                 placeholder="Ej. Barbería Styles"
                 disabled={loading}
               />
