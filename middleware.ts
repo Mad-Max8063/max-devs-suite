@@ -3,18 +3,18 @@ export const config = {
     /*
      * Match all paths except:
      * 1. /assets, /public, /static, /favicon.ico
-     * 2. Files with extensions (.js, .css, .png, etc.)
      */
-    '/((?!assets|static|favicon|.*\\..*).*)',
+    '/((?!assets|static|favicon).*)',
   ],
 };
 
 export default function middleware(req: Request) {
   const url = new URL(req.url);
   const hostname = req.headers.get('host') || '';
+  const pathname = url.pathname;
 
-  // 1. Evitar bucles infinitos
-  if (url.pathname.startsWith('/turnos') || url.pathname.startsWith('/card')) {
+  // 1. Evitar bucles infinitos y servir assets directos
+  if (pathname.startsWith('/turnos') || pathname.startsWith('/card') || pathname.startsWith('/admin')) {
     return new Response(null, { headers: { 'x-middleware-next': '1' } });
   }
 
@@ -23,6 +23,10 @@ export default function middleware(req: Request) {
   const isRootDomain = rootDomains.some(d => hostname === d || hostname.endsWith('.vercel.app'));
 
   if (isRootDomain) {
+    // Si tiene extensión y es dominio raíz, dejar pasar (Vercel servirá desde la raíz)
+    if (pathname.includes('.')) {
+        return new Response(null, { headers: { 'x-middleware-next': '1' } });
+    }
     return new Response(null, { headers: { 'x-middleware-next': '1' } });
   }
 
@@ -33,11 +37,24 @@ export default function middleware(req: Request) {
     return new Response(null, { headers: { 'x-middleware-next': '1' } });
   }
 
-  // REESCRITURA MANUAL (Raw headers)
-  let targetPath = '/turnos/index.html';
+  // REESCRITURA PARA SUBDOMINIOS
+  let targetPath = pathname;
   
   if (subdomain === 'admin') {
-    targetPath = '/admin/dashboard-v2029.html';
+    // Si es la raíz del subdominio, ir al dashboard
+    if (pathname === '/') {
+        targetPath = '/admin/dashboard-v2029.html';
+    } else {
+        // Si pide /sw-admin.js -> /admin/sw-admin.js
+        targetPath = `/admin${pathname}`;
+    }
+  } else {
+    // Otros subdominios (tenants) van a /turnos/
+    if (pathname === '/') {
+        targetPath = '/turnos/index.html';
+    } else {
+        targetPath = `/turnos${pathname}`;
+    }
   }
 
   const rewriteUrl = new URL(targetPath, req.url);
