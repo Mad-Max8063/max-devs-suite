@@ -64,7 +64,11 @@ function shareCard() {
 export function getSubscriptionStatus(user) {
     const created_at = new Date(user.created_at || Date.now());
     const days_active = (Date.now() - created_at.getTime()) / (1000 * 3600 * 24);
-    return (user.plan_status === 'premium' || days_active <= 3) ? 'premium' : 'basic';
+    
+    // Si es Premium (manual), Vitalicio, o está en sus primeros 3 días, es 'premium'
+    const isPremiumActive = user.isPremium || user.is_premium || user.plan_status === 'premium' || user.subscription_status === 'premium';
+    
+    return (isPremiumActive || days_active <= 3) ? 'premium' : 'basic';
 }
 
 function injectTheme(data) {
