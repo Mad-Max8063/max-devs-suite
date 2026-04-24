@@ -706,9 +706,16 @@ function _renderLeadCards(leads) {
                         title="Activa al cliente y provisiona sus apps automáticamente">
                     <i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente
                 </button>
-                <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
-                    <i class="fa-brands fa-whatsapp"></i>
-                </a>
+                <div style="display:flex; gap:8px;">
+                    <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                    <button class="action-btn danger" 
+                            onclick="window._deleteLead('${escapeHtml(String(l.id))}', '${escapeHtml(l.name)}')"
+                            title="Eliminar solicitud">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
     `).join('');
@@ -1102,6 +1109,28 @@ window._activateLead = async function(id) {
         console.error('[_activateLead] error:', err);
         showToast('❌ Error al activar cliente. Revisá la consola.');
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente'; }
+    }
+};
+
+// _deleteLead — Elimina una solicitud (lead) permanentemente.
+window._deleteLead = async function(id, name) {
+    if (!confirm(`¿Estás seguro de que querés eliminar la solicitud de "${name}"?`)) return;
+
+    try {
+        const { error } = await supabase
+            .from('leads')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showToast(`✅ Solicitud de ${name} eliminada`);
+        _leadsCache.delete(id); // Limpiar caché local
+        filterAndRenderLeads(); // Refrescar UI
+        checkNewLeads();        // Actualizar contador del sidebar
+    } catch (err) {
+        console.error('[_deleteLead] error:', err);
+        showToast('❌ Error al eliminar la solicitud');
     }
 };
 
