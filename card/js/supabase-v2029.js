@@ -373,6 +373,8 @@ export async function updateBusinessProfileSecure(cardId, editToken, profileData
         p_telefono:       profileData.telefono       ?? null,
         p_email:          profileData.email          ?? null,
         p_location:       profileData.location       ?? null,
+        p_foto_url:       profileData.foto_url       ?? null,
+        p_cover_url:      profileData.cover_url      ?? null,
         p_instagram:      profileData.instagram      ?? null,
         p_facebook:       profileData.facebook       ?? null,
         p_linkedin:       profileData.linkedin       ?? null,

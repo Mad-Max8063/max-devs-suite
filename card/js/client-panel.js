@@ -407,7 +407,7 @@ function wireProfileEvents(container, data) {
                 delete data._pendingCover;
             }
 
-            // Update profile via secure RPC
+            // Update profile via secure RPC (including image URLs)
             await updateBusinessProfileSecure(data._id, data._token, {
                 nombre_negocio: container.querySelector('#cp-name')?.value || '',
                 profession:     container.querySelector('#cp-profession')?.value || '',
@@ -415,6 +415,8 @@ function wireProfileEvents(container, data) {
                 telefono:       container.querySelector('#cp-phone')?.value || '',
                 email:          container.querySelector('#cp-email')?.value || '',
                 location:       container.querySelector('#cp-location')?.value || '',
+                foto_url:       data.photo || '',
+                cover_url:      data.coverPhoto || '',
                 instagram:      container.querySelector('#cp-instagram')?.value || '',
                 facebook:       container.querySelector('#cp-facebook')?.value || '',
                 linkedin:       container.querySelector('#cp-linkedin')?.value || '',
@@ -427,7 +429,12 @@ function wireProfileEvents(container, data) {
             setTimeout(() => { feedback.style.display = 'none'; }, 3500);
         } catch (err) {
             console.error('[ClientPanel] Save profile error:', err);
-            alert('Error al guardar. Revisá tu conexión e intentá de nuevo.');
+            const errMsg = err?.message || err?.details || '';
+            if (errMsg.includes('PREMIUM_REQUIRED')) {
+                showPremiumBlockedFeedback(container, 'Necesitás el plan Premium para cambiar tu foto de perfil o portada.');
+            } else {
+                alert('Error al guardar. Revisá tu conexión e intentá de nuevo.');
+            }
         } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = '💾 Guardar cambios';
@@ -526,6 +533,39 @@ function wireCopyBtn(container, data) {
             }, 2000);
         });
     });
+}
+
+// ——— Premium Feedback UI ———
+
+function showPremiumBlockedFeedback(container, message) {
+    // Remove any existing premium feedback
+    container.querySelector('#cp-premium-feedback')?.remove();
+
+    const feedback = document.createElement('div');
+    feedback.id = 'cp-premium-feedback';
+    feedback.style.cssText = `
+        text-align: center; color: #b45309; font-size: 13px; font-weight: 700;
+        background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 16px;
+        border-radius: 18px; border: 1px solid #f59e0b; margin-top: 12px;
+        animation: fadeInUp 0.3s ease-out;
+    `;
+    feedback.innerHTML = `
+        <span style="font-size: 20px; display: block; margin-bottom: 6px;">👑</span>
+        ${message}<br>
+        <a href="https://suito.pro/premium" target="_blank" rel="noopener"
+           style="color: #8B5CF6; font-weight: 800; text-decoration: underline; font-size: 12px; margin-top: 8px; display: inline-block;">
+            Ver planes Premium →
+        </a>
+    `;
+
+    const actionsDiv = container.querySelector('.ge-actions');
+    if (actionsDiv) {
+        actionsDiv.appendChild(feedback);
+    } else {
+        container.querySelector('#tab-profile')?.appendChild(feedback);
+    }
+
+    setTimeout(() => { feedback.remove(); }, 8000);
 }
 
 function wireModuleEvents(container, data) {
