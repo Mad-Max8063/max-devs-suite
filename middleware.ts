@@ -1,4 +1,4 @@
-import { escapeHtml, fetchOgProfile, toAbsoluteUrl } from './src/lib/ogProfile';
+import { escapeHtml, fetchOgProfile, toAbsoluteUrl } from './src/lib/ogProfile.js';
 
 export const config = {
   matcher: [

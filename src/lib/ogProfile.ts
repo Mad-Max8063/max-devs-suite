@@ -1,4 +1,4 @@
-import { getSocialNodes, type SocialNode } from './socialIcons';
+import { getSocialNodes, type SocialNode } from './socialIcons.js';
 
 export interface BusinessRow {
   id: string;

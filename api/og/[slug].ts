@@ -1,6 +1,6 @@
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
-import { fetchOgProfile, toAbsoluteUrl } from '../../src/lib/ogProfile';
+import { fetchOgProfile, toAbsoluteUrl } from '../../src/lib/ogProfile.js';
 
 export const config = {
   runtime: 'edge',
