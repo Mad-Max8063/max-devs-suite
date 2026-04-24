@@ -5,6 +5,6 @@
     { "source": "/card/(.*)", "destination": "/card/index.html" },
     { "source": "/edit/(.*)", "destination": "/card/index.html" },
     { "source": "/turnos/(.*)", "destination": "/turnos/index.html" },
-    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|.*\\.).*)", "destination": "/index.html" }
   ]
 }
