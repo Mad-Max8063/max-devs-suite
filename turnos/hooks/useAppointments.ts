@@ -4,6 +4,7 @@ import { sheetsService, CreateAppointmentData, Appointment } from '../services/s
 import { DEFAULT_SCHEDULE } from './useSchedule';
 import { useApiMode } from './useApiMode';
 import { useApp } from '../context/AppContext';
+import { MAX_FREE_SLOTS } from '../constants';
 
 /**
  * Hook for creating new appointments
@@ -62,6 +63,7 @@ export function useAvailableSlots() {
     const [error, setError] = useState<string | null>(null);
 
     const { isConfigured } = useApiMode(null);
+    const { isPremiumActive, isTrialExpired } = useApp();
 
     const fetchSlots = useCallback(async (slug: string, date: string) => {
         setLoading(true);

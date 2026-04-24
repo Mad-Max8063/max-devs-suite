@@ -40,6 +40,7 @@ export interface Profile {
     trial_ends_at?: string;
     locked_price?: number;
     price_lock_ends_at?: string;
+    free_until?: string;
 }
 
 export interface Appointment {
@@ -96,6 +97,8 @@ export interface AuthResult {
     user: {
         email: string;
         slug: string;
+        subscription_status: string;
+        trial_ends_at?: string;
         createdAt: string;
     };
     token: string;
@@ -603,9 +606,11 @@ export async function registerUser(
 
     return {
         user: {
+            email,
             slug,
             subscription_status: 'trialing',
-            trial_ends_at
+            trial_ends_at,
+            createdAt: new Date().toISOString()
         },
         token: authData.session?.access_token || '',
     };
@@ -627,10 +632,10 @@ export async function loginUser(
         throw new Error('Credenciales inválidas');
     }
 
-    // Get the user's business slug
+    // Get the user's business slug and status
     const { data: bizData } = await supabase
         .from('businesses')
-        .select('slug')
+        .select('slug, subscription_status, trial_ends_at')
         .eq('user_id', data.user.id)
         .single();
 
@@ -638,6 +643,8 @@ export async function loginUser(
         user: {
             email: data.user.email || email,
             slug: bizData?.slug || '',
+            subscription_status: bizData?.subscription_status || 'free',
+            trial_ends_at: bizData?.trial_ends_at,
             createdAt: data.user.created_at,
         },
         token: data.session.access_token,

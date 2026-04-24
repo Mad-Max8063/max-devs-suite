@@ -581,6 +581,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         currentAppointment,
         services,
         selectedCategoryId,
+        isPremiumActive,
+        isTrialExpired,
         setSlug,
         refreshProfile,
         updateProfile,

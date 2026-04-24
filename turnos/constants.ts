@@ -7,6 +7,9 @@
 // Slugs
 export const DEMO_SLUG = 'demo';
 
+// SaaS Logic
+export const MAX_FREE_SLOTS = 3; // Limit of slots for free trial expired users
+
 // Appointment statuses
 export const STATUS_PENDING = 'Pendiente';
 export const STATUS_CONFIRMED = 'Confirmado';

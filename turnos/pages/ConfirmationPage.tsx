@@ -68,11 +68,11 @@ const ConfirmationPage: React.FC = () => {
     title: `Turno: ${appointment.Servicio}`,
     description: `Reserva confirmada en ${profile?.NombreNegocio || 'el establecimiento'}.`,
     startTime: dateObj.toISOString(),
-    location: profile?.Direccion
+    location: profile?.Location
   }, {
     name: profile?.NombreNegocio || 'Suito Business',
     phone: profile?.Telefono,
-    address: profile?.Direccion
+    address: profile?.Location
   }) : null;
 
   const copyAlias = async () => {
