@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import { Profile, Appointment, sheetsService } from '../services/sheetsService';
 import { Service, BUSINESS_CATEGORIES } from '../constants';
 import { useApiMode } from '../hooks/useApiMode';
+import { useAuth } from './AuthContext';
 
 // ============================================
 // TYPES
@@ -372,11 +373,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }, [profile?.trial_ends_at]);
 
     const { isConfigured, isDemo, shouldCallApi } = useApiMode(slug);
+    const { user, isAuthenticated } = useAuth();
 
+    // Sync slug with authenticated user if possible
     useEffect(() => {
-        logger.debug('[App] isConfigured:', isConfigured);
-        logger.debug('[App] Apps Script URL:', isConfigured ? 'PRESENT' : 'MISSING');
-    }, [isConfigured]);
+        if (isAuthenticated && user?.slug && slug !== user.slug) {
+            console.log('[AppContext] Priority Sync:', user.slug);
+            setSlug(user.slug);
+        }
+    }, [isAuthenticated, user?.slug, slug, setSlug]);
 
     // Refresh profile data
     const refreshProfile = useCallback(async () => {

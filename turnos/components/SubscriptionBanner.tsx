@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabaseClient';
 
 export const SubscriptionBanner: React.FC = () => {
     const { profile } = useApp();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
 
     if (!profile) return null;
@@ -22,8 +24,40 @@ export const SubscriptionBanner: React.FC = () => {
     const handleSubscribe = async () => {
         setLoading(true);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) throw new Error('No session');
+            // First try to get existing session
+            let { data: { session } } = await supabase.auth.getSession();
+            
+            // If no session found, wait a bit and retry once (mitigate race conditions)
+            if (!session) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const retry = await supabase.auth.getSession();
+                session = retry.data.session;
+            }
+
+            if (!session) {
+                alert('Tu sesión ha expirado. Por favor, vuelve a ingresar.');
+                window.location.href = '#/login';
+                return;
+            }
+
+            let businessId = profile?.id;
+            
+            // If profile is demo but we are logged in, we need the REAL business ID
+            if ((!businessId || profile?.Slug === 'demo') && user?.slug) {
+                console.log('[SubscriptionBanner] Fetching real business ID for:', user.slug);
+                const { data } = await supabase
+                    .from('businesses')
+                    .select('id')
+                    .eq('slug', user.slug)
+                    .single();
+                
+                if (data?.id) businessId = data.id;
+            }
+
+            if (!businessId) {
+                console.error('Missing business ID. Profile:', profile, 'User:', user);
+                throw new Error('No se pudo identificar tu negocio. Por favor, recarga la página.');
+            }
 
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-pricing-checkout`, {
                 method: 'POST',
@@ -32,10 +66,15 @@ export const SubscriptionBanner: React.FC = () => {
                     'Authorization': `Bearer ${session.access_token}`
                 },
                 body: JSON.stringify({
-                    business_id: profile.id,
+                    business_id: businessId,
                     plan_type: 'combo'
                 })
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Error del servidor: ${response.status}`);
+            }
 
             const data = await response.json();
             if (data.checkout_url) {
@@ -44,8 +83,8 @@ export const SubscriptionBanner: React.FC = () => {
                 alert('No se pudo generar el link de pago. Reintenta en unos momentos.');
             }
         } catch (error) {
-            console.error('Error:', error);
-            alert('Error al conectar con Mercado Pago.');
+            console.error('Error in handleSubscribe:', error);
+            alert(error instanceof Error ? error.message : 'Error al conectar con Mercado Pago.');
         } finally {
             setLoading(false);
         }
@@ -84,7 +123,7 @@ export const SubscriptionBanner: React.FC = () => {
                 </p>
 
                 <button 
-                    onClick={handleSubscribe}
+                    onClick={(profile?.Slug === 'demo' && !user?.slug) ? () => window.location.href = '#/' : handleSubscribe}
                     disabled={loading}
                     style={{
                         background: isExpired ? '#dc2626' : '#d97706',
@@ -102,7 +141,11 @@ export const SubscriptionBanner: React.FC = () => {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                    {loading ? 'Procesando...' : (isExpired ? 'Reactivar mi Agenda' : 'Suscribirme y Congelar Precio')}
+                    {loading ? 'Procesando...' : (
+                        (profile?.Slug === 'demo' && !user?.slug)
+                            ? 'Ir a Mi Negocio para Suscribirme' 
+                            : (isExpired ? 'Reactivar mi Agenda' : 'Suscribirme y Congelar Precio')
+                    )}
                 </button>
 
                 <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8 }}>

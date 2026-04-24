@@ -1,6 +1,7 @@
 {
   "framework": "vite",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/card/(.*)", "destination": "/card/index.html" },
     { "source": "/edit/(.*)", "destination": "/card/index.html" },
     { "source": "/turnos/(.*)", "destination": "/turnos/index.html" },

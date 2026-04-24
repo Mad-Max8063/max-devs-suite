@@ -29,6 +29,19 @@ const DemoRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
 };
 
 /**
+ * RootRedirect - Redirects to user's slug if authenticated, otherwise to demo
+ */
+const RootRedirect: React.FC = () => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) return null;
+  if (isAuthenticated && user?.slug) {
+    return <Navigate to={`/${user.slug}`} replace />;
+  }
+  return <Navigate to="/demo" replace />;
+};
+
+/**
  * Applies the business's custom theme color globally
  */
 const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -67,8 +80,8 @@ const App: React.FC = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
 
-                  {/* Default redirect to demo */}
-                  <Route path="/" element={<Navigate to="/demo" replace />} />
+                  {/* Default redirect: to user slug if logged in, otherwise to demo */}
+                  <Route path="/" element={<RootRedirect />} />
 
                   {/* Demo Mode Routes - Public (no auth required for demo) */}
                   <Route path="/demo" element={<DemoRoute element={<WelcomePage />} />} />

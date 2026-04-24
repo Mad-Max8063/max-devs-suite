@@ -35,7 +35,7 @@ export interface Profile {
     CoverURL?: string;
     GalleryImages?: { image_url: string; caption?: string }[];
     ActiveModules?: string[];
-    // Monetization fields
+    id?: string;
     subscription_status?: 'trial' | 'active' | 'past_due' | 'canceled' | 'none';
     trial_ends_at?: string;
     locked_price?: number;
@@ -138,8 +138,9 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         .single();
 
     if (error || !data) return null;
-
+    
     return {
+        id: data.id,
         Slug: data.slug,
         Email: data.email || '',
         NombreNegocio: data.nombre_negocio,

@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/AppContext';
 import { resolveAccessPriority } from '../utils/access-resolver';
+import { SubscriptionBanner } from './SubscriptionBanner';
 
 const MASTER_TOKEN = import.meta.env.VITE_MASTER_TOKEN || 'reini26';
 
@@ -78,16 +79,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-xs leading-relaxed">
                         Para activar tu plan y seguir usando el gestor de turnos, suscribite:
                     </p>
-                    <div className="space-y-3 w-full max-w-xs">
-                        <a
-                            href="https://suito.pro/#precios"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">payments</span>
-                            Ver Planes de Suscripción
-                        </a>
+                    <div className="w-full max-w-xs">
+                        <SubscriptionBanner />
+                    </div>
+                    <div className="space-y-3 w-full max-w-xs mt-4">
                         <a
                             href="https://wa.me/5491162621406?text=Hola!%20Tengo%20problemas%20con%20mi%20suscripción%20en%20el%20gestor"
                             target="_blank"

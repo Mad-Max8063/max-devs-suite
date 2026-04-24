@@ -14,15 +14,22 @@ const BASE_DOMAIN = 'suito.pro';
 
 export function resolveApp(hostname: string): ResolvedApp {
   const cleanHost = hostname.split(':')[0]; // Eliminar puerto
+  const path = window.location.pathname;
   let resolved: ResolvedApp = { type: 'MAIN', tenantId: null };
 
   // Soporte para desarrollo local
   if (cleanHost === 'localhost' || cleanHost === '127.0.0.1') {
+    // 1. Prioridad: Overrides manuales en localStorage
     const override = localStorage.getItem('SUITO_DEV_APP') as AppType;
     if (override) {
-      resolved = { type: override, tenantId: localStorage.getItem('SUITO_DEV_TENANT') };
+      return { type: override, tenantId: localStorage.getItem('SUITO_DEV_TENANT') };
     }
+
+    // 2. Detección por ruta (Vite dev server)
+    if (path.startsWith('/admin')) return { type: 'ADMIN', tenantId: null };
+    if (path.startsWith('/turnos')) return { type: 'TURNOS', tenantId: null };
   }
+  
   // Interceptación de Vercel (para pruebas)
   else if (cleanHost.endsWith('.vercel.app')) {
     const parts = cleanHost.split('.');
@@ -37,9 +44,9 @@ export function resolveApp(hostname: string): ResolvedApp {
   }
   // Caso: suito.pro o www.suito.pro
   else if (cleanHost === BASE_DOMAIN || cleanHost === `www.${BASE_DOMAIN}`) {
-    // Si estamos en el dominio principal pero la URL tiene /turnos/, 
-    // asumimos que es el gestor genérico (o podríamos buscar un tenant en la sesión)
-    resolved = { type: 'TURNOS', tenantId: null };
+    if (path.startsWith('/admin')) resolved = { type: 'ADMIN', tenantId: null };
+    else if (path.startsWith('/turnos')) resolved = { type: 'TURNOS', tenantId: null };
+    else resolved = { type: 'MAIN', tenantId: null };
   }
   // Extraer subdominio
   else if (cleanHost.endsWith(`.${BASE_DOMAIN}`)) {
@@ -50,9 +57,9 @@ export function resolveApp(hostname: string): ResolvedApp {
     else resolved = { type: 'TENANT', tenantId: sub }; // Cualquier otro subdominio es un Tenant
   }
 
-  // Telemetría condicional (Purgada en producción por Vite)
+  // Telemetría condicional
   if (import.meta.env.DEV) {
-    console.log(`[Router] Host: ${cleanHost} -> App: ${resolved.type}`, resolved.tenantId ? `Tenant: ${resolved.tenantId}` : '');
+    console.log(`[Router] Host: ${cleanHost}, Path: ${path} -> App: ${resolved.type}`, resolved.tenantId ? `Tenant: ${resolved.tenantId}` : '');
   }
 
   return resolved;
