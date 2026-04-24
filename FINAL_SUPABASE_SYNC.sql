@@ -47,10 +47,10 @@ ON public.businesses FOR SELECT
 USING (true);
 
 DROP POLICY IF EXISTS "Solo dueños editan su negocio" ON public.businesses;
-CREATE POLICY "Solo dueños editan su negocio"
-ON public.businesses FOR UPDATE
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Dueños y Admins gestionan negocios"
+ON public.businesses FOR ALL
+USING (auth.uid() = user_id OR public.is_super_admin(auth.uid()))
+WITH CHECK (auth.uid() = user_id OR public.is_super_admin(auth.uid()));
 
 -- 4. PERMISOS PARA TABLA APPOINTMENTS (TURNOS)
 ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
