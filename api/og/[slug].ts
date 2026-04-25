@@ -218,6 +218,11 @@ export default async function handler(request: Request): Promise<Response> {
   return new ImageResponse(image, {
     width: WIDTH,
     height: HEIGHT,
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0',
+      Pragma: 'no-cache',
+      Expires: '0',
+    },
     fonts: fontData
       ? [
           {
