@@ -18,6 +18,11 @@ export interface BusinessRow {
   website: string | null;
   booking_url: string | null;
   active_modules: string[] | null;
+  whatsapp_message: string | null;
+  font_family: string | null;
+  social_color: string | null;
+  card_theme: string | null;
+  custom_css: string | null;
 }
 
 export interface OgProfile {
@@ -32,6 +37,10 @@ export interface OgProfile {
   avatarUrl: string;
   coverUrl: string;
   primaryColor: string;
+  whatsappMessage: string;
+  fontFamily: string;
+  socialColor: string;
+  cardTheme: string;
   socialNodes: SocialNode[];
 }
 
@@ -53,6 +62,11 @@ const BUSINESS_SELECT = [
   'website',
   'booking_url',
   'active_modules',
+  'whatsapp_message',
+  'font_family',
+  'social_color',
+  'card_theme',
+  'custom_css',
 ].join(',');
 
 function readEnv(name: string): string | undefined {
@@ -128,6 +142,10 @@ export async function fetchOgProfile(slug: string): Promise<OgProfile | null> {
     avatarUrl: business.foto_url ?? '',
     coverUrl: business.cover_url ?? '',
     primaryColor: business.color_primario ?? '#D4AF37',
+    whatsappMessage: business.whatsapp_message ?? '',
+    fontFamily: business.font_family ?? 'Inter',
+    socialColor: business.social_color ?? business.color_primario ?? '#D4AF37',
+    cardTheme: business.card_theme ?? 'obsidian',
     socialNodes: getSocialNodes({
       telefono: business.telefono,
       email: business.email,
@@ -136,6 +154,7 @@ export async function fetchOgProfile(slug: string): Promise<OgProfile | null> {
       linkedin: business.linkedin,
       website: business.website,
       booking_url: bookingUrl,
+      whatsapp_message: business.whatsapp_message,
     }),
   };
 }

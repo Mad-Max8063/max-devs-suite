@@ -37,6 +37,11 @@ export function renderClientPanel(container, card) {
         coverPhoto: card.coverPhoto || card.cover_url || '',
         activeModules: card.activeModules || card.active_modules || ['card'],
         isPremium: card.isPremium || card.is_premium || false,
+        whatsappMessage: card.whatsapp_message || '',
+        fontFamily: card.font_family || 'Inter',
+        socialColor: card.social_color || card.primary_color || card.color_primario || '#8B5CF6',
+        cardTheme: card.card_theme || 'obsidian',
+        customCss: card.custom_css || '',
         gallery: (card.gallery_images || card.gallery || []).map(img => ({
             id:      img.id,
             src:     img.image_url || img.src || '',
@@ -46,6 +51,7 @@ export function renderClientPanel(container, card) {
 
     container.innerHTML = buildPanelHTML(data);
     wirePanelEvents(container, data);
+    enforcePremiumDesignLock(data.isPremium, container.querySelector('#cp-design-section'));
 
     // Inject Subscription Banner at the top
     const bannerContainer = container.querySelector('#subscription-banner-root');
@@ -97,6 +103,9 @@ function buildPanelHTML(data) {
         <button class="cp-tab" data-tab="gallery">
             <span class="material-symbols-outlined" style="font-size:18px;">photo_library</span> Galería
         </button>
+        <button class="cp-tab" data-tab="design">
+            <span class="material-symbols-outlined" style="font-size:18px;">palette</span> Diseño
+        </button>
         <button class="cp-tab" data-tab="share">
             <span class="material-symbols-outlined" style="font-size:18px;">share</span> Compartir
         </button>
@@ -122,7 +131,7 @@ function buildPanelHTML(data) {
                 <div class="card-avatar-container" style="bottom: -50px;">
                     <label style="cursor: pointer; display: block; position: relative; transition: transform 0.2s;">
                         <div class="card-avatar-ring" style="width: 110px; height: 110px; border: 5px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                            <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/assets/favicon.svg'}" class="card-avatar">
+                            <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/assets/suito-symbol.png'}" class="card-avatar">
                         </div>
                         <div style="position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); border: 3px solid #fff;">
                             <span class="material-symbols-outlined" style="font-size: 18px; font-weight: bold;">photo_camera</span>
@@ -159,6 +168,9 @@ function buildPanelHTML(data) {
 
               <label class="cp-label">WhatsApp (con código de país)</label>
               <input class="cp-input" id="cp-phone" type="tel" value="${sanitize(data.phone)}" placeholder="+54 9 11 1234-5678">
+
+              <label class="cp-label">Mensaje predefinido de WhatsApp</label>
+              <textarea class="cp-input" id="cp-whatsapp-message" rows="2" placeholder="Ej: Hola! Vi tu tarjeta y me gustaría hacer una consulta." maxlength="200">${sanitize(data.whatsappMessage)}</textarea>
 
               <label class="cp-label">Email</label>
               <input class="cp-input" id="cp-email" type="email" value="${sanitize(data.email)}" placeholder="vos@tuempresa.com">
@@ -219,19 +231,63 @@ function buildPanelHTML(data) {
         </div>
       </div>
 
+      <!-- TAB: DISEÑO -->
+      <div class="cp-panel" id="tab-design">
+        <div class="glass-card" id="cp-design-section" style="position:relative; overflow:hidden;">
+          <div class="form-section">
+            <div class="section-header" style="margin-bottom: 12px;">
+                <h2 class="section-title">Diseño y Marca</h2>
+            </div>
+            <p class="section-hint">Personalizá tipografía, color social, tema y CSS avanzado para tu tarjeta pública.</p>
+
+            <div class="cp-fields">
+              <label class="cp-label">Tipografía</label>
+              <select class="cp-input" id="cp-font-family">
+                ${buildFontOptions(data.fontFamily)}
+              </select>
+
+              <label class="cp-label">Color de íconos sociales</label>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input class="cp-input" id="cp-social-color" type="color" value="${sanitizeColor(data.socialColor)}" style="width:58px; min-width:58px; padding:4px;">
+                <input class="cp-input" id="cp-social-color-text" type="text" value="${sanitizeColor(data.socialColor)}" maxlength="7" placeholder="#8B5CF6">
+              </div>
+
+              <label class="cp-label">Tema visual</label>
+              <select class="cp-input" id="cp-card-theme">
+                ${buildThemeOptions(data.cardTheme)}
+              </select>
+
+              <label class="cp-label">CSS personalizado</label>
+              <textarea class="cp-input" id="cp-custom-css" rows="7" placeholder=".card-name { text-transform: uppercase; }" maxlength="4000">${sanitize(data.customCss)}</textarea>
+              <p class="section-hint" style="margin-top:6px;">Se aplica solo en tarjetas Premium. Evitá reglas globales si no son necesarias.</p>
+            </div>
+          </div>
+        </div>
+        <div class="ge-actions" style="margin-top:24px; display:flex; flex-direction:column; gap:12px;">
+          <button type="button" class="btn-save" id="cp-save-design" style="background: var(--premium-gradient); border-radius: 20px;">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">palette</span>
+            Guardar diseño
+          </button>
+          <div id="cp-design-feedback" style="display:none;text-align:center;color:#059669;font-size:14px;font-weight:700;background:#ecfdf5;padding:14px;border-radius:18px;border: 1px solid #10b981;">
+            Diseño actualizado correctamente
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ TAB: GALERÍA ═══ -->
       <div class="cp-panel" id="tab-gallery">
         <div class="glass-card">
           <div class="form-section">
             <div class="section-label">Fotos de trabajos</div>
-            <p class="section-hint">Subí hasta 4 fotos y escribí una descripción de cada una. Tus clientes las van a ver en tu tarjeta.</p>
+            <p class="section-hint">Subí hasta ${data.isPremium ? '12' : '4'} fotos y escribí una descripción de cada una. Tus clientes las van a ver en tu tarjeta.</p>
 
             <div class="gallery-upload">
               <div class="gallery-grid" id="cp-gallery-grid">
                 ${buildGalleryThumbs(data.gallery)}
-                ${data.gallery.length < 4 ? buildAddBtn() : ''}
+                ${data.gallery.length < getGalleryLimit(data.isPremium) ? buildAddBtn() : ''}
               </div>
               <input type="file" id="cp-gallery-input" accept="image/*" multiple style="display:none">
+              <div id="cp-gallery-feedback" style="display:none;text-align:center;font-size:13px;font-weight:700;margin-top:12px;padding:12px;border-radius:16px;"></div>
             </div>
           </div>
         </div>
@@ -278,7 +334,7 @@ function buildGalleryThumbs(gallery) {
     return gallery.map((item, i) => `
         <div class="gallery-thumb-wrapper" data-index="${i}">
           <div class="gallery-thumb">
-            <img src="${item.src}" alt="${sanitize(item.caption || 'Trabajo ' + (i + 1))}">
+            <img src="${sanitize(item.src)}" alt="${sanitize(item.caption || 'Trabajo ' + (i + 1))}" loading="lazy">
             <button type="button" class="gallery-remove" data-index="${i}">✕</button>
           </div>
           <input type="text" class="gallery-caption-input" data-index="${i}"
@@ -299,11 +355,75 @@ function buildAddBtn() {
     `;
 }
 
+function buildFontOptions(currentFont) {
+    const fonts = ['Inter', 'Plus Jakarta Sans', 'Montserrat', 'Poppins', 'Playfair Display', 'Lora', 'Roboto Slab'];
+    return fonts.map(font => `
+        <option value="${font}" ${font === currentFont ? 'selected' : ''}>${font}</option>
+    `).join('');
+}
+
+function buildThemeOptions(currentTheme) {
+    const themes = [
+        ['obsidian', 'Obsidian'],
+        ['luminous', 'Luminous'],
+        ['emerald', 'Emerald'],
+        ['rose', 'Rose'],
+    ];
+    return themes.map(([value, label]) => `
+        <option value="${value}" ${value === currentTheme ? 'selected' : ''}>${label}</option>
+    `).join('');
+}
+
+function sanitizeColor(value) {
+    const color = String(value || '').trim();
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color) ? color : '#8B5CF6';
+}
+
 // ——— Event Wiring ———
+
+function getGalleryLimit(isPremium) {
+    return isPremium ? 12 : 4;
+}
+
+function validateGalleryUpload(currentPhotosCount, isPremium) {
+    const maxPhotos = getGalleryLimit(isPremium);
+
+    if (currentPhotosCount >= maxPhotos) {
+        return {
+            allowed: false,
+            message: isPremium
+                ? 'Has alcanzado el limite maximo de 12 fotos.'
+                : 'Limite de 4 fotos alcanzado. Actualiza a Premium para subir hasta 12 fotos.',
+        };
+    }
+
+    return { allowed: true, remaining: maxPhotos - currentPhotosCount };
+}
+
+function updateGalleryUI(container, currentPhotosCount, isPremium) {
+    const addButton = container.querySelector('.gallery-add-btn');
+    if (!addButton) return;
+
+    addButton.style.display = currentPhotosCount >= getGalleryLimit(isPremium) ? 'none' : 'flex';
+}
+
+function showGalleryFeedback(container, message, type = 'warning') {
+    const feedback = container.querySelector('#cp-gallery-feedback');
+    if (!feedback || !message) return;
+
+    const isError = type === 'error';
+    feedback.textContent = message;
+    feedback.style.display = 'block';
+    feedback.style.color = isError ? '#991b1b' : '#92400e';
+    feedback.style.background = isError ? '#fee2e2' : '#fef3c7';
+    feedback.style.border = `1px solid ${isError ? '#ef4444' : '#f59e0b'}`;
+    setTimeout(() => { feedback.style.display = 'none'; }, 3500);
+}
 
 function wirePanelEvents(container, data) {
     wirePwaInstall(container);
     wireTabs(container);
+    wireDesignEvents(container);
     wireProfileEvents(container, data);
     wireGalleryEvents(container, data);
     wireModuleEvents(container, data);
@@ -408,7 +528,7 @@ function wireProfileEvents(container, data) {
             }
 
             // Update profile via secure RPC (including image URLs)
-            await updateBusinessProfileSecure(data._id, data._token, {
+            const profilePayload = {
                 nombre_negocio: container.querySelector('#cp-name')?.value || '',
                 profession:     container.querySelector('#cp-profession')?.value || '',
                 description:    container.querySelector('#cp-description')?.value || '',
@@ -422,11 +542,26 @@ function wireProfileEvents(container, data) {
                 linkedin:       container.querySelector('#cp-linkedin')?.value || '',
                 website:        container.querySelector('#cp-website')?.value || '',
                 booking_url:    container.querySelector('#cp-bookingUrl')?.value || '',
-            });
+                whatsapp_message: container.querySelector('#cp-whatsapp-message')?.value || '',
+            };
+
+            if (data.isPremium) {
+                profilePayload.font_family = container.querySelector('#cp-font-family')?.value || 'Inter';
+                profilePayload.social_color = sanitizeColor(container.querySelector('#cp-social-color-text')?.value || '');
+                profilePayload.card_theme = container.querySelector('#cp-card-theme')?.value || 'obsidian';
+                profilePayload.custom_css = container.querySelector('#cp-custom-css')?.value || '';
+            }
+
+            await updateBusinessProfileSecure(data._id, data._token, profilePayload);
 
             const feedback = container.querySelector('#cp-profile-feedback');
             feedback.style.display = 'block';
             setTimeout(() => { feedback.style.display = 'none'; }, 3500);
+            const designFeedback = container.querySelector('#cp-design-feedback');
+            if (designFeedback) {
+                designFeedback.style.display = 'block';
+                setTimeout(() => { designFeedback.style.display = 'none'; }, 3500);
+            }
         } catch (err) {
             console.error('[ClientPanel] Save profile error:', err);
             const errMsg = err?.message || err?.details || '';
@@ -442,21 +577,68 @@ function wireProfileEvents(container, data) {
     });
 }
 
+function enforcePremiumDesignLock(isPremium, designSectionElement) {
+    if (!designSectionElement || isPremium) return;
+
+    designSectionElement.classList.add('suito-locked-feature');
+    designSectionElement.querySelectorAll('input, select, textarea').forEach(input => {
+        input.disabled = true;
+    });
+
+    if (designSectionElement.querySelector('.suito-premium-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'suito-premium-overlay';
+    overlay.style.cssText = `
+        position:absolute; inset:0; z-index:10; display:flex; align-items:center; justify-content:center;
+        padding:20px; text-align:center; background:rgba(18,18,18,0.84); backdrop-filter:blur(8px);
+        -webkit-backdrop-filter:blur(8px); border-radius:inherit;
+    `;
+    overlay.innerHTML = `
+        <div class="suito-premium-banner" style="max-width:360px;">
+            <span class="material-symbols-outlined" style="color:#D4AF37; font-size:34px; font-variation-settings:'FILL' 1;">workspace_premium</span>
+            <h4 style="color:#fff; margin:10px 0 6px; font-size:18px;">Personalización Premium</h4>
+            <p style="color:rgba(255,255,255,0.72); margin:0 0 16px; font-size:13px; line-height:1.45;">Desbloqueá tipografías, temas, color de redes y CSS avanzado.</p>
+            <a href="https://suito.pro#precios" target="_blank" rel="noopener" class="suito-upgrade-btn" style="display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 18px; border-radius:14px; background:var(--primary); color:#121212; font-weight:900; text-decoration:none;">Ver Premium</a>
+        </div>
+    `;
+
+    designSectionElement.appendChild(overlay);
+}
+
 function wireGalleryEvents(container, data) {
     const galleryInput = container.querySelector('#cp-gallery-input');
 
     galleryInput?.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-        const remaining = 4 - data.gallery.length;
-        const toProcess = files.slice(0, remaining);
+        const validation = validateGalleryUpload(data.gallery.length, data.isPremium);
+        if (!validation.allowed) {
+            showGalleryFeedback(container, validation.message);
+            e.target.value = '';
+            updateGalleryUI(container, data.gallery.length, data.isPremium);
+            return;
+        }
 
-        for (const file of toProcess) {
-            const dataUrl = await resizeGalleryImage(file, 300);
-            const uploadFile = dataUriToFile(dataUrl, file.name);
-            const imageUrl = await uploadImage(uploadFile, data._id, 'gallery');
-            const dbImage = await addGalleryImageSecure(data._id, data._token, imageUrl, '', data.gallery.length);
-            data.gallery.push({ id: dbImage?.id, src: imageUrl, caption: '' });
+        const remaining = validation.remaining;
+        const toProcess = files.slice(0, remaining);
+        if (files.length > remaining) {
+            showGalleryFeedback(container, `Se subiran ${remaining} foto${remaining === 1 ? '' : 's'}: alcanzaste el limite de ${getGalleryLimit(data.isPremium)}.`);
+        }
+
+        try {
+            for (const file of toProcess) {
+                const dataUrl = await resizeGalleryImage(file, 300);
+                const uploadFile = dataUriToFile(dataUrl, file.name);
+                const imageUrl = await uploadImage(uploadFile, data._id, 'gallery');
+                const dbImage = await addGalleryImageSecure(data._id, data._token, imageUrl, '', data.gallery.length);
+                data.gallery.push({ id: dbImage?.id, src: imageUrl, caption: '' });
+            }
+        } catch (err) {
+            console.error('[ClientPanel] Gallery upload error:', err);
+            showGalleryFeedback(container, 'Error al subir imagenes. Intenta de nuevo.', 'error');
+        } finally {
+            e.target.value = '';
         }
         rerenderGallery(container, data);
     });
@@ -516,8 +698,31 @@ function wireGalleryRemoveAndCaptions(container, data) {
 function rerenderGallery(container, data) {
     const grid = container.querySelector('#cp-gallery-grid');
     if (!grid) return;
-    grid.innerHTML = buildGalleryThumbs(data.gallery) + (data.gallery.length < 4 ? buildAddBtn() : '');
+    const maxPhotos = getGalleryLimit(data.isPremium);
+    grid.innerHTML = buildGalleryThumbs(data.gallery) + (data.gallery.length < maxPhotos ? buildAddBtn() : '');
     wireGalleryRemoveAndCaptions(container, data);
+    updateGalleryUI(container, data.gallery.length, data.isPremium);
+}
+
+function wireDesignEvents(container) {
+    const colorPicker = container.querySelector('#cp-social-color');
+    const colorText = container.querySelector('#cp-social-color-text');
+    const designSaveBtn = container.querySelector('#cp-save-design');
+
+    colorPicker?.addEventListener('input', () => {
+        if (colorText) colorText.value = sanitizeColor(colorPicker.value);
+    });
+
+    colorText?.addEventListener('input', () => {
+        const color = sanitizeColor(colorText.value);
+        if (colorPicker && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorText.value.trim())) {
+            colorPicker.value = color;
+        }
+    });
+
+    designSaveBtn?.addEventListener('click', () => {
+        container.querySelector('#cp-save-profile')?.click();
+    });
 }
 
 function wireCopyBtn(container, data) {

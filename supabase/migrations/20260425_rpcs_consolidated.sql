@@ -21,6 +21,11 @@ ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS cover_url       TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS color_primario  TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS gallery_images  JSONB DEFAULT '[]';
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS booking_url     TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS whatsapp_message TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS font_family     TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS social_color    TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS card_theme      TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS custom_css      TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_businesses_edit_token ON public.businesses(edit_token);
 
@@ -120,12 +125,17 @@ CREATE OR REPLACE FUNCTION public.update_business_profile_secure(
     p_facebook       TEXT DEFAULT NULL,
     p_linkedin       TEXT DEFAULT NULL,
     p_website        TEXT DEFAULT NULL,
-    p_booking_url    TEXT DEFAULT NULL
+    p_booking_url    TEXT DEFAULT NULL,
+    p_whatsapp_message TEXT DEFAULT NULL,
+    p_font_family    TEXT DEFAULT NULL,
+    p_social_color   TEXT DEFAULT NULL,
+    p_card_theme     TEXT DEFAULT NULL,
+    p_custom_css     TEXT DEFAULT NULL
 )
 RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_temp
 AS $$
 DECLARE
     v_business_id UUID;
@@ -155,16 +165,21 @@ BEGIN
            linkedin       = COALESCE(p_linkedin,       linkedin),
            website        = COALESCE(p_website,        website),
            booking_url    = COALESCE(p_booking_url,    booking_url),
+           whatsapp_message = COALESCE(p_whatsapp_message, whatsapp_message),
+           font_family    = COALESCE(p_font_family,    font_family),
+           social_color   = COALESCE(p_social_color,   social_color),
+           card_theme     = COALESCE(p_card_theme,     card_theme),
+           custom_css     = COALESCE(p_custom_css,     custom_css),
            updated_at     = now()
      WHERE id = v_business_id;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.update_business_profile_secure(
-    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
+    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
 ) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.update_business_profile_secure(
-    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
+    UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT
 ) TO anon, authenticated;
 
 -- ==============================================================================

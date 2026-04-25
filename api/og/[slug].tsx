@@ -34,6 +34,10 @@ function div(style: Style, children?: React.ReactNode, key?: string): React.Reac
   return el('div', { style, key }, children);
 }
 
+function normalizeHexColor(value: string): string {
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value) ? value : '#D4AF37';
+}
+
 export default async function handler(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const slug = decodeURIComponent(url.pathname.split('/').filter(Boolean).pop() ?? '');
@@ -44,9 +48,12 @@ export default async function handler(request: Request): Promise<Response> {
   }
 
   const origin = url.origin;
+  const primaryColor = normalizeHexColor(profile.primaryColor);
+  const socialColor = normalizeHexColor(profile.socialColor);
   const avatarUrl = profile.avatarUrl
     ? toAbsoluteUrl(profile.avatarUrl, origin)
     : toAbsoluteUrl('/card/assets/default-avatar.svg', origin);
+  const coverUrl = profile.coverUrl ? toAbsoluteUrl(profile.coverUrl, origin) : '';
   const socialNodes = profile.socialNodes.slice(0, 6);
   const fontData = await loadFont();
 
@@ -70,7 +77,8 @@ export default async function handler(request: Request): Promise<Response> {
         flexDirection: 'column',
         overflow: 'hidden',
         borderRadius: 32,
-        background: '#15151D',
+        background: profile.cardTheme === 'luminous' ? '#F8FAFC' : '#15151D',
+        color: profile.cardTheme === 'luminous' ? '#10121A' : '#FFFFFF',
         border: '1px solid rgba(255,255,255,0.12)',
         boxShadow: '0 34px 120px rgba(0,0,0,0.5)',
       },
@@ -80,7 +88,9 @@ export default async function handler(request: Request): Promise<Response> {
             height: 210,
             display: 'flex',
             position: 'relative',
-            background: `linear-gradient(135deg, ${profile.primaryColor}, #18D2FF 48%, #7C3AED)`,
+            background: coverUrl
+              ? `url(${coverUrl}) center/cover`
+              : `linear-gradient(135deg, ${primaryColor}, #18D2FF 48%, #7C3AED)`,
           },
           [
             div(
@@ -90,10 +100,19 @@ export default async function handler(request: Request): Promise<Response> {
                 background:
                   'linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.16) 1px, transparent 1px)',
                 backgroundSize: '48px 48px',
-                opacity: 0.24,
+                opacity: coverUrl ? 0.14 : 0.24,
               },
               undefined,
               'grid',
+            ),
+            div(
+              {
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.54))',
+              },
+              undefined,
+              'shade',
             ),
             div(
               {
@@ -104,6 +123,7 @@ export default async function handler(request: Request): Promise<Response> {
                 fontSize: 28,
                 fontWeight: 800,
                 letterSpacing: 0,
+                color: '#FFFFFF',
               },
               'Suito',
               'brand',
@@ -129,7 +149,7 @@ export default async function handler(request: Request): Promise<Response> {
                 top: -78,
                 left: 64,
                 borderRadius: 999,
-                border: '9px solid #15151D',
+                border: profile.cardTheme === 'luminous' ? '9px solid #F8FAFC' : '9px solid #15151D',
                 objectFit: 'cover',
                 background: '#252535',
               } satisfies Style,
@@ -156,7 +176,7 @@ export default async function handler(request: Request): Promise<Response> {
                 div(
                   {
                     display: 'flex',
-                    color: profile.primaryColor,
+                    color: primaryColor,
                     fontSize: 30,
                     fontWeight: 750,
                     marginBottom: 22,
@@ -167,7 +187,7 @@ export default async function handler(request: Request): Promise<Response> {
                 div(
                   {
                     display: 'flex',
-                    color: 'rgba(255,255,255,0.78)',
+                    color: profile.cardTheme === 'luminous' ? 'rgba(16,18,26,0.72)' : 'rgba(255,255,255,0.78)',
                     fontSize: 28,
                     lineHeight: 1.35,
                     maxWidth: 850,
@@ -195,7 +215,7 @@ export default async function handler(request: Request): Promise<Response> {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: 18,
-                    background: 'rgba(255,255,255,0.1)',
+                    background: socialColor,
                     border: '1px solid rgba(255,255,255,0.18)',
                   },
                   el(

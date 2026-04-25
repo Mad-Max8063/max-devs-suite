@@ -331,6 +331,8 @@ function updateMeta(data) {
     setMetaTag('og:title', `${data.name} — ${data.profession}`);
     setMetaTag('og:description', data.description || `Contactá a ${data.name}`);
     setMetaTag('og:type', 'profile');
+    setMetaTag('og:image', `${window.location.origin}/api/og/${data.slug || ''}`);
+    setNamedMetaTag('theme-color', data.primary_color || data.color_primario || '#D4AF37');
 }
 
 function setMetaTag(property, content) {
@@ -338,6 +340,16 @@ function setMetaTag(property, content) {
     if (!tag) {
         tag = document.createElement('meta');
         tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+}
+
+function setNamedMetaTag(name, content) {
+    let tag = document.querySelector(`meta[name="${name}"]`);
+    if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('name', name);
         document.head.appendChild(tag);
     }
     tag.setAttribute('content', content);

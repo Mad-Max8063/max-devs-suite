@@ -45,6 +45,11 @@ export async function createCard(data) {
             linkedin: data.linkedin || '',
             website: data.website || '',
             booking_url: data.booking_url || '',
+            whatsapp_message: data.whatsapp_message || '',
+            font_family: data.font_family || '',
+            social_color: data.social_color || '',
+            card_theme: data.card_theme || '',
+            custom_css: data.custom_css || '',
             slug: slug,
             edit_token: editToken,
             plan: 'tarjeta',
@@ -69,6 +74,11 @@ export async function updateCard(businessId, updates) {
     if (updates.name) dbUpdates.nombre_negocio = updates.name;
     if (updates.phone) dbUpdates.telefono = updates.phone;
     if (updates.photo_url) dbUpdates.foto_url = updates.photo_url;
+    if (updates.whatsapp_message !== undefined) dbUpdates.whatsapp_message = updates.whatsapp_message;
+    if (updates.font_family !== undefined) dbUpdates.font_family = updates.font_family;
+    if (updates.social_color !== undefined) dbUpdates.social_color = updates.social_color;
+    if (updates.card_theme !== undefined) dbUpdates.card_theme = updates.card_theme;
+    if (updates.custom_css !== undefined) dbUpdates.custom_css = updates.custom_css;
 
     const { data: business, error } = await db
         .from('businesses')
@@ -94,8 +104,8 @@ export async function getCard(slug) {
             phone: '5491162621406',
             email: 'hola@suito.pro',
             location: 'Buenos Aires, Argentina',
-            photo: '/assets/favicon.svg',
-            coverPhoto: '/card/assets/cover.png',
+            photo: '/assets/suito-symbol.png',
+            coverPhoto: '/assets/logo.png',
             primary_color: '#8B5CF6',
             instagram: 'suito.pro',
             website: 'https://suito.pro',
@@ -103,7 +113,12 @@ export async function getCard(slug) {
             edit_token: null,
             isPremium: true,
             id: 'suito',
-            gallery: []
+            gallery: [],
+            whatsapp_message: 'Hola! Me gustaría conocer más sobre los servicios de Suito.',
+            font_family: 'Inter',
+            social_color: '#8B5CF6',
+            card_theme: 'obsidian',
+            custom_css: ''
         };
     }
 
@@ -167,7 +182,7 @@ export async function getCard(slug) {
         email: business.email || '',
         location: business.location || '',
         // Mapeo blindado: buscamos en todas las variantes posibles
-        photo: business.foto_url || business.photo_url || business.photo || '/assets/favicon.svg',
+        photo: business.foto_url || business.photo_url || business.photo || '/assets/suito-symbol.png',
         coverPhoto: business.cover_url || business.coverPhoto || '',
         primary_color: business.color_primario || '#8B5CF6',
         instagram: business.instagram || '',
@@ -190,7 +205,12 @@ export async function getCard(slug) {
         trial_ends_at: business.trial_ends_at || null,
         free_until: business.free_until || null,
         locked_price: business.locked_price || 0,
-        price_lock_ends_at: business.price_lock_ends_at || null
+        price_lock_ends_at: business.price_lock_ends_at || null,
+        whatsapp_message: business.whatsapp_message || '',
+        font_family: business.font_family || '',
+        social_color: business.social_color || '',
+        card_theme: business.card_theme || '',
+        custom_css: business.custom_css || ''
     };
 
     return cardData;
@@ -380,6 +400,11 @@ export async function updateBusinessProfileSecure(cardId, editToken, profileData
         p_linkedin:       profileData.linkedin       ?? null,
         p_website:        profileData.website        ?? null,
         p_booking_url:    profileData.booking_url    ?? null,
+        p_whatsapp_message: profileData.whatsapp_message ?? null,
+        p_font_family:    profileData.font_family    ?? null,
+        p_social_color:   profileData.social_color   ?? null,
+        p_card_theme:     profileData.card_theme     ?? null,
+        p_custom_css:     profileData.custom_css     ?? null,
     });
     if (error) { console.error('Error updating business profile (secure):', error); throw error; }
 }

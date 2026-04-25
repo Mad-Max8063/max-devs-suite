@@ -48,6 +48,7 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
+  <meta name="theme-color" content="${escapeHtml(profile.primaryColor)}">
   <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
   <meta property="og:type" content="profile">
   <meta property="og:site_name" content="Suito">
@@ -59,6 +60,7 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${escapeHtml(title)}">
+  <meta property="profile:first_name" content="${escapeHtml(profile.name)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">

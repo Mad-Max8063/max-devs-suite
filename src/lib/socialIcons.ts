@@ -18,7 +18,9 @@ export interface SocialNode extends SocialIconDefinition {
   href: string;
 }
 
-export type SocialPayload = Partial<Record<SocialField, string | null | undefined>>;
+export type SocialPayload = Partial<Record<SocialField, string | null | undefined>> & {
+  whatsapp_message?: string | null | undefined;
+};
 
 export const SOCIAL_ICON_MAP: Record<SocialField, SocialIconDefinition> = {
   telefono: {
@@ -65,10 +67,11 @@ export const SOCIAL_ICON_MAP: Record<SocialField, SocialIconDefinition> = {
   },
 };
 
-function normalizeHref(field: SocialField, value: string): string {
+function normalizeHref(field: SocialField, value: string, payload?: SocialPayload): string {
   if (field === 'telefono') {
     const phone = value.replace(/[^\d]/g, '');
-    return `https://wa.me/${phone}`;
+    const msg = payload?.whatsapp_message || "Hola! Vi tu tarjeta y me gustaría hacer una consulta.";
+    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   }
 
   if (field === 'email') return `mailto:${value}`;
@@ -94,7 +97,7 @@ export function getSocialNodes(payload: SocialPayload): SocialNode[] {
       return {
         ...definition,
         value,
-        href: normalizeHref(field, value),
+        href: normalizeHref(field, value, payload),
       };
     })
     .filter((node): node is SocialNode => node !== null);

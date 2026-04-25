@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0"/>
   <title>Suito · tu negocio, operando solo.</title>
   <meta name="description" content="Identidad profesional y automatizacion para freelancers argentinos. Perfil editorial, agenda 24/7 y cobros en ARS.">
-  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"/>
+  <link rel="icon" type="image/png" href="/assets/favicon.png"/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -39,7 +39,7 @@
 <div class="site-nav-shell" style="position:fixed;top:18px;left:0;right:0;z-index:50;display:flex;justify-content:center;pointer-events:none;">
   <nav class="glass site-nav" style="pointer-events:auto;display:flex;align-items:center;gap:4px;padding:8px 8px 8px 20px;border-radius:999px;">
     <a href="#" onclick="showView('landing');return false" style="padding-right:14px;border-right:1px solid var(--line);display:inline-flex;align-items:center;">
-      <img src="/assets/favicon.svg" alt="Suito" style="height:26px;width:26px;border-radius:50%;display:block;position:relative;z-index:2;filter: drop-shadow(0 0 8px rgba(201,166,107,0.3));">
+      <img src="/assets/suito-symbol.png" alt="Suito" style="height:26px;width:26px;border-radius:50%;display:block;position:relative;z-index:2;filter: drop-shadow(0 0 8px rgba(201,166,107,0.3));">
       <span style="font-family:var(--font-display);font-weight:400;font-style:italic;font-size:22px;letter-spacing:-0.06em;line-height:1;color:var(--fg);margin-left:-10px;position:relative;z-index:1;padding-top:2px;">uito</span>
     </a>
 
@@ -47,7 +47,7 @@
     <a href="#precios" class="nav-items" style="padding:8px 14px;border-radius:999px;font-size:13px;color:var(--fg-dim);transition:all .2s;">Precios</a>
     <a href="mailto:hola@suito.pro" class="nav-items" style="padding:8px 14px;border-radius:999px;font-size:13px;color:var(--fg-dim);transition:all .2s;">Contacto</a>
     <span class="nav-items" style="padding:8px 10px 8px 6px;">
-      <span class="mono" style="color:var(--fg-mute);font-size:11px;letter-spacing:0.12em;">v0.3 · AR</span>
+      <span class="mono" style="color:var(--fg-mute);font-size:11px;letter-spacing:0.12em;">v1.0 · AR</span>
     </span>
   </nav>
 </div>
@@ -71,21 +71,21 @@
 
         <div class="reveal" data-delay="80">
           <h1 class="display" style="font-size:clamp(52px, 7vw, 96px);margin:28px 0 0;">
-            Tu negocio en<br><span class="gradient-text italic">Modo Luminous.</span>
+            Tu negocio,<br><span class="gradient-text italic">operando en serio.</span>
           </h1>
         </div>
 
         <div class="reveal" data-delay="160">
           <p id="hero-copy" style="font-size:19px;line-height:1.55;color:var(--fg-dim);max-width:520px;margin-top:24px;">
-            Suito es la galeria operativa para profesionales que buscan distincion.
-            Perfil editorial, agenda 24/7 y cobros en ARS con Mercado Pago — todo en un solo link.
+            Suito es la herramienta de identidad digital para profesionales.
+            Tarjeta interactiva, <strong>branding personalizado</strong> y contacto por <strong>WhatsApp inteligente</strong> — todo listo para compartir.
           </p>
         </div>
 
         <div class="reveal" data-delay="220">
           <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;">
-            <button class="btn btn-gold" onclick="startOnboarding('tarjeta')">
-              Empezar gratis <span style="font-family:var(--font-mono);font-size:11px;">→</span>
+            <button class="btn btn-gold" onclick="window.location.href='/card/editor'">
+              Crear mi tarjeta ahora <span style="font-family:var(--font-mono);font-size:11px;">→</span>
             </button>
             <a href="https://suito.pro/card/max-devs-solutions" target="_blank" class="btn btn-ghost">Ver tarjeta en vivo</a>
           </div>
@@ -193,24 +193,24 @@
                 <span style="font-family:var(--font-display);font-style:italic;font-size:44px;color:var(--gold-500);line-height:1;">01</span>
                 <span class="eyebrow">TARJETA</span>
               </div>
-              <h3 class="display" style="font-size:clamp(28px, 3vw, 40px);margin:0;">Tarjeta Virtual Premium.</h3>
-              <p style="color:var(--fg-dim);font-size:16px;line-height:1.6;margin:0;max-width:440px;">Tu identidad digital concentrada en una presencia editorial lista para compartir en un toque.</p>
+              <h3 class="display" style="font-size:clamp(28px, 3vw, 40px);margin:0;">Tarjeta Digital Pro.</h3>
+              <p style="color:var(--fg-dim);font-size:16px;line-height:1.6;margin:0;max-width:440px;">Tu marca no es generica, tu tarjeta tampoco deberia serlo. Personalizacion total en un solo link.</p>
               <ul style="display:flex;flex-direction:column;gap:10px;">
                 <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
                   <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
-                  Perfil PWA optimizado
+                  <strong>Identidad de Marca</strong>: Cambia colores y fuentes de Google.
                 </li>
                 <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
                   <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
-                  Galeria de imagenes premium
+                  <strong>WhatsApp Inteligente</strong>: Mensajes pre-redactados para tus clientes.
                 </li>
                 <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
                   <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
-                  Sin marca de agua Suito
+                  <strong>Galeria Premium</strong>: Hasta 12 fotos con visualizacion Lightbox.
                 </li>
                 <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
                   <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
-                  Exportacion vCard directa
+                  <strong>Sin Comisiones</strong>: El contacto es directo con vos.
                 </li>
               </ul>
             </div>
@@ -405,33 +405,33 @@
         <div class="reveal" data-delay="0">
           <div class="glass pricing-card-premium plan-card">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-              <span style="font-family:var(--font-display);font-style:italic;font-size:24px;">Tarjeta Virtual</span>
+              <span style="font-family:var(--font-display);font-style:italic;font-size:24px;">Tarjeta Gratis</span>
             </div>
-            <span class="eyebrow">Mensual</span>
+            <span class="eyebrow">Siempre Gratis</span>
             <div style="margin:32px 0 6px;display:flex;align-items:baseline;gap:4px;">
-              <span style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;" data-price-plan="tarjeta" data-price-period="monthly">$ 4.900</span>
+              <span style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 0</span>
             </div>
-            <span style="font-size:13px;color:var(--fg-dim);">por mes · precio fijo 3 meses</span>
+            <span style="font-size:13px;color:var(--fg-dim);">lista para compartir</span>
             <div class="dotted-gold" style="margin:24px 0;"></div>
             <ul style="display:flex;flex-direction:column;gap:10px;flex:1;">
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Perfil PWA optimizado
+                4 fotos en galeria
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Galeria de imagenes premium
+                Diseno Suito Estandar
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Sin marca de agua Suito
+                WhatsApp Basico
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Exportacion vCard directa
+                Link suito.pro/tu-nombre
               </li>
             </ul>
-            <button class="btn btn-ghost" onclick="startOnboarding('tarjeta')" style="margin-top:28px;width:100%;justify-content:center;">Probar gratis</button>
+            <button class="btn btn-ghost" onclick="window.location.href='/card/editor'" style="margin-top:28px;width:100%;justify-content:center;">Crear mi tarjeta ahora</button>
           </div>
         </div>
 
@@ -440,37 +440,37 @@
           <div class="glass-strong pricing-card-premium plan-card is-featured">
             <span style="position:absolute;top:20px;right:20px;padding:4px 10px;border-radius:999px;background:var(--gold-500);color:var(--ink-950);font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;">MAS ELEGIDO</span>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-              <span style="font-family:var(--font-display);font-style:italic;font-size:24px;">Gestor de Turnos</span>
+              <span style="font-family:var(--font-display);font-style:italic;font-size:24px;">Tarjeta Pro</span>
             </div>
-            <span class="eyebrow">Proximamente</span>
+            <span class="eyebrow">Mensual Premium</span>
             <div style="margin:32px 0 6px;display:flex;align-items:baseline;gap:4px;">
-              <span style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 9.900</span>
+              <span style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 4.900</span>
             </div>
             <span style="font-size:13px;color:var(--fg-dim);">por mes · precio fijo 3 meses</span>
             <div class="dotted-gold" style="margin:24px 0;"></div>
             <ul style="display:flex;flex-direction:column;gap:10px;flex:1;">
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Reservas online 24/7
+                <strong>Hasta 12 fotos</strong> en galeria
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Recordatorios por WhatsApp
+                <strong>Branding Premium</strong> (Colores y Fuentes)
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Cobro de senas con Mercado Pago
+                <strong>WhatsApp Pro</strong> (Mensajes personalizados)
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Cobro de sena · Mercado Pago
+                Sin marca de agua Suito
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Panel de gestion profesional
+                Soporte Prioritario
               </li>
             </ul>
-            <button class="btn btn-gold" onclick="startOnboarding('gestor')" style="margin-top:28px;width:100%;justify-content:center;">Avisarme al lanzar</button>
+            <button class="btn btn-gold" onclick="window.location.href='/card/editor'" style="margin-top:28px;width:100%;justify-content:center;">Crear mi tarjeta ahora</button>
           </div>
         </div>
 
@@ -529,7 +529,7 @@
             Agrega agenda y cobros cuando quieras crecer.
           </p>
           <div style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-            <button class="btn btn-gold" onclick="startOnboarding('tarjeta')">Empezar ahora</button>
+            <button class="btn btn-gold" onclick="window.location.href='/card/editor'">Crear mi tarjeta ahora</button>
             <a href="https://suito.pro/card/max-devs-solutions" target="_blank" class="btn btn-ghost">Ver tarjeta demo</a>
           </div>
         </div>
@@ -903,7 +903,7 @@ function clearError() {
 document.addEventListener('DOMContentLoaded', function() {
   var heroCopy = document.getElementById('hero-copy');
   if (heroCopy) {
-    heroCopy.textContent = 'Suito es la galeria operativa para profesionales que buscan distincion. Identidad editorial, agenda 24/7 y cobros en ARS con Mercado Pago en una sola experiencia premium.';
+    heroCopy.innerHTML = 'Suito es la herramienta de identidad digital para profesionales. Tarjeta interactiva, <strong>branding personalizado</strong> y contacto por <strong>WhatsApp inteligente</strong> — todo listo para compartir.';
   }
 });
 </script>

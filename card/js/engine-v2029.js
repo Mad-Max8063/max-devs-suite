@@ -43,7 +43,7 @@ const CARD_DATA = {
     ],
     gallery: [
         { url: "/card/assets/cover.png", title: "Suito Gold & Obsidian Project" },
-        { url: "/assets/favicon.svg", title: "Brand Identity" }
+        { url: "/assets/suito-logo.png", title: "Brand Identity" }
     ]
 };
 
@@ -77,6 +77,341 @@ function injectTheme(data) {
     document.body.classList.add(status === 'premium' ? 'theme-gold' : 'theme-luminous');
 }
 
+const BRAND_STYLE_ID = 'suito-dynamic-brand-styles';
+const FONT_PREFIX = 'suito-font-';
+const DEFAULT_FONT = 'Inter';
+const ALLOWED_THEMES = new Set(['obsidian', 'luminous', 'emerald', 'rose']);
+
+function normalizeHexColor(value, fallback) {
+    const color = String(value || '').trim();
+    return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color) ? color : fallback;
+}
+
+function normalizeFontFamily(value) {
+    const font = String(value || '').trim();
+    if (!font || font.length > 48) return DEFAULT_FONT;
+    return /^[a-z0-9][a-z0-9\s-]*$/i.test(font) ? font : DEFAULT_FONT;
+}
+
+function sanitizeStyleId(value) {
+    return String(value).replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+}
+
+function sanitizePremiumCss(value) {
+    return String(value || '')
+        .replace(/<\/?style[^>]*>/gi, '')
+        .replace(/@import[^;]+;/gi, '')
+        .replace(/javascript:/gi, '');
+}
+
+function upsertMeta(name, content) {
+    let tag = document.querySelector(`meta[name="${name}"]`);
+    if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('name', name);
+        document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+}
+
+export function applyPremiumBranding(dbData = {}) {
+    const head = document.head;
+    const isPremium = getSubscriptionStatus(dbData) === 'premium';
+    const primaryColor = normalizeHexColor(
+        dbData.primary_color || dbData.color_primario,
+        '#8B5CF6'
+    );
+    const fontFamily = isPremium ? normalizeFontFamily(dbData.font_family) : DEFAULT_FONT;
+    const socialColor = isPremium
+        ? normalizeHexColor(dbData.social_color, primaryColor)
+        : primaryColor;
+    const theme = isPremium && ALLOWED_THEMES.has(dbData.card_theme)
+        ? dbData.card_theme
+        : (isPremium ? 'obsidian' : 'luminous');
+    const customCss = isPremium ? sanitizePremiumCss(dbData.custom_css) : '';
+
+    if (fontFamily !== DEFAULT_FONT) {
+        const fontId = `${FONT_PREFIX}${sanitizeStyleId(fontFamily)}`;
+        if (!document.getElementById(fontId)) {
+            if (!document.querySelector('link[href="https://fonts.googleapis.com"]')) {
+                const preconnectGoogle = document.createElement('link');
+                preconnectGoogle.rel = 'preconnect';
+                preconnectGoogle.href = 'https://fonts.googleapis.com';
+                head.appendChild(preconnectGoogle);
+            }
+
+            if (!document.querySelector('link[href="https://fonts.gstatic.com"]')) {
+                const preconnectStatic = document.createElement('link');
+                preconnectStatic.rel = 'preconnect';
+                preconnectStatic.href = 'https://fonts.gstatic.com';
+                preconnectStatic.crossOrigin = 'anonymous';
+                head.appendChild(preconnectStatic);
+            }
+
+            const fontLink = document.createElement('link');
+            fontLink.id = fontId;
+            fontLink.rel = 'stylesheet';
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily).replace(/%20/g, '+')}:wght@300;400;600;700;800&display=swap`;
+            head.appendChild(fontLink);
+        }
+    }
+
+    const styleEl = document.createElement('style');
+    styleEl.id = BRAND_STYLE_ID;
+    styleEl.textContent = `
+        :root {
+            --brand-primary: ${primaryColor};
+            --brand-social: ${socialColor};
+            --brand-font: '${fontFamily}', sans-serif;
+            --primary: ${primaryColor};
+            --primary-container: ${primaryColor};
+        }
+
+        body,
+        .suito-container,
+        .card-container {
+            font-family: var(--brand-font) !important;
+        }
+
+        .btn-primary,
+        .suito-btn-primary,
+        .cp-switch input:checked + .cp-slider {
+            background: var(--brand-primary) !important;
+        }
+
+        .card-title,
+        .section-title,
+        .footer-brand-name,
+        .card-location,
+        .referral-link {
+            color: var(--brand-primary) !important;
+        }
+
+        .social-icons-bar .social-icon {
+            background: var(--brand-social) !important;
+        }
+
+        .social-icon svg,
+        .suito-btn-icon svg {
+            fill: #fff;
+        }
+
+        body[data-theme="luminous"] .card-container {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(246,248,255,0.98));
+        }
+
+        body[data-theme="emerald"] {
+            --secondary: #10B981;
+            --tertiary: #14B8A6;
+        }
+
+        body[data-theme="rose"] {
+            --secondary: #F43F5E;
+            --tertiary: #EC4899;
+        }
+
+        ${customCss ? `\n/* Premium Custom CSS */\n${customCss}` : ''}
+    `;
+
+    const existingStyle = document.getElementById(BRAND_STYLE_ID);
+    if (existingStyle) {
+        head.replaceChild(styleEl, existingStyle);
+    } else {
+        head.appendChild(styleEl);
+    }
+
+    document.body.setAttribute('data-theme', theme);
+    upsertMeta('theme-color', primaryColor);
+}
+
+let activeGalleryInstance = null;
+let lightboxKeydownBound = false;
+
+class SuitoGallery {
+    constructor(galleryData) {
+        this.photos = (galleryData || [])
+            .map((photo, index) => ({
+                src: photo.src || photo.url || photo.image_url || '',
+                caption: photo.caption || photo.title || `Trabajo ${index + 1}`,
+            }))
+            .filter(photo => photo.src);
+        this.currentIndex = 0;
+        this.touchStartX = 0;
+        this.touchEndX = 0;
+
+        if (this.photos.length > 0) {
+            this.initLightboxDOM();
+        }
+    }
+
+    renderGallerySection(containerElement) {
+        if (!containerElement || this.photos.length === 0) return;
+        containerElement.innerHTML = '';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'suito-gallery-wrapper';
+
+        const revealBtn = document.createElement('button');
+        revealBtn.type = 'button';
+        revealBtn.className = 'suito-gallery-reveal-btn';
+        revealBtn.setAttribute('aria-expanded', 'false');
+        revealBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span>Ver galeria de trabajos (${this.photos.length} fotos)</span>
+        `;
+
+        const grid = document.createElement('div');
+        grid.className = 'suito-gallery-grid suito-hidden';
+
+        this.photos.forEach((photo, index) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'suito-gallery-item';
+            item.setAttribute('aria-label', photo.caption || `Trabajo ${index + 1}`);
+
+            const img = document.createElement('img');
+            img.src = photo.src;
+            img.loading = 'lazy';
+            img.alt = photo.caption || `Trabajo ${index + 1}`;
+            item.appendChild(img);
+
+            if (photo.caption) {
+                const caption = document.createElement('span');
+                caption.className = 'suito-gallery-item-caption';
+                caption.textContent = photo.caption;
+                item.appendChild(caption);
+            }
+
+            item.addEventListener('click', () => this.openLightbox(index));
+            grid.appendChild(item);
+        });
+
+        revealBtn.addEventListener('click', () => {
+            revealBtn.classList.add('suito-fade-out');
+            revealBtn.setAttribute('aria-expanded', 'true');
+            setTimeout(() => {
+                revealBtn.hidden = true;
+                grid.classList.remove('suito-hidden');
+                grid.classList.add('suito-expanded');
+            }, 240);
+        });
+
+        wrapper.appendChild(revealBtn);
+        wrapper.appendChild(grid);
+        containerElement.appendChild(wrapper);
+    }
+
+    initLightboxDOM() {
+        if (document.getElementById('suito-lightbox')) return;
+
+        const lightbox = document.createElement('div');
+        lightbox.id = 'suito-lightbox';
+        lightbox.className = 'suito-lightbox suito-hidden';
+        lightbox.setAttribute('role', 'dialog');
+        lightbox.setAttribute('aria-modal', 'true');
+        lightbox.innerHTML = `
+            <button type="button" class="suito-lb-close" aria-label="Cerrar">&times;</button>
+            <button type="button" class="suito-lb-prev" aria-label="Foto anterior">&#10094;</button>
+            <img class="suito-lb-img" src="" alt="">
+            <div class="suito-lb-caption"></div>
+            <button type="button" class="suito-lb-next" aria-label="Foto siguiente">&#10095;</button>
+        `;
+
+        document.body.appendChild(lightbox);
+        this.bindLightboxEvents(lightbox);
+    }
+
+    bindLightboxEvents(lightbox) {
+        if (lightbox.dataset.bound === 'true') return;
+        lightbox.dataset.bound = 'true';
+
+        const closeBtn = lightbox.querySelector('.suito-lb-close');
+        const prevBtn = lightbox.querySelector('.suito-lb-prev');
+        const nextBtn = lightbox.querySelector('.suito-lb-next');
+        const imgElement = lightbox.querySelector('.suito-lb-img');
+
+        closeBtn.addEventListener('click', () => activeGalleryInstance?.closeLightbox());
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            activeGalleryInstance?.navigate(-1);
+        });
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            activeGalleryInstance?.navigate(1);
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) activeGalleryInstance?.closeLightbox();
+        });
+
+        imgElement.addEventListener('touchstart', e => {
+            if (!activeGalleryInstance) return;
+            activeGalleryInstance.touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        imgElement.addEventListener('touchend', e => {
+            if (!activeGalleryInstance) return;
+            activeGalleryInstance.touchEndX = e.changedTouches[0].screenX;
+            activeGalleryInstance.handleSwipe();
+        }, { passive: true });
+
+        if (!lightboxKeydownBound) {
+            lightboxKeydownBound = true;
+            document.addEventListener('keydown', (e) => {
+                const currentLightbox = document.getElementById('suito-lightbox');
+                if (!activeGalleryInstance || currentLightbox?.classList.contains('suito-hidden')) return;
+                if (e.key === 'Escape') activeGalleryInstance.closeLightbox();
+                if (e.key === 'ArrowLeft') activeGalleryInstance.navigate(-1);
+                if (e.key === 'ArrowRight') activeGalleryInstance.navigate(1);
+            });
+        }
+    }
+
+    openLightbox(index) {
+        activeGalleryInstance = this;
+        this.currentIndex = index;
+        this.updateLightboxContent();
+        const lightbox = document.getElementById('suito-lightbox');
+        lightbox?.classList.remove('suito-hidden');
+        document.body.style.overflow = 'hidden';
+        lightbox?.querySelector('.suito-lb-close')?.focus();
+    }
+
+    closeLightbox() {
+        const lightbox = document.getElementById('suito-lightbox');
+        lightbox?.classList.add('suito-hidden');
+        document.body.style.overflow = '';
+    }
+
+    navigate(direction) {
+        this.currentIndex += direction;
+        if (this.currentIndex < 0) this.currentIndex = this.photos.length - 1;
+        if (this.currentIndex >= this.photos.length) this.currentIndex = 0;
+        this.updateLightboxContent();
+    }
+
+    handleSwipe() {
+        const threshold = 50;
+        if (this.touchEndX < this.touchStartX - threshold) this.navigate(1);
+        if (this.touchEndX > this.touchStartX + threshold) this.navigate(-1);
+    }
+
+    updateLightboxContent() {
+        const lightbox = document.getElementById('suito-lightbox');
+        if (!lightbox) return;
+
+        const imgElement = lightbox.querySelector('.suito-lb-img');
+        const captionElement = lightbox.querySelector('.suito-lb-caption');
+        const photo = this.photos[this.currentIndex];
+        imgElement.src = photo.src;
+        imgElement.alt = photo.caption || `Trabajo ${this.currentIndex + 1}`;
+        captionElement.textContent = photo.caption || `${this.currentIndex + 1} / ${this.photos.length}`;
+    }
+}
+
 window.renderUpgradeModal = function() {
     const modal = document.createElement('div');
     modal.className = 'upgrade-modal-overlay';
@@ -95,6 +430,7 @@ window.renderUpgradeModal = function() {
 
 export function renderLanding(container, data) {
     injectTheme(data);
+    applyPremiumBranding(data);
     container.innerHTML = buildCardHTML(data);
     attachCardEvents(container, data);
     injectDynamicManifest(data);
@@ -103,6 +439,7 @@ export function renderLanding(container, data) {
 
 export function renderPreview(container, data, onBack, onSave) {
     injectTheme(data);
+    applyPremiumBranding(data);
     container.innerHTML = buildCardHTML(data);
     attachCardEvents(container, data);
     // Add back button for preview mode
@@ -130,6 +467,7 @@ function buildCardHTML(data) {
     const bookingUrl = data.bookingUrl || data.booking_url || '';
     const status = getSubscriptionStatus(data);
     const isPremium = status === 'premium';
+    const whatsappMessage = data.whatsapp_message || data.whatsappMessage || '';
     const rawGallery = data.gallery || [];
     const gallery = isPremium ? rawGallery : rawGallery.slice(0, 2);
 
@@ -149,30 +487,7 @@ function buildCardHTML(data) {
                 </div>
                 <div class="card-avatar-container">
                     <div class="card-avatar-ring">
-                        ${(photo && !photo.includes('favicon.svg')) ? `<img src="${photo}" alt="${name}" class="card-avatar">` : 
-                        (isPremium ? 
-                        `<svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
-                           <defs>
-                             <linearGradient id="suitoGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                               <stop offset="0%" stop-color="#D4AF37" />
-                               <stop offset="50%" stop-color="#F9E498" />
-                               <stop offset="100%" stop-color="#B8860B" />
-                             </linearGradient>
-                           </defs>
-                           <circle cx="60" cy="60" r="45" stroke="url(#suitoGold)" stroke-width="4" />
-                           <path d="M60 28V35M60 85V92M72 45C72 38 65 35 60 35C52 35 48 40 48 45C48 55 72 55 72 65C72 75 65 85 55 85C48 85 45 80 45 75" stroke="url(#suitoGold)" stroke-width="6" stroke-linecap="round" />
-                         </svg>` : 
-                         `<svg viewBox="15 15 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
-                           <defs>
-                             <linearGradient id="suitoLuminous" x1="0%" y1="0%" x2="100%" y2="100%">
-                               <stop offset="0%" stop-color="#8B5CF6" />
-                               <stop offset="100%" stop-color="#3B82F6" />
-                             </linearGradient>
-                           </defs>
-                           <circle cx="60" cy="60" r="45" stroke="url(#suitoLuminous)" stroke-width="4" />
-                           <path d="M60 28V35M60 85V92M72 45C72 38 65 35 60 35C52 35 48 40 48 45C48 55 72 55 72 65C72 75 65 85 55 85C48 85 45 80 45 75" stroke="url(#suitoLuminous)" stroke-width="6" stroke-linecap="round" />
-                         </svg>`)
-                        }
+                        <img src="${photo || '/assets/suito-symbol.png'}" alt="${name}" class="card-avatar">
                     </div>
                 </div>
             </div>
@@ -213,14 +528,7 @@ function buildCardHTML(data) {
                     <div class="section-header">
                         <h2 class="section-title">Galería</h2>
                     </div>
-                    <div class="masonry-gallery">
-                        ${gallery.map((img, i) => `
-                            <div class="gallery-item animate-fade-in" style="animation-delay: ${i * 0.1}s">
-                                <img src="${img.src || img.url}" alt="${img.caption || img.title || ''}" loading="lazy">
-                                ${(img.caption || img.title) ? `<div class="gallery-overlay"><span>${img.caption || img.title}</span></div>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
+                    <div class="suito-gallery-mount"></div>
                 </div>
                 ` : ''}
 
@@ -229,10 +537,14 @@ function buildCardHTML(data) {
                     const activeModules = data.activeModules || data.active_modules || [];
                     const hasAppointments = activeModules.includes('appointments');
                     const showBooking = bookingUrl && hasAppointments && isPremium;
-                    const phone = (data.telefono || '').replace(/\D/g, '');
+                    const phone = (data.telefono || data.phone || '').replace(/\D/g, '');
 
                     const icons = [];
-                    if (phone) icons.push(`<a href="https://wa.me/${phone}" target="_blank" class="social-icon" style="background:#25D366;" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>`);
+                    if (phone) {
+                        const defaultMsg = "Hola! Vi tu tarjeta y me gustaría hacer una consulta.";
+                        const msg = whatsappMessage || defaultMsg;
+                        icons.push(`<a href="https://wa.me/${phone}?text=${encodeURIComponent(msg)}" target="_blank" class="social-icon" style="background:#25D366;" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z\"/></svg></a>`);
+                    }
                     if (email) icons.push(`<a href="mailto:${email}" class="social-icon" style="background:#EA4335;" aria-label="Email"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>`);
                     if (instagram) icons.push(`<a href="https://instagram.com/${instagram.replace('@','')}" target="_blank" class="social-icon" style="background:#E4405F;" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`);
                     if (facebook) icons.push(`<a href="${facebook}" target="_blank" class="social-icon" style="background:#1877F2;" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`);
@@ -266,6 +578,14 @@ function attachCardEvents(container, data) {
     const saveBtn = container.querySelector('#btn-save-contact');
     if (saveBtn) {
         saveBtn.onclick = () => downloadVCard(data);
+    }
+
+    const status = getSubscriptionStatus(data);
+    const rawGallery = data.gallery || [];
+    const galleryData = status === 'premium' ? rawGallery : rawGallery.slice(0, 2);
+    const galleryRoot = container.querySelector('.suito-gallery-mount');
+    if (galleryRoot) {
+        new SuitoGallery(galleryData).renderGallerySection(galleryRoot);
     }
 }
 
