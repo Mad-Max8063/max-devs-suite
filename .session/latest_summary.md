@@ -1,54 +1,49 @@
-# Resumen de Sesión — Suito Virtual Card: Social Metadata & OG Engine
-**Fecha:** 25 de Abril, 2026 - 00:45 (Local)
+# Resumen de Sesión — Suito Platform
+**Fecha:** 25 de abril de 2026, 18:16
 **Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Implementar y desplegar el sistema de metadatos sociales (Open Graph) y generación dinámica de imágenes de previsualización para la Tarjeta Virtual Suito, asegurando la compatibilidad con el entorno de Vercel y la estabilidad responsive.
+Solucionar problemas de previsualización (OG Images) en redes sociales y planificar nuevas funcionalidades de contacto para las tarjetas virtuales.
 
 ---
 
 ## ✅ Lo que se hizo
-- **Social Metadata Engine:**
-  - [NEW] `middleware.ts`: Interceptor Edge para detectar bots y servir HTML estático con meta-tags y JSON-LD.
-  - [NEW] `api/og/[slug].ts`: Generador dinámico de imágenes 1200x630 usando `@vercel/og` (React-based).
-  - [NEW] `src/lib/ogProfile.ts` y `src/lib/socialIcons.ts`: Helpers para fetching de perfiles en Supabase y mapeo de iconos sociales.
-- **Fixes de Infraestructura:**
-  - **ESM Fix:** Se añadieron extensiones `.js` explícitas a todos los imports relativos en funciones Edge para cumplir con la resolución `Node16/NodeNext` de Vercel.
-  - **Rewrite Fix:** Se refinó `vercel.json` para excluir `/api/`, `assets/`, `css/` y `js/` de la captura general de la SPA, permitiendo que las imágenes OG y el CSS se carguen correctamente.
-- **UI/UX:**
-  - Ajuste de `card/css/styles.css` para eliminar desbordamientos horizontales en dispositivos móviles (≤ 480px).
-  - Verificación en local vía `npm run dev` y simulación de bots con `curl`.
+1. **Migración a JSX**: Se transformó el generador de imágenes de `[slug].ts` a `[slug].tsx` para mayor estabilidad.
+2. **Configuración TypeScript**: Se creó un `tsconfig.json` en la raíz para habilitar JSX y modularidad moderna.
+3. **Redirección WWW**: Se verificó y aseguró la redirección de `suito.pro` a `www.suito.pro`.
+4. **Middleware de Bots**: Se implementó y verificó la detección de crawlers (WhatsApp/Facebook) para servir HTML estático con metatags OG.
+5. **Planificación de Feature**: Se diseñó el plan para iconos de contacto dinámicos con mensajes de WhatsApp personalizados.
 
 ---
 
 ## ❌ Problemas encontrados
-- **Build Failure:** Vercel rechazó los archivos iniciales por falta de extensiones `.js` en los imports (Error `TS2835`). Corregido.
-- **Asset Hijacking:** La regla `(.*) -> index.html` estaba capturando el CSS y la API de imágenes, devolviendo HTML en su lugar. Corregido con exclusiones en el regex de `vercel.json`.
+1. **Vercel Edge 0-bytes**: El generador de imágenes `@vercel/og` en el runtime `edge` sigue devolviendo 0 bytes a pesar de la migración a `.tsx`. Se decidió pausar este debug para priorizar otras tareas.
+2. **Conflicto de extensiones**: Vercel fallaba al encontrar `[slug].ts` y `[slug].tsx` simultáneamente; se eliminó el archivo antiguo.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Validación de Producción
-1. Confirmar que el build `1a6d120` en Vercel finalizó correctamente.
-2. Probar el "Scrape" en Facebook Debugger con una tarjeta real (ej: `cotilu`).
-3. Verificar que el diseño de la imagen OG (Generada por Edge) coincida con el estilo "Gold & Obsidian".
+### Prioridad 1 — Funcionalidad de Contacto
+1. Agregar columna `whatsapp_message` en Supabase (tabla `businesses`).
+2. Añadir el campo de texto en el Editor de Tarjetas para el mensaje personalizado.
+3. Implementar la lógica de generación de links `wa.me` con encoding.
 
-### Prioridad 2 — Estabilidad
-1. Monitorear logs de Vercel por posibles límites de memoria en el renderizado de la imagen OG (usa React/Satori).
+### Prioridad 2 — Mantenimiento
+1. Resolver el warning de Vite sobre la doble importación de `engine-v2029.js`.
+2. Verificar por qué el runtime de Vercel no está emitiendo el body de la imagen OG.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Último Commit:** `1a6d120` (fix: exclude /api/ from root rewrite)
-- **Commits Previos:** `bd6d65a` (ESM fix), `9bf4a3f` (Feature OG)
-- **Endpoint OG:** `/api/og/[slug]`
-- **Versión PWA:** `v2030` (registrada en `index.html`)
+- **Vercel Project**: `max-devs-suite`
+- **Latest Deploy**: `dpl_CFxdzu3QBmHg3ESFMZY5QvWRQRsh`
+- **Repo GitHub**: `Mad-Max8063/max-devs-suite`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Middleware vs SSR:** Se optó por Middleware en el Edge para evitar la carga de un servidor SSR completo, manteniendo la velocidad de la SPA pero permitiendo SEO dinámico.
-- **Regex de Vercel:** Se implementó un lookahead negativo `(?!assets/|api/|.*\\.)` en la raíz para separar limpiamente el tráfico de la API y archivos estáticos del router de React.
+- Se optó por usar un `tsconfig.json` global para unificar la compilación de funciones API y el frontend.
+- Se mantuvo el uso de Edge Runtime por performance, a pesar de los problemas de debug actuales.
