@@ -56,8 +56,12 @@ const BUSINESS_SELECT = [
 ].join(',');
 
 function readEnv(name: string): string | undefined {
-  const env = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env;
-  return env?.[name];
+  if (typeof process !== 'undefined' && process.env && process.env[name]) {
+    return process.env[name];
+  }
+  const g = globalThis as any;
+  if (g.process?.env?.[name]) return g.process.env[name];
+  return undefined;
 }
 
 export function getSupabaseEnv(): { url: string; anonKey: string } {
@@ -65,7 +69,8 @@ export function getSupabaseEnv(): { url: string; anonKey: string } {
   const anonKey = readEnv('SUPABASE_ANON_KEY') ?? readEnv('VITE_SUPABASE_ANON_KEY');
 
   if (!url || !anonKey) {
-    throw new Error('Missing SUPABASE_URL/SUPABASE_ANON_KEY environment variables');
+    const foundKeys = Object.keys(typeof process !== 'undefined' ? process.env : {}).filter(k => k.includes('SUPABASE'));
+    throw new Error(`Missing SUPABASE_URL/ANON_KEY. Found similar: ${foundKeys.join(', ')}`);
   }
 
   return { url, anonKey };
@@ -98,7 +103,8 @@ export async function fetchOgProfile(slug: string): Promise<OgProfile | null> {
   });
 
   if (!response.ok) {
-    throw new Error(`Supabase profile lookup failed with ${response.status}`);
+    const maskedKey = anonKey ? `${anonKey.slice(0, 8)}...${anonKey.slice(-4)}` : 'null';
+    throw new Error(`Supabase profile lookup failed with ${response.status}. URL: ${url}, Key: ${maskedKey}`);
   }
 
   const rows = (await response.json()) as BusinessRow[];

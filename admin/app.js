@@ -515,7 +515,8 @@ function openModal(client = null) {
 
         const getEditorUrl = () => {
             const slug = client.slug || client.id;
-            const token = client.edit_token || 'reini26';
+            const token = client.edit_token;
+            if (!slug || !token) return '';
             return `https://suito.pro/edit/${slug}?token=${token}`;
         };
 

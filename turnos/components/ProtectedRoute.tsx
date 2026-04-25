@@ -6,7 +6,16 @@ import { useProfile } from '../context/AppContext';
 import { resolveAccessPriority } from '../utils/access-resolver';
 import { SubscriptionBanner } from './SubscriptionBanner';
 
-const MASTER_TOKEN = import.meta.env.VITE_MASTER_TOKEN || 'reini26';
+const resolveMasterToken = (): string | null => {
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_MASTER_TOKEN) {
+        return import.meta.env.VITE_MASTER_TOKEN;
+    }
+
+    logger.warn('[Security] VITE_MASTER_TOKEN ausente en variables de entorno. Autenticación maestra denegada.');
+    return null;
+};
+
+const MASTER_TOKEN = resolveMasterToken();
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -27,7 +36,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const { slug } = useParams<{ slug: string }>();
     const [searchParams] = useSearchParams();
 
-    if (searchParams.get('token') === MASTER_TOKEN) {
+    if (MASTER_TOKEN && searchParams.get('token') === MASTER_TOKEN) {
         return <>{children}</>;
     }
 

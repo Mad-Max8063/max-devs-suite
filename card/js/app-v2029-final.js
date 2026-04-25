@@ -7,7 +7,17 @@ import { getSubscriptionStatus } from './engine-v2029.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
-const MASTER_TOKEN = import.meta.env.VITE_MASTER_TOKEN || 'reini26';
+
+const resolveMasterToken = () => {
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_MASTER_TOKEN) {
+        return import.meta.env.VITE_MASTER_TOKEN;
+    }
+
+    console.warn('[Security] VITE_MASTER_TOKEN ausente en variables de entorno. Autenticación maestra denegada.');
+    return null;
+};
+
+const MASTER_TOKEN = resolveMasterToken();
 
 // --- PWA Nuclear Reset v2030 & Service Worker Registration ---
 if ('serviceWorker' in navigator) {
