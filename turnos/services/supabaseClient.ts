@@ -1,11 +1,10 @@
 /**
- * Supabase Client — Shared instance for the Gestor de Turnos
- * Uses the same Supabase project as the Virtual Card
+ * Supabase Client — Re-exporta el singleton canónico de shared/supabase.js
+ *
+ * NO crear un segundo createClient() aquí — causaría colisiones de sesión
+ * de auth entre los módulos card, admin y turnos.
+ *
+ * El alias @shared está definido en vite.config.ts → resolve.alias.
  */
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-export default supabase;
+export { supabase } from '@shared/supabase.js';
+export { supabase as default } from '@shared/supabase.js';

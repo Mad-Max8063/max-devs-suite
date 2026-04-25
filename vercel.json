@@ -1,7 +1,6 @@
 {
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/((?!og/).*)", "destination": "/api/index.py" },
     { "source": "/card/((?!css/|js/|assets/|.*\\.).*)", "destination": "/card/index.html" },
     { "source": "/edit/((?!.*\\.).*)", "destination": "/card/index.html" },
     { "source": "/turnos/((?!.*\\.).*)", "destination": "/turnos/index.html" },

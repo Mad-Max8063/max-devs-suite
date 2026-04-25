@@ -18,13 +18,31 @@
             }
         }, true);
 
-        // PWA Service Worker Registration
+        // PWA Nuclear Reset v2 & Service Worker Registration
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw-admin.js', { scope: './' })
-                    .then(reg => console.log('[PWA] Service Worker registered for Admin:', reg.scope))
-                    .catch(err => console.error('[PWA] Service Worker registration failed:', err));
-            });
+            var RESET_KEY = 'suito_admin_v2_reset';
+            if (!localStorage.getItem(RESET_KEY)) {
+                Promise.all([
+                    navigator.serviceWorker.getRegistrations().then(function(regs) {
+                        return Promise.all(regs.map(function(r) { return r.unregister(); }));
+                    }),
+                    caches.keys().then(function(names) {
+                        return Promise.all(names.map(function(n) { return caches.delete(n); }));
+                    })
+                ]).then(function() {
+                    localStorage.setItem(RESET_KEY, Date.now().toString());
+                    window.location.reload();
+                }).catch(function() {
+                    localStorage.setItem(RESET_KEY, 'failed');
+                    window.location.reload();
+                });
+            } else {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('./sw-admin.js', { scope: './' })
+                        .then(function(reg) { console.log('[PWA] SW admin-v2 registered:', reg.scope); })
+                        .catch(function(err) { console.error('[PWA] SW registration failed:', err); });
+                });
+            }
         }
     </script>
     <meta name="description" content="Panel de administración de Suito. Gestioná clientes, servicios y productos.">
