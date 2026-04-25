@@ -1,5 +1,18 @@
 {
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "suito.pro"
+        }
+      ],
+      "destination": "https://www.suito.pro/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/card/((?!css/|js/|assets/|.*\\.).*)", "destination": "/card/index.html" },
     { "source": "/edit/((?!.*\\.).*)", "destination": "/card/index.html" },

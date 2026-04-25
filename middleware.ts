@@ -23,12 +23,18 @@ function getCardSlug(pathname: string): string | null {
   return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
+function continueMiddleware(): Response {
+  return new Response(null, { headers: { 'x-middleware-next': '1' } });
+}
+
 function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typeof fetchOgProfile>>): string {
   if (!profile) return '';
 
   const url = new URL(req.url);
   const canonicalUrl = new URL(`/card/${slug}`, url.origin).toString();
-  const imageUrl = new URL(`/api/og/${slug}`, url.origin).toString();
+  const imageUrl = new URL(`/api/og/${slug}`, url.origin);
+  imageUrl.searchParams.set('v', Date.now().toString());
+  const ogImageUrl = imageUrl.toString();
   const title = `${profile.name}${profile.profession ? ` - ${profile.profession}` : ''}`;
   const description = profile.description || `Contacta a ${profile.name}`;
   const avatarUrl = profile.avatarUrl
@@ -48,15 +54,15 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
-  <meta property="og:image" content="${escapeHtml(imageUrl)}">
-  <meta property="og:image:secure_url" content="${escapeHtml(imageUrl)}">
+  <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+  <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${escapeHtml(title)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
-  <meta name="twitter:image" content="${escapeHtml(imageUrl)}">
+  <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
   <script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -74,6 +80,7 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
     <p>${escapeHtml(description)}</p>
     <a href="${escapeHtml(canonicalUrl)}">Ver tarjeta Suito</a>
   </main>
+  <script>window.location.replace(${JSON.stringify(canonicalUrl)});</script>
 </body>
 </html>`;
 }
@@ -88,24 +95,25 @@ export default async function middleware(req: Request) {
     try {
       const profile = await fetchOgProfile(cardSlug);
       if (!profile) {
-        return new Response('Card not found', { status: 404 });
+        return continueMiddleware();
       }
 
       return new Response(buildOgHtml(req, cardSlug, profile), {
         status: 200,
         headers: {
           'content-type': 'text/html; charset=utf-8',
-          'cache-control': 'public, s-maxage=300, stale-while-revalidate=86400',
+          'cache-control': 'no-store, max-age=0',
         },
       });
     } catch (error) {
-      return new Response(error instanceof Error ? error.message : 'OG middleware failed', { status: 500 });
+      console.error('[OG Middleware] Error critico de resolucion:', error);
+      return continueMiddleware();
     }
   }
 
   // 1. Evitar bucles infinitos y servir assets directos
   if (pathname.startsWith('/turnos') || pathname.startsWith('/card') || pathname.startsWith('/admin')) {
-    return new Response(null, { headers: { 'x-middleware-next': '1' } });
+    return continueMiddleware();
   }
 
   // 2. Identificar dominios principales
@@ -115,16 +123,16 @@ export default async function middleware(req: Request) {
   if (isRootDomain) {
     // Si tiene extensión y es dominio raíz, dejar pasar (Vercel servirá desde la raíz)
     if (pathname.includes('.')) {
-        return new Response(null, { headers: { 'x-middleware-next': '1' } });
+        return continueMiddleware();
     }
-    return new Response(null, { headers: { 'x-middleware-next': '1' } });
+    return continueMiddleware();
   }
 
   // 3. Resolución de subdominios
   const subdomain = hostname.split('.')[0];
   
   if (subdomain === 'www') {
-    return new Response(null, { headers: { 'x-middleware-next': '1' } });
+    return continueMiddleware();
   }
 
   // REESCRITURA PARA SUBDOMINIOS
