@@ -1,6 +1,0 @@
-fastapi
-uvicorn
-mercadopago
-sqlalchemy
-pydantic
-python-multipart
