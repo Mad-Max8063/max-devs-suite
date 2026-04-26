@@ -93,12 +93,18 @@ describe('Constants', () => {
         it('should have valid structure for each category', () => {
             BUSINESS_CATEGORIES.forEach(cat => {
                 expect(cat).toHaveProperty('id');
+                expect(cat).toHaveProperty('label');
                 expect(cat).toHaveProperty('nombre');
-                expect(cat).toHaveProperty('emoji');
+                expect(cat).toHaveProperty('group');
+                expect(cat).toHaveProperty('icon');
+                expect(cat).toHaveProperty('searchTags');
                 expect(cat).toHaveProperty('descripcion');
                 expect(cat).toHaveProperty('servicios');
                 expect(cat.id).toBeTruthy();
+                expect(cat.label).toBeTruthy();
                 expect(cat.nombre).toBeTruthy();
+                expect(cat.icon).toBeTruthy();
+                expect(Array.isArray(cat.searchTags)).toBe(true);
             });
         });
 

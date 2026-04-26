@@ -15,6 +15,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VirtualCardConfigPage from './pages/VirtualCardConfigPage';
 import ModuleGuard from './components/ModuleGuard';
+import TurnosShell from './components/TurnosShell';
 import { useTheme } from './hooks/useTheme';
 
 /**
@@ -74,7 +75,7 @@ const App: React.FC = () => {
         <AppProvider>
           <ThemeApplier>
             <HashRouter>
-              <div className="min-h-screen w-full max-w-md mx-auto bg-surface dark:bg-background-dark overflow-hidden relative">
+              <TurnosShell>
                 <Routes>
                   {/* Auth Routes - Public */}
                   <Route path="/login" element={<LoginPage />} />
@@ -152,7 +153,7 @@ const App: React.FC = () => {
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/demo" replace />} />
                 </Routes>
-              </div>
+              </TurnosShell>
             </HashRouter>
           </ThemeApplier>
         </AppProvider>

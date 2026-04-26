@@ -87,6 +87,28 @@ function normalizeHexColor(value, fallback) {
     return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color) ? color : fallback;
 }
 
+function hexToRgbString(hex) {
+    const normalized = normalizeHexColor(hex, '#7c3aed').replace('#', '');
+    const fullHex = normalized.length === 3
+        ? normalized.split('').map(char => char + char).join('')
+        : normalized;
+    const num = parseInt(fullHex, 16);
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+}
+
+function darkenHex(hex, amount = 0.15) {
+    const normalized = normalizeHexColor(hex, '#7c3aed').replace('#', '');
+    const fullHex = normalized.length === 3
+        ? normalized.split('').map(char => char + char).join('')
+        : normalized;
+    const num = parseInt(fullHex, 16);
+    const factor = Math.max(0, Math.min(1, 1 - amount));
+    const r = Math.floor(((num >> 16) & 255) * factor);
+    const g = Math.floor(((num >> 8) & 255) * factor);
+    const b = Math.floor((num & 255) * factor);
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
+
 function normalizeFontFamily(value) {
     const font = String(value || '').trim();
     if (!font || font.length > 48) return DEFAULT_FONT;
@@ -119,12 +141,15 @@ export function applyPremiumBranding(dbData = {}) {
     const isPremium = getSubscriptionStatus(dbData) === 'premium';
     const primaryColor = normalizeHexColor(
         dbData.primary_color || dbData.color_primario,
-        '#8B5CF6'
+        '#7c3aed'
     );
+    const primaryDark = darkenHex(primaryColor);
+    const primaryRgb = hexToRgbString(primaryColor);
     const fontFamily = isPremium ? normalizeFontFamily(dbData.font_family) : DEFAULT_FONT;
-    const socialColor = isPremium
-        ? normalizeHexColor(dbData.social_color, primaryColor)
-        : primaryColor;
+    const isOfficialColors = isPremium && dbData.social_color === 'official';
+    const socialColor = isOfficialColors
+        ? primaryColor
+        : (isPremium ? normalizeHexColor(dbData.social_color, primaryColor) : primaryColor);
     const theme = isPremium && ALLOWED_THEMES.has(dbData.card_theme)
         ? dbData.card_theme
         : (isPremium ? 'obsidian' : 'luminous');
@@ -160,11 +185,15 @@ export function applyPremiumBranding(dbData = {}) {
     styleEl.id = BRAND_STYLE_ID;
     styleEl.textContent = `
         :root {
+            --color-primary: ${primaryColor};
+            --color-primary-dark: ${primaryDark};
+            --color-primary-rgb: ${primaryRgb};
             --brand-primary: ${primaryColor};
             --brand-social: ${socialColor};
             --brand-font: '${fontFamily}', sans-serif;
             --primary: ${primaryColor};
-            --primary-container: ${primaryColor};
+            --primary-container: ${primaryDark};
+            --theme-gradient: linear-gradient(135deg, ${primaryColor} 0%, ${primaryDark} 100%);
         }
 
         body,
@@ -187,13 +216,45 @@ export function applyPremiumBranding(dbData = {}) {
             color: var(--brand-primary) !important;
         }
 
+        ${isOfficialColors ? `
+        .social-icons-bar .social-icon[aria-label="WhatsApp"] { background: #25D366 !important; }
+        .social-icons-bar .social-icon[aria-label="Instagram"] { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important; }
+        .social-icons-bar .social-icon[aria-label="Facebook"] { background: #1877F2 !important; }
+        .social-icons-bar .social-icon[aria-label="LinkedIn"] { background: #0A66C2 !important; }
+        .social-icons-bar .social-icon[aria-label="TikTok"] { background: #000000 !important; }
+        .social-icons-bar .social-icon[aria-label="YouTube"] { background: #FF0000 !important; }
+        .social-icons-bar .social-icon[aria-label="Email"] { background: #EA4335 !important; }
+        ` : `
         .social-icons-bar .social-icon {
             background: var(--brand-social) !important;
         }
+        `}
 
         .social-icon svg,
         .suito-btn-icon svg {
             fill: #fff;
+        }
+
+        @keyframes suito-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        @keyframes suito-glow-breath {
+            0%, 100% { text-shadow: 0 0 5px var(--brand-primary), 0 0 10px rgba(255,255,255,0.2); transform: scale(1); }
+            50% { text-shadow: 0 0 15px var(--brand-primary), 0 0 20px var(--brand-primary); transform: scale(1.02); }
+        }
+
+        .social-icons-bar .social-icon[aria-label="WhatsApp"] {
+            animation: suito-pulse 3s infinite ease-in-out;
+            will-change: transform, box-shadow;
+        }
+
+        .referral-link {
+            display: inline-block;
+            animation: suito-glow-breath 4s infinite ease-in-out;
+            will-change: transform, text-shadow;
         }
 
         body[data-theme="luminous"] .card-container {
@@ -221,6 +282,9 @@ export function applyPremiumBranding(dbData = {}) {
     }
 
     document.body.setAttribute('data-theme', theme);
+    document.documentElement.style.setProperty('--color-primary', primaryColor);
+    document.documentElement.style.setProperty('--color-primary-dark', primaryDark);
+    document.documentElement.style.setProperty('--color-primary-rgb', primaryRgb);
     upsertMeta('theme-color', primaryColor);
 }
 
@@ -417,12 +481,12 @@ window.renderUpgradeModal = function() {
     modal.className = 'upgrade-modal-overlay';
     modal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px;';
     modal.innerHTML = `
-        <div class="glass-card" style="background:#1E1E1E; padding:32px; border-radius:28px; max-width:400px; text-align:center; position:relative; border: 1px solid rgba(212, 175, 55, 0.2);">
+        <div class="glass-card" style="background:#1E1E1E; padding:32px; border-radius:28px; max-width:400px; text-align:center; position:relative; border: 1px solid rgba(var(--color-primary-rgb), 0.2);">
             <button onclick="this.closest('.upgrade-modal-overlay').remove()" style="position:absolute; top:16px; right:16px; background:transparent; border:none; color:#fff; cursor:pointer;"><span class="material-symbols-outlined">close</span></button>
-            <span class="material-symbols-outlined" style="font-size:48px; color:#D4AF37; margin-bottom:16px;">workspace_premium</span>
+            <span class="material-symbols-outlined" style="font-size:48px; color:var(--color-primary); margin-bottom:16px;">workspace_premium</span>
             <h3 style="color:#fff; font-size:24px; margin-bottom:12px; font-weight:600;">Función Premium</h3>
             <p style="color:#A0A0A0; margin-bottom:24px; line-height:1.5;">El gestor de turnos es una característica exclusiva de la edición Gold & Obsidian. Actualizá tu plan para habilitar las reservas automáticas.</p>
-            <a href="https://suito.pro?action=upgrade" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; width:100%; box-sizing:border-box; background:linear-gradient(135deg, #D4AF37 0%, #A67C00 100%); color:#fff; padding:12px 24px; border-radius:16px; font-weight:600;">Ver Planes</a>
+            <a href="https://suito.pro?action=upgrade" target="_blank" class="btn-primary" style="display:inline-block; text-decoration:none; width:100%; box-sizing:border-box; background:var(--theme-gradient); color:#fff; padding:12px 24px; border-radius:16px; font-weight:600;">Ver Planes</a>
         </div>
     `;
     document.body.appendChild(modal);
@@ -473,7 +537,7 @@ function buildCardHTML(data) {
 
     return `
         ${!isPremium ? `
-        <div class="trial-banner" style="background:#8B5CF6; color:#fff; text-align:center; padding:8px; font-size:14px; position:sticky; top:0; z-index:100;">
+        <div class="trial-banner" style="background:var(--color-primary); color:#fff; text-align:center; padding:8px; font-size:14px; position:sticky; top:0; z-index:100;">
             Muestra limitada (Trial Vencido) 
             <a href="https://suito.pro?ref=expired" target="_blank" style="color:#fff; font-weight:bold; margin-left:8px;">Activar Premium</a>
         </div>
@@ -482,7 +546,7 @@ function buildCardHTML(data) {
             <!-- Cover & Avatar -->
             <div class="card-header">
                 <div class="card-cover-wrapper">
-                    ${coverPhoto ? `<img src="${coverPhoto}" alt="Cover" class="card-cover">` : '<div class="card-cover" style="background:linear-gradient(135deg,#8B5CF6,#EC4899);height:200px;"></div>'}
+                    ${coverPhoto ? `<img src="${coverPhoto}" alt="Cover" class="card-cover">` : '<div class="card-cover" style="background:var(--theme-gradient);height:200px;"></div>'}
                     <div class="card-cover-overlay"></div>
                 </div>
                 <div class="card-avatar-container">
@@ -537,7 +601,9 @@ function buildCardHTML(data) {
                     const activeModules = data.activeModules || data.active_modules || [];
                     const hasAppointments = activeModules.includes('appointments');
                     const showBooking = bookingUrl && hasAppointments && isPremium;
-                    const phone = (data.telefono || data.phone || '').replace(/\D/g, '');
+                    const rawPhone = (data.telefono || data.phone || '').replace(/\D/g, '');
+                    const phoneWith54 = rawPhone.startsWith('54') ? rawPhone : `54${rawPhone}`;
+                    const phone = phoneWith54.startsWith('549') ? phoneWith54 : phoneWith54.replace(/^54/, '549');
 
                     const icons = [];
                     if (phone) {
@@ -597,7 +663,7 @@ function injectDynamicManifest(data) {
         scope: '/card/',
         display: 'standalone',
         background_color: '#121212',
-        theme_color: data.color_primario || '#D4AF37',
+        theme_color: data.primary_color || data.color_primario || '#7c3aed',
         icons: [
             { src: '/card/assets/icon-192.png', sizes: '192x192', type: 'image/png' },
             { src: '/card/assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }

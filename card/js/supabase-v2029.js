@@ -45,6 +45,7 @@ export async function createCard(data) {
             linkedin: data.linkedin || '',
             website: data.website || '',
             booking_url: data.booking_url || '',
+            color_primario: data.color_primario || data.primary_color || '#7c3aed',
             whatsapp_message: data.whatsapp_message || '',
             font_family: data.font_family || '',
             social_color: data.social_color || '',
@@ -75,6 +76,8 @@ export async function updateCard(businessId, updates) {
     if (updates.phone) dbUpdates.telefono = updates.phone;
     if (updates.photo_url) dbUpdates.foto_url = updates.photo_url;
     if (updates.whatsapp_message !== undefined) dbUpdates.whatsapp_message = updates.whatsapp_message;
+    if (updates.primary_color !== undefined) dbUpdates.color_primario = updates.primary_color;
+    if (updates.color_primario !== undefined) dbUpdates.color_primario = updates.color_primario;
     if (updates.font_family !== undefined) dbUpdates.font_family = updates.font_family;
     if (updates.social_color !== undefined) dbUpdates.social_color = updates.social_color;
     if (updates.card_theme !== undefined) dbUpdates.card_theme = updates.card_theme;
@@ -106,7 +109,7 @@ export async function getCard(slug) {
             location: 'Buenos Aires, Argentina',
             photo: '/assets/suito-symbol.png',
             coverPhoto: '/assets/logo.png',
-            primary_color: '#8B5CF6',
+            primary_color: '#7c3aed',
             instagram: 'suito.pro',
             website: 'https://suito.pro',
             bookingUrl: 'https://turnos.suito.pro/#/demo/booking',
@@ -116,7 +119,7 @@ export async function getCard(slug) {
             gallery: [],
             whatsapp_message: 'Hola! Me gustaría conocer más sobre los servicios de Suito.',
             font_family: 'Inter',
-            social_color: '#8B5CF6',
+            social_color: '#7c3aed',
             card_theme: 'obsidian',
             custom_css: ''
         };
@@ -184,7 +187,7 @@ export async function getCard(slug) {
         // Mapeo blindado: buscamos en todas las variantes posibles
         photo: business.foto_url || business.photo_url || business.photo || '/assets/suito-symbol.png',
         coverPhoto: business.cover_url || business.coverPhoto || '',
-        primary_color: business.color_primario || '#8B5CF6',
+        primary_color: business.color_primario || '#7c3aed',
         instagram: business.instagram || '',
         facebook: business.facebook || '',
         linkedin: business.linkedin || '',

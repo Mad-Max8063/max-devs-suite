@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Service, BUSINESS_CATEGORIES, BusinessCategory } from '../constants';
 
 interface ServiceManagerProps {
@@ -21,6 +21,7 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
     const [editingId, setEditingId] = useState<string | null>(null);
     const [showAddForm, setShowAddForm] = useState(false);
     const [newService, setNewService] = useState({ nombre: '', duracion: 30, precio: 0, sena: 0 });
+    const [categorySearch, setCategorySearch] = useState('');
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price);
@@ -76,6 +77,28 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
     };
 
     const selectedCategory = BUSINESS_CATEGORIES.find(c => c.id === selectedCategoryId);
+    const groupedCategories = useMemo(() => {
+        const query = categorySearch.trim().toLowerCase();
+        const matches = BUSINESS_CATEGORIES.filter((category) => {
+            if (!query) return true;
+            const haystack = [
+                category.id,
+                category.label,
+                category.nombre,
+                category.group,
+                category.descripcion,
+                ...category.searchTags,
+            ].join(' ').toLowerCase();
+            return haystack.includes(query);
+        });
+
+        return matches.reduce<Record<string, BusinessCategory[]>>((groups, category) => {
+            groups[category.group] = groups[category.group] || [];
+            groups[category.group].push(category);
+            return groups;
+        }, {});
+    }, [categorySearch]);
+    const hasCategoryResults = Object.keys(groupedCategories).length > 0;
 
     return (
         <div className="space-y-4">
@@ -84,25 +107,48 @@ const ServiceManager: React.FC<ServiceManagerProps> = ({
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
                     Rubro de tu negocio
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                    {BUSINESS_CATEGORIES.map(cat => (
-                        <button
-                            key={cat.id}
-                            onClick={() => handleCategorySelect(cat)}
-                            className={`
-                                p-3 rounded-xl border-2 text-left transition-all
-                                ${selectedCategoryId === cat.id
-                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                                    : 'border-gray-200 dark:border-gray-700 hover:border-primary/40 bg-white dark:bg-surface-dark'
-                                }
-                            `}
-                        >
-                            <span className="text-xl">{cat.emoji}</span>
-                            <p className={`text-xs font-medium mt-1 ${selectedCategoryId === cat.id ? 'text-primary' : 'text-text-primary-light dark:text-text-primary-dark'}`}>
-                                {cat.nombre}
-                            </p>
-                        </button>
-                    ))}
+                <div className="relative mb-3">
+                    <span className="material-symbols-outlined pointer-events-none absolute inset-y-0 left-3 flex items-center text-[18px] text-gray-400">search</span>
+                    <input
+                        value={categorySearch}
+                        onChange={(event) => setCategorySearch(event.target.value)}
+                        placeholder="Buscar rubro o especialidad"
+                        className="w-full rounded-xl border border-white/10 bg-surface/60 py-2.5 pl-10 pr-3 text-sm text-white outline-none transition-all placeholder:text-white/35 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    />
+                </div>
+
+                <div className="max-h-[28rem] space-y-4 overflow-y-auto pr-1">
+                    {hasCategoryResults ? (
+                        Object.entries(groupedCategories).map(([group, categories]) => (
+                            <section key={group} className="space-y-2">
+                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">{group}</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {categories.map(cat => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => handleCategorySelect(cat)}
+                                            className={`
+                                                p-3 rounded-xl border-2 text-left transition-all
+                                                ${selectedCategoryId === cat.id
+                                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                                                    : 'border-white/10 bg-surface/60 hover:border-primary/40 hover:bg-surface'
+                                                }
+                                            `}
+                                        >
+                                            <span className="material-symbols-outlined text-xl text-primary">{cat.icon}</span>
+                                            <p className={`text-xs font-medium mt-1 ${selectedCategoryId === cat.id ? 'text-primary' : 'text-on-surface'}`}>
+                                                {cat.nombre}
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </section>
+                        ))
+                    ) : (
+                        <div className="rounded-xl border border-dashed border-gray-300 p-4 text-center text-xs font-medium text-gray-400 dark:border-gray-700">
+                            No encontramos ese rubro. Podes elegir Personalizado.
+                        </div>
+                    )}
                 </div>
             </div>
 

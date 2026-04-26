@@ -7,6 +7,16 @@ import { createCard, updateCard, uploadImage, getSupabaseClient } from './supaba
 
 const FIELDS = ['name', 'profession', 'description', 'phone', 'email', 'location', 'instagram', 'linkedin', 'website', 'bookingUrl'];
 const MAX_DESC = 160;
+const COLOR_PRESETS = [
+  { name: 'Violeta', hex: '#7c3aed' },
+  { name: 'Rosa', hex: '#ec4899' },
+  { name: 'Azul', hex: '#3b82f6' },
+  { name: 'Verde', hex: '#10b981' },
+  { name: 'Naranja', hex: '#f97316' },
+  { name: 'Rojo', hex: '#ef4444' },
+  { name: 'Negro', hex: '#1f2937' },
+  { name: 'Dorado', hex: '#d97706' },
+];
 
 // Default empty data (no demo info)
 const DEFAULT_DATA = {
@@ -20,7 +30,8 @@ const DEFAULT_DATA = {
   linkedin: '',
   website: '',
   coverPhoto: '',
-  bookingUrl: ''
+  bookingUrl: '',
+  primaryColor: '#7c3aed'
 };
 
 export function initEditor(container, onPreview) {
@@ -93,6 +104,20 @@ export function initEditor(container, onPreview) {
             <label>Descripción corta</label>
             <textarea id="field-description" placeholder="Ej: +5 años ayudando a empresas a diseñar productos digitales" maxlength="${MAX_DESC}">${data.description || ''}</textarea>
             <div class="char-count"><span id="desc-count">${(data.description || '').length}</span>/${MAX_DESC}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marca -->
+      <div class="glass-card">
+        <div class="form-section">
+          <div class="section-label">Color de marca</div>
+          <p class="section-hint">Este color se aplica a botones, bordes y detalles de tu tarjeta.</p>
+          <div class="color-picker-row" id="color-picker-row">
+            ${COLOR_PRESETS.map((preset) => `
+              <button type="button" class="color-preset-btn ${data.primaryColor === preset.hex ? 'active' : ''}" data-color="${preset.hex}" title="${preset.name}" style="background:${preset.hex}"></button>
+            `).join('')}
+            <input type="color" id="field-primaryColor" class="color-custom-input" value="${data.primaryColor || '#7c3aed'}" aria-label="Color personalizado">
           </div>
         </div>
       </div>
@@ -274,6 +299,26 @@ export function initEditor(container, onPreview) {
     });
   });
 
+  const applyPrimaryColor = (color) => {
+    data.primaryColor = color;
+    document.documentElement.style.setProperty('--color-primary', color);
+    container.querySelectorAll('.color-preset-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.color.toLowerCase() === color.toLowerCase());
+    });
+  };
+
+  container.querySelectorAll('.color-preset-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const color = btn.dataset.color;
+      const colorInput = container.querySelector('#field-primaryColor');
+      if (colorInput) colorInput.value = color;
+      applyPrimaryColor(color);
+    });
+  });
+
+  const colorInput = container.querySelector('#field-primaryColor');
+  colorInput?.addEventListener('input', () => applyPrimaryColor(colorInput.value));
+
   // Detect booking URL from Gestor de Turnos
   const detectBtn = container.querySelector('#btn-detect-booking');
   const bookingStatus = container.querySelector('#booking-status');
@@ -359,6 +404,8 @@ export function initEditor(container, onPreview) {
         linkedin: data.linkedin,
         website: data.website,
         booking_url: data.bookingUrl,
+        primary_color: data.primaryColor,
+        color_primario: data.primaryColor,
         photo_url: '',
         cover_url: '',
       });

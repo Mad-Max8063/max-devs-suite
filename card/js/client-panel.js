@@ -17,6 +17,60 @@ import {
 } from './supabase-v2029.js';
 import { injectSubscriptionBanner } from '../../shared/SubscriptionBanner.js';
 
+const STYLE_PRESETS = [
+    { key: 'caps',   label: 'Nombre en Mayúsculas', icon: 'fa-solid fa-font',               css: '.card-name { text-transform: uppercase !important; letter-spacing: 1px; }' },
+    { key: 'square', label: 'Iconos Cuadrados',     icon: 'fa-solid fa-square',              css: '.social-icon { border-radius: 12px !important; }' },
+    { key: 'border', label: 'Foto con Borde',       icon: 'fa-solid fa-circle-user',         css: '.card-avatar-ring { border: 3px solid var(--brand-primary) !important; padding: 4px; }' },
+    { key: 'glass',  label: 'Efecto Cristal',       icon: 'fa-solid fa-wand-magic-sparkles', css: '.card-body { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.05) !important; }' },
+    { key: 'shadow', label: 'Botones con Brillo',   icon: 'fa-solid fa-bolt',                css: '.btn-primary { box-shadow: 0 10px 20px -5px var(--brand-primary) !important; }' },
+];
+
+function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizePresetCss(value) {
+    return String(value || '')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/\s*([{}:;,])\s*/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getPresetMarkers(key) {
+    return {
+        start: `/* suito:quick-style:${key}:start */`,
+        end: `/* suito:quick-style:${key}:end */`,
+    };
+}
+
+function getPresetBlock(preset) {
+    const markers = getPresetMarkers(preset.key);
+    return `${markers.start}\n${preset.css}\n${markers.end}`;
+}
+
+function getMarkedPresetRegex(key) {
+    const markers = getPresetMarkers(key);
+    return new RegExp(`\\s*${escapeRegExp(markers.start)}[\\s\\S]*?${escapeRegExp(markers.end)}\\s*`, 'g');
+}
+
+function hasPresetCSS(text, preset) {
+    if (!text || !preset) return false;
+    if (getMarkedPresetRegex(preset.key).test(text)) return true;
+    return normalizePresetCss(text).includes(normalizePresetCss(preset.css));
+}
+
+function removePresetCSS(text, preset) {
+    const withoutMarkedBlock = String(text || '').replace(getMarkedPresetRegex(preset.key), '\n');
+    const normalizedPreset = normalizePresetCss(preset.css);
+    const parts = withoutMarkedBlock.split(/(?<=})\s*/);
+    const withoutLegacySnippet = parts
+        .filter(part => normalizePresetCss(part) !== normalizedPreset)
+        .join('\n');
+
+    return withoutLegacySnippet.trim().replace(/\n{3,}/g, '\n\n');
+}
+
 export function renderClientPanel(container, card) {
     const data = {
         _id:        card.id,
@@ -166,8 +220,11 @@ function buildPanelHTML(data) {
               <label class="cp-label">Descripción breve</label>
               <textarea class="cp-input" id="cp-description" rows="3" placeholder="Contá en pocas palabras qué hacés..." maxlength="160">${sanitize(data.description)}</textarea>
 
-              <label class="cp-label">WhatsApp (con código de país)</label>
-              <input class="cp-input" id="cp-phone" type="tel" value="${sanitize(data.phone)}" placeholder="+54 9 11 1234-5678">
+              <label class="cp-label">WhatsApp (Argentina)</label>
+              <div style="display:flex; align-items:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding-left:14px; overflow:hidden;">
+                <span style="font-family:var(--font-mono,monospace); font-size:14px; color:var(--text-muted); padding-right:8px; border-right:1px solid rgba(255,255,255,0.1); margin-right:8px; white-space:nowrap;">+54</span>
+                <input class="cp-input" id="cp-phone" type="tel" value="${sanitize(data.phone).replace(/^54/, '')}" placeholder="9 11 1234-5678" style="border:none; background:transparent; padding-left:0; width:100%;">
+              </div>
 
               <label class="cp-label">Mensaje predefinido de WhatsApp</label>
               <textarea class="cp-input" id="cp-whatsapp-message" rows="2" placeholder="Ej: Hola! Vi tu tarjeta y me gustaría hacer una consulta." maxlength="200">${sanitize(data.whatsappMessage)}</textarea>
@@ -246,10 +303,25 @@ function buildPanelHTML(data) {
                 ${buildFontOptions(data.fontFamily)}
               </select>
 
-              <label class="cp-label">Color de íconos sociales</label>
-              <div style="display:flex; gap:10px; align-items:center;">
-                <input class="cp-input" id="cp-social-color" type="color" value="${sanitizeColor(data.socialColor)}" style="width:58px; min-width:58px; padding:4px;">
-                <input class="cp-input" id="cp-social-color-text" type="text" value="${sanitizeColor(data.socialColor)}" maxlength="7" placeholder="#8B5CF6">
+              <div style="background:rgba(255,255,255,0.03); padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div>
+                    <label class="cp-label" style="margin:0;">Iconos con colores originales</label>
+                    <p style="font-size:11px; color:var(--text-muted); margin:0;">WhatsApp verde, Instagram fucsia, etc.</p>
+                  </div>
+                  <label class="cp-switch">
+                    <input type="checkbox" id="cp-use-official-colors" ${data.socialColor === 'official' ? 'checked' : ''}>
+                    <span class="cp-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div id="custom-social-color-wrap" style="${data.socialColor === 'official' ? 'display:none;' : ''}">
+                <label class="cp-label"><i class="fa-solid fa-palette"></i> Color de tu marca (Iconos)</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <input class="cp-input" id="cp-social-color" type="color" value="${sanitizeColor(data.socialColor)}" style="width:58px; min-width:58px; padding:4px;">
+                  <input class="cp-input" id="cp-social-color-text" type="text" value="${sanitizeColor(data.socialColor)}" maxlength="7" placeholder="#8B5CF6">
+                </div>
               </div>
 
               <label class="cp-label">Tema visual</label>
@@ -257,9 +329,43 @@ function buildPanelHTML(data) {
                 ${buildThemeOptions(data.cardTheme)}
               </select>
 
-              <label class="cp-label">CSS personalizado</label>
-              <textarea class="cp-input" id="cp-custom-css" rows="7" placeholder=".card-name { text-transform: uppercase; }" maxlength="4000">${sanitize(data.customCss)}</textarea>
-              <p class="section-hint" style="margin-top:6px;">Se aplica solo en tarjetas Premium. Evitá reglas globales si no son necesarias.</p>
+              <style>
+                .qs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+                .qs-chip {
+                    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 16px; padding: 14px 10px; display: flex; flex-direction: column;
+                    align-items: center; gap: 10px; cursor: pointer; text-align: center;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); user-select: none;
+                    color: var(--text-muted); font-size: 11px; font-weight: 500;
+                }
+                .qs-chip i { font-size: 20px; opacity: 0.6; transition: all 0.3s ease; }
+                .qs-chip:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); }
+                .qs-chip.qs-active {
+                    background: rgba(139, 92, 246, 0.15); border-color: var(--accent-purple, #8B5CF6);
+                    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+                }
+                .qs-chip.qs-active i { color: var(--accent-purple, #8B5CF6); opacity: 1; transform: scale(1.1); }
+                .qs-chip.qs-active span { color: #fff; }
+              </style>
+
+              <label class="cp-label" style="margin-top:20px;">Estilos Rápidos</label>
+              <p class="section-hint">Activá o desactivá estilos con un toque.</p>
+              <div class="qs-grid">
+                ${STYLE_PRESETS.map(p => `
+                  <div class="qs-chip${hasPresetCSS(data.customCss, p) ? ' qs-active' : ''}" data-qs-key="${p.key}">
+                    <i class="${p.icon}"></i>
+                    <span>${p.label}</span>
+                  </div>
+                `).join('')}
+              </div>
+
+              <button type="button" id="qs-advanced-toggle" style="background:none; border:none; color:var(--text-muted); font-size:11px; padding:0; cursor:pointer; opacity:0.6; display:flex; align-items:center; gap:5px;">
+                <i class="fa-solid fa-chevron-right" id="qs-chevron"></i> Ajustes Técnicos (CSS)
+              </button>
+              <div id="qs-advanced-wrap" style="display:none; margin-top:12px;">
+                <textarea class="cp-input" id="cp-custom-css" rows="5" placeholder=".card-name { text-transform: uppercase; }" maxlength="4000">${sanitize(data.customCss)}</textarea>
+                <p class="section-hint" style="margin-top:6px;">Se aplica solo en tarjetas Premium. Evitá reglas globales si no son necesarias.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -376,6 +482,7 @@ function buildThemeOptions(currentTheme) {
 
 function sanitizeColor(value) {
     const color = String(value || '').trim();
+    if (color === 'official') return '#8B5CF6';
     return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color) ? color : '#8B5CF6';
 }
 
@@ -532,7 +639,7 @@ function wireProfileEvents(container, data) {
                 nombre_negocio: container.querySelector('#cp-name')?.value || '',
                 profession:     container.querySelector('#cp-profession')?.value || '',
                 description:    container.querySelector('#cp-description')?.value || '',
-                telefono:       container.querySelector('#cp-phone')?.value || '',
+                telefono:       '54' + (container.querySelector('#cp-phone')?.value || '').replace(/\D/g, ''),
                 email:          container.querySelector('#cp-email')?.value || '',
                 location:       container.querySelector('#cp-location')?.value || '',
                 foto_url:       data.photo || '',
@@ -547,7 +654,9 @@ function wireProfileEvents(container, data) {
 
             if (data.isPremium) {
                 profilePayload.font_family = container.querySelector('#cp-font-family')?.value || 'Inter';
-                profilePayload.social_color = sanitizeColor(container.querySelector('#cp-social-color-text')?.value || '');
+                profilePayload.social_color = container.querySelector('#cp-use-official-colors')?.checked
+                    ? 'official'
+                    : sanitizeColor(container.querySelector('#cp-social-color-text')?.value || '');
                 profilePayload.card_theme = container.querySelector('#cp-card-theme')?.value || 'obsidian';
                 profilePayload.custom_css = container.querySelector('#cp-custom-css')?.value || '';
             }
@@ -581,7 +690,7 @@ function enforcePremiumDesignLock(isPremium, designSectionElement) {
     if (!designSectionElement || isPremium) return;
 
     designSectionElement.classList.add('suito-locked-feature');
-    designSectionElement.querySelectorAll('input, select, textarea').forEach(input => {
+    designSectionElement.querySelectorAll('input, select, textarea, .qs-chip').forEach(input => {
         input.disabled = true;
     });
 
@@ -720,8 +829,59 @@ function wireDesignEvents(container) {
         }
     });
 
+    const officialToggle = container.querySelector('#cp-use-official-colors');
+    const customColorWrap = container.querySelector('#custom-social-color-wrap');
+    officialToggle?.addEventListener('change', () => {
+        if (customColorWrap) customColorWrap.style.display = officialToggle.checked ? 'none' : '';
+    });
+
     designSaveBtn?.addEventListener('click', () => {
         container.querySelector('#cp-save-profile')?.click();
+    });
+
+    wireQuickStyles(container);
+}
+
+function wireQuickStyles(container) {
+    const textarea = container.querySelector('#cp-custom-css');
+
+    const syncQuickStyleChips = () => {
+        if (!textarea) return;
+        STYLE_PRESETS.forEach(p => {
+            const chip = container.querySelector(`.qs-chip[data-qs-key="${p.key}"]`);
+            if (chip) chip.classList.toggle('qs-active', hasPresetCSS(textarea.value, p));
+        });
+    };
+
+    container.querySelectorAll('.qs-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const preset = STYLE_PRESETS.find(p => p.key === chip.dataset.qsKey);
+            if (!preset || !textarea) return;
+
+            const shouldActivate = !hasPresetCSS(textarea.value, preset);
+
+            if (shouldActivate) {
+                const current = removePresetCSS(textarea.value, preset);
+                const presetBlock = getPresetBlock(preset);
+                textarea.value = current ? `${current}\n\n${presetBlock}` : presetBlock;
+            } else {
+                textarea.value = removePresetCSS(textarea.value, preset);
+            }
+
+            syncQuickStyleChips();
+        });
+    });
+
+    textarea?.addEventListener('input', syncQuickStyleChips);
+    syncQuickStyleChips();
+
+    const advToggle = container.querySelector('#qs-advanced-toggle');
+    const advWrap = container.querySelector('#qs-advanced-wrap');
+    const chevron = container.querySelector('#qs-chevron');
+    advToggle?.addEventListener('click', () => {
+        const isOpen = advWrap.style.display !== 'none';
+        advWrap.style.display = isOpen ? 'none' : 'block';
+        if (chevron) chevron.className = isOpen ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down';
     });
 }
 

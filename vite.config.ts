@@ -58,6 +58,9 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 5173,
     host: '0.0.0.0',
+    watch: {
+      ignored: ['**/.agent/**'],
+    },
   },
 
   // Soporte TypeScript + React (para el módulo turnos/)

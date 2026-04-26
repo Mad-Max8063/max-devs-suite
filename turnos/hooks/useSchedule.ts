@@ -5,7 +5,7 @@ import {
     ScheduleConfig,
     BlockedDate,
 } from '../services/sheetsService';
-import { DAYS_OF_WEEK_LIST, ALL_TIME_SLOTS } from '../constants';
+import { DAYS_OF_WEEK_LIST, ALL_TIME_SLOTS, DEFAULT_SLOT_INTERVAL } from '../constants';
 
 // Re-export for backwards compatibility with ScheduleConfigPage imports
 export { DAYS_OF_WEEK_LIST as DAYS_OF_WEEK, ALL_TIME_SLOTS };
@@ -15,6 +15,7 @@ import { useApiMode } from './useApiMode';
 // Default schedule for demo mode - Extended hours to showcase full functionality
 export const DEFAULT_SCHEDULE: ScheduleConfig = {
     duracionTurno: 60,
+    frecuenciaTurnos: DEFAULT_SLOT_INTERVAL,
     horariosPorDia: {
         1: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'], // Lunes
         2: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'], // Martes
@@ -50,6 +51,7 @@ export function useSchedule(slug: string) {
                 logger.debug('[useSchedule] Fetched schedule:', {
                     slug,
                     duracionTurno: data.duracionTurno,
+                    frecuenciaTurnos: data.frecuenciaTurnos,
                     days: Object.keys(data.horariosPorDia),
                     slotsPerDay: Object.entries(data.horariosPorDia).map(([d, s]) => `${d}:${(s as string[]).length}`)
                 });
@@ -93,6 +95,7 @@ export function useSchedule(slug: string) {
         logger.debug('[useSchedule] Saving schedule:', {
             slug,
             duracionTurno: config.duracionTurno,
+            frecuenciaTurnos: config.frecuenciaTurnos,
             days: Object.keys(config.horariosPorDia),
             slotsPerDay: Object.entries(config.horariosPorDia).map(([d, s]) => `${d}:${(s as string[]).length}`)
         });
@@ -142,6 +145,14 @@ export function useSchedule(slug: string) {
         }));
     }, []);
 
+    // Set slot grid frequency
+    const setFrequency = useCallback((minutes: number) => {
+        setSchedule((prev) => ({
+            ...prev,
+            frecuenciaTurnos: minutes,
+        }));
+    }, []);
+
     // Copy schedule from one day to others
     const copyDaySchedule = useCallback((fromDay: number, toDays: number[]) => {
         setSchedule((prev) => {
@@ -168,6 +179,7 @@ export function useSchedule(slug: string) {
         saveSchedule: saveScheduleConfig,
         toggleSlot,
         setDuration,
+        setFrequency,
         copyDaySchedule,
     };
 }

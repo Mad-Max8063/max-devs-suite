@@ -1,15 +1,17 @@
+@import "../shared/design-tokens.css";
+@import "../shared/animations.css";
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
 @theme {
-  /* Gold & Obsidian Premium Palette */
-  --color-primary: #D4AF37;
-  --color-secondary: #E5C158;
-  --color-tertiary: #A67C00;
-  --color-surface: #1E1E1E;
+  /* Shared Suito palette */
+  --color-primary: #7c3aed;
+  --color-secondary: #3b82f6;
+  --color-tertiary: #10b981;
+  --color-surface: #1e1e1e;
   --color-background: #121212;
-  --color-on-surface: #F5F5F5;
-  --color-on-surface-variant: #A0A0A0;
+  --color-on-surface: #f5f5f5;
+  --color-on-surface-variant: #a0a0a0;
   
   /* Glass Surface Tokens */
   --color-glass-surface: rgba(30, 30, 30, 0.4);
@@ -22,9 +24,9 @@
 
 /* Global styles */
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: #121212;
-  color: #F5F5F5;
+  font-family: var(--font-display);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
 }
 
 h1, h2, h3, .font-extrabold, .font-display {
@@ -33,19 +35,41 @@ h1, h2, h3, .font-extrabold, .font-display {
 
 /* Suito Premium Glassmorphism */
 .glass-card { 
-    background: rgba(30, 30, 30, 0.7); 
-    backdrop-filter: blur(24px); 
-    -webkit-backdrop-filter: blur(24px); 
-    border: 1px solid rgba(212, 175, 55, 0.15);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    background: var(--glass-bg-strong); 
+    backdrop-filter: blur(var(--glass-blur-strong)); 
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong)); 
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
 }
 
 .glass-dashboard {
-  background: var(--color-glass-surface);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--color-glass-border);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.suito-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.75rem 1rem;
+  color: var(--color-on-surface);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.suito-input:focus {
+  border-color: rgba(var(--color-primary-rgb), 0.65);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.16);
+}
+
+.suito-input::placeholder {
+  color: rgba(245, 245, 245, 0.38);
 }
 
 /* Responsive Grid Helpers */
@@ -66,19 +90,15 @@ h1, h2, h3, .font-extrabold, .font-display {
 }
 
 .mesh-gradient-bg {
-    background-image: 
-      radial-gradient(at 20% 0%, rgba(212, 175, 55, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(184, 134, 11, 0.1) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(166, 124, 0, 0.15) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(229, 193, 88, 0.1) 0px, transparent 50%);
+    background-image: var(--theme-mesh);
 }
 
 .ambient-shadow { 
-    box-shadow: 0 40px 80px rgba(212, 175, 55, 0.08); 
+    box-shadow: 0 40px 80px rgba(var(--color-primary-rgb), 0.08); 
 }
 
 .gradient-text { 
-    background: linear-gradient(135deg, #D4AF37, #A67C00); 
+    background: var(--theme-gradient); 
     -webkit-background-clip: text; 
     background-clip: text; 
     -webkit-text-fill-color: transparent; 
@@ -195,4 +215,4 @@ h1, h2, h3, .font-extrabold, .font-display {
 .animate-toast-in {
   animation: toastIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
 }
-
+

@@ -196,7 +196,7 @@ const RegisterPage: React.FC = () => {
                                                     }
                                                 `}
                                             >
-                                                <span className="text-lg grayscale-[0.5]">{cat.emoji}</span>
+                                                <span className="material-symbols-outlined text-lg text-primary/70">{cat.icon}</span>
                                                 <p className={`text-[10px] font-black uppercase tracking-widest ${selectedCategory === cat.id ? 'text-primary' : 'text-on-surface-variant opacity-60'}`}>
                                                     {cat.nombre}
                                                 </p>

@@ -32,6 +32,7 @@ export interface Profile {
     Facebook?: string;
     Instagram?: string;
     Website?: string;
+    whatsapp_message?: string;
     CoverURL?: string;
     GalleryImages?: { image_url: string; caption?: string }[];
     ActiveModules?: string[];
@@ -72,6 +73,7 @@ export interface CreateAppointmentData {
 
 export interface ScheduleConfig {
     duracionTurno: number;
+    frecuenciaTurnos: number;
     horariosPorDia: Record<number, string[]>;
 }
 
@@ -165,6 +167,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         Facebook: data.facebook || '',
         Instagram: data.instagram || '',
         Website: data.website || '',
+        whatsapp_message: data.whatsapp_message || '',
         CoverURL: data.cover_url || '',
         GalleryImages: data.gallery_images || [],
         ActiveModules: data.active_modules || ['appointments', 'card'],
@@ -198,6 +201,7 @@ export async function saveProfile(profile: Profile): Promise<{ slug: string }> {
             facebook: profile.Facebook || '',
             instagram: profile.Instagram || '',
             website: profile.Website || '',
+            whatsapp_message: profile.whatsapp_message || '',
             cover_url: profile.CoverURL || '',
             gallery_images: profile.GalleryImages || [],
             active_modules: profile.ActiveModules || ['appointments', 'card'],
@@ -335,7 +339,7 @@ export async function deleteAppointment(id: string): Promise<{ success: boolean 
 // ============================================
 export async function getSchedule(slug: string): Promise<ScheduleConfig> {
     const businessId = await getBusinessId(slug);
-    if (!businessId) return { duracionTurno: 60, horariosPorDia: {} };
+    if (!businessId) return { duracionTurno: 60, frecuenciaTurnos: 30, horariosPorDia: {} };
 
     const { data, error } = await supabase
         .from('schedules')
@@ -343,11 +347,12 @@ export async function getSchedule(slug: string): Promise<ScheduleConfig> {
         .eq('business_id', businessId);
 
     if (error || !data || data.length === 0) {
-        return { duracionTurno: 60, horariosPorDia: {} };
+        return { duracionTurno: 60, frecuenciaTurnos: 30, horariosPorDia: {} };
     }
 
     const schedule: ScheduleConfig = {
         duracionTurno: data[0].duracion_turno || 60,
+        frecuenciaTurnos: data[0].frecuencia_turnos || 30,
         horariosPorDia: {},
     };
 
@@ -386,12 +391,21 @@ export async function saveSchedule(
             dia_semana: parseInt(day, 10),
             horarios: slots,
             duracion_turno: config.duracionTurno || 60,
+            frecuencia_turnos: config.frecuenciaTurnos || 30,
         }));
 
-    if (rows.length > 0) {
-        const { error } = await supabase.from('schedules').insert(rows);
-        if (error) throw new Error(error.message);
-    }
+    const rowsToInsert = rows.length > 0
+        ? rows
+        : [{
+            business_id: businessId,
+            dia_semana: 0,
+            horarios: [],
+            duracion_turno: config.duracionTurno || 60,
+            frecuencia_turnos: config.frecuenciaTurnos || 30,
+        }];
+
+    const { error } = await supabase.from('schedules').insert(rowsToInsert);
+    if (error) throw new Error(error.message);
 
     return { success: true };
 }

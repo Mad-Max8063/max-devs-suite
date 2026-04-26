@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { useSchedule, useBlockedDates, ALL_TIME_SLOTS, DAYS_OF_WEEK } from '../hooks/useSchedule';
+import { useSchedule, useBlockedDates, DAYS_OF_WEEK } from '../hooks/useSchedule';
 import BottomNavigation from '../components/BottomNavigation';
 import DemoBanner from '../components/DemoBanner';
 import DemoSaveModal from '../components/DemoSaveModal';
+import { generateTimeSlots } from '../../shared/timeUtils';
 
 const ScheduleConfigPage: React.FC = () => {
     const navigate = useNavigate();
@@ -22,6 +23,7 @@ const ScheduleConfigPage: React.FC = () => {
         saveSchedule,
         toggleSlot,
         setDuration,
+        setFrequency,
         copyDaySchedule,
     } = useSchedule(slug);
 
@@ -76,6 +78,10 @@ const ScheduleConfigPage: React.FC = () => {
 
     // Get slots for selected day
     const daySlots = schedule.horariosPorDia[selectedDay] || [];
+    const visibleTimeSlots = React.useMemo(
+        () => generateTimeSlots('08:00', '21:00', schedule.frecuenciaTurnos || 30),
+        [schedule.frecuenciaTurnos],
+    );
 
     // Copy current day to other days
     const handleCopyToAll = () => {
@@ -146,6 +152,23 @@ const ScheduleConfigPage: React.FC = () => {
                                     </button>
                                 ))}
                             </div>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary mb-3 mt-6 block ml-1">
+                                Frecuencia de la grilla
+                            </label>
+                            <div className="flex gap-2 flex-wrap">
+                                {[15, 30, 45, 60].map((mins) => (
+                                    <button
+                                        key={mins}
+                                        onClick={() => setFrequency(mins)}
+                                        className={`px-5 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${schedule.frecuenciaTurnos === mins
+                                            ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
+                                            : 'bg-surface border border-white/10 text-on-surface/50 hover:bg-white/5'
+                                            }`}
+                                    >
+                                        Cada {mins} min
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Day Tabs */}
@@ -193,7 +216,7 @@ const ScheduleConfigPage: React.FC = () => {
                                 Toca los horarios en los que atendés este día:
                             </p>
                             <div className="grid grid-cols-4 gap-2">
-                                {ALL_TIME_SLOTS.map((slot) => {
+                                {visibleTimeSlots.map((slot) => {
                                     const isSelected = daySlots.includes(slot);
                                     return (
                                         <button

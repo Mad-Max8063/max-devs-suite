@@ -22,7 +22,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ slug }) => {
     };
 
     return (
-        <nav className="fixed bottom-6 left-6 right-6 z-[100] max-w-[calc(448px-3rem)] mx-auto w-full">
+        <nav className="fixed bottom-6 left-6 right-6 z-[100] mx-auto w-full max-w-[calc(448px-3rem)] lg:hidden">
             <div className="glass-card ambient-shadow rounded-3xl p-2 px-4 flex items-center justify-between border-white/40">
                 <button
                     onClick={() => navigate(`/${slug}`)}

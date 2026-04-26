@@ -1,3 +1,5 @@
+import { generateTimeSlots } from '../shared/timeUtils';
+
 /**
  * Application Constants
  * 
@@ -48,14 +50,9 @@ export const DAYS_OF_WEEK_LIST = [
     { id: 6, name: 'Sábado', short: 'Sáb' },
 ] as const;
 
-// All available time slots for schedule configuration
-export const ALL_TIME_SLOTS = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-    '20:00', '20:30', '21:00',
-] as const;
+// Default schedule grid. The schedule page can generate this dynamically per business.
+export const DEFAULT_SLOT_INTERVAL = 30;
+export const ALL_TIME_SLOTS = generateTimeSlots('08:00', '21:00', DEFAULT_SLOT_INTERVAL);
 
 // Default values
 export const DEFAULT_SERVICE = 'Servicio General';
@@ -77,11 +74,24 @@ export interface Service {
 
 export interface BusinessCategory {
     id: string;
+    label: string;
     nombre: string;
-    emoji: string;
+    group: BusinessGroup;
+    icon: string;
+    searchTags: string[];
+    /** @deprecated Use `icon` with Material Symbols instead. */
+    emoji?: string;
     descripcion: string;
     servicios: Omit<Service, 'activo' | 'orden'>[];
 }
+
+export type BusinessGroup =
+    | 'Belleza y Bienestar'
+    | 'Salud y Medicina'
+    | 'Servicios Profesionales'
+    | 'Educacion'
+    | 'Hogar y Vehiculos'
+    | 'Otros';
 
 // ============================================
 // BUSINESS CATEGORIES WITH PRESETS
@@ -91,6 +101,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     // ── CORE (Top 5 by demand) ──────────────────
     {
         id: 'peluqueria',
+        label: 'Peluqueria Unisex',
+        group: 'Belleza y Bienestar',
+        icon: 'face_retouching_natural',
+        searchTags: ['peluqueria', 'pelo', 'cabello', 'corte', 'color', 'brushing', 'mechas', 'peinado'],
         nombre: 'Peluquería Unisex',
         emoji: '💇',
         descripcion: 'Cortes, coloración, peinados y tratamientos capilares',
@@ -107,6 +121,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     },
     {
         id: 'barberia',
+        label: 'Barberia',
+        group: 'Belleza y Bienestar',
+        icon: 'content_cut',
+        searchTags: ['barberia', 'barbero', 'corte', 'barba', 'afeitado', 'caballero'],
         nombre: 'Barbería',
         emoji: '💈',
         descripcion: 'Cortes masculinos, barba y tratamientos',
@@ -120,6 +138,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     },
     {
         id: 'unas',
+        label: 'Manicuria y Unas',
+        group: 'Belleza y Bienestar',
+        icon: 'pan_tool',
+        searchTags: ['unas', 'manicuria', 'pedicuria', 'semipermanente', 'esculpidas', 'poligel'],
         nombre: 'Manicuría y Uñas',
         emoji: '💅',
         descripcion: 'Manicuría, esculpidas, semipermanente y pedicuría',
@@ -134,6 +156,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     },
     {
         id: 'cejas-pestanas',
+        label: 'Cejas y Pestanas',
+        group: 'Belleza y Bienestar',
+        icon: 'visibility',
+        searchTags: ['cejas', 'pestanas', 'lifting', 'laminado', 'henna', 'extensiones'],
         nombre: 'Cejas y Pestañas',
         emoji: '👁️',
         descripcion: 'Perfilado, laminado, lifting y extensiones',
@@ -148,6 +174,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     },
     {
         id: 'depilacion',
+        label: 'Depilacion',
+        group: 'Belleza y Bienestar',
+        icon: 'auto_fix_high',
+        searchTags: ['depilacion', 'cera', 'laser', 'bozo', 'rostro', 'piernas'],
         nombre: 'Depilación',
         emoji: '✨',
         descripcion: 'Depilación con cera y láser',
@@ -164,6 +194,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     // ── SECONDARY ───────────────────────────────
     {
         id: 'estetica-facial',
+        label: 'Estetica Facial',
+        group: 'Belleza y Bienestar',
+        icon: 'spa',
+        searchTags: ['estetica', 'facial', 'limpieza', 'peeling', 'antiage', 'dermapen'],
         nombre: 'Estética Facial',
         emoji: '🧖',
         descripcion: 'Limpieza facial, peelings y tratamientos anti-age',
@@ -176,6 +210,10 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
     },
     {
         id: 'masajes',
+        label: 'Masajes y Bienestar',
+        group: 'Belleza y Bienestar',
+        icon: 'self_improvement',
+        searchTags: ['masajes', 'bienestar', 'relajante', 'descontracturante', 'drenaje', 'reflexologia'],
         nombre: 'Masajes y Bienestar',
         emoji: '💆',
         descripcion: 'Masajes descontracturantes, relajantes y drenaje',
@@ -189,7 +227,151 @@ export const BUSINESS_CATEGORIES: BusinessCategory[] = [
 
     // ── PERSONALIZADO ───────────────────────────
     {
+        id: 'tatuajes',
+        label: 'Tatuajes / Piercing',
+        nombre: 'Tatuajes / Piercing',
+        group: 'Belleza y Bienestar',
+        icon: 'draw',
+        searchTags: ['tatuaje', 'tattoo', 'piercing', 'ink', 'perforacion'],
+        descripcion: 'Tatuajes, piercing y sesiones de diseno',
+        servicios: [],
+    },
+    {
+        id: 'medicina-general',
+        label: 'Medico General',
+        nombre: 'Medico General',
+        group: 'Salud y Medicina',
+        icon: 'stethoscope',
+        searchTags: ['medico', 'doctor', 'clinico', 'consulta', 'salud'],
+        descripcion: 'Consultas medicas generales y controles',
+        servicios: [],
+    },
+    {
+        id: 'odontologia',
+        label: 'Odontologia',
+        nombre: 'Odontologia',
+        group: 'Salud y Medicina',
+        icon: 'dentistry',
+        searchTags: ['dentista', 'odontologo', 'dientes', 'ortodoncia', 'muela'],
+        descripcion: 'Turnos odontologicos y tratamientos dentales',
+        servicios: [],
+    },
+    {
+        id: 'psicologia',
+        label: 'Psicologia',
+        nombre: 'Psicologia',
+        group: 'Salud y Medicina',
+        icon: 'psychology',
+        searchTags: ['psicologo', 'terapia', 'salud mental', 'consulta'],
+        descripcion: 'Sesiones de terapia y acompanamiento profesional',
+        servicios: [],
+    },
+    {
+        id: 'nutricion',
+        label: 'Nutricion',
+        nombre: 'Nutricion',
+        group: 'Salud y Medicina',
+        icon: 'restaurant_menu',
+        searchTags: ['nutricionista', 'dieta', 'alimentacion', 'salud'],
+        descripcion: 'Consultas nutricionales y planes alimentarios',
+        servicios: [],
+    },
+    {
+        id: 'kinesiologia',
+        label: 'Kinesiologia',
+        nombre: 'Kinesiologia',
+        group: 'Salud y Medicina',
+        icon: 'physical_therapy',
+        searchTags: ['kinesiologo', 'rehabilitacion', 'lesion', 'fisioterapia'],
+        descripcion: 'Rehabilitacion, fisioterapia y recuperacion funcional',
+        servicios: [],
+    },
+    {
+        id: 'abogado',
+        label: 'Abogado / Legal',
+        nombre: 'Abogado / Legal',
+        group: 'Servicios Profesionales',
+        icon: 'gavel',
+        searchTags: ['abogado', 'leyes', 'legal', 'juridico', 'estudio'],
+        descripcion: 'Consultas legales y asesoramiento juridico',
+        servicios: [],
+    },
+    {
+        id: 'contador',
+        label: 'Contador / Finanzas',
+        nombre: 'Contador / Finanzas',
+        group: 'Servicios Profesionales',
+        icon: 'calculate',
+        searchTags: ['contador', 'impuestos', 'finanzas', 'afip', 'contabilidad'],
+        descripcion: 'Asesoria contable, fiscal e impositiva',
+        servicios: [],
+    },
+    {
+        id: 'consultoria',
+        label: 'Consultoria',
+        nombre: 'Consultoria',
+        group: 'Servicios Profesionales',
+        icon: 'support_agent',
+        searchTags: ['consultor', 'asesoria', 'negocios', 'b2b', 'estrategia'],
+        descripcion: 'Consultoria profesional y sesiones de asesoria',
+        servicios: [],
+    },
+    {
+        id: 'coaching',
+        label: 'Coaching',
+        nombre: 'Coaching',
+        group: 'Servicios Profesionales',
+        icon: 'record_voice_over',
+        searchTags: ['coach', 'mentoria', 'liderazgo', 'desarrollo'],
+        descripcion: 'Sesiones de coaching y desarrollo personal',
+        servicios: [],
+    },
+    {
+        id: 'clases-particulares',
+        label: 'Clases Particulares',
+        nombre: 'Clases Particulares',
+        group: 'Educacion',
+        icon: 'school',
+        searchTags: ['profesor', 'clases', 'apoyo', 'ingles', 'matematica'],
+        descripcion: 'Clases, cursos y acompanamiento educativo',
+        servicios: [],
+    },
+    {
+        id: 'clases-musica',
+        label: 'Clases de Musica',
+        nombre: 'Clases de Musica',
+        group: 'Educacion',
+        icon: 'music_note',
+        searchTags: ['musica', 'guitarra', 'piano', 'canto', 'instrumento'],
+        descripcion: 'Clases de instrumentos, canto y teoria musical',
+        servicios: [],
+    },
+    {
+        id: 'taller-mecanico',
+        label: 'Taller Mecanico',
+        nombre: 'Taller Mecanico',
+        group: 'Hogar y Vehiculos',
+        icon: 'handyman',
+        searchTags: ['auto', 'mecanico', 'taller', 'motor', 'service'],
+        descripcion: 'Servicios mecanicos y mantenimiento vehicular',
+        servicios: [],
+    },
+    {
+        id: 'car-detailing',
+        label: 'Car Detailing',
+        nombre: 'Car Detailing',
+        group: 'Hogar y Vehiculos',
+        icon: 'local_car_wash',
+        searchTags: ['lavadero', 'auto', 'limpieza', 'pulido', 'detailing'],
+        descripcion: 'Limpieza, pulido y detailing vehicular',
+        servicios: [],
+    },
+    {
         id: 'personalizado',
+        label: 'Personalizado',
+        group: 'Otros',
+        icon: 'dashboard_customize',
+        searchTags: ['personalizado', 'otro', 'crear', 'custom', 'nuevo'],
         nombre: 'Personalizado',
         emoji: '✏️',
         descripcion: 'Configurá tus propios servicios desde cero',

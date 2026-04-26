@@ -8,7 +8,7 @@ import DemoBanner from '../components/DemoBanner';
 import DemoSaveModal from '../components/DemoSaveModal';
 import SharePaymentModal from '../components/SharePaymentModal';
 import ServiceManager from '../components/ServiceManager';
-import { COLOR_PRESETS, DEFAULT_PRIMARY, applyThemeColor } from '../hooks/useTheme';
+import { COLOR_FAMILIES, COLOR_PRESETS, DEFAULT_PRIMARY, applyThemeColor } from '../hooks/useTheme';
 
 /**
  * Utility to resize and compress images to fit Google Sheets cell limits (50k chars)
@@ -319,27 +319,39 @@ const BusinessConfigPage: React.FC = () => {
             </p>
 
             {/* Preset Swatches */}
-            <div className="grid grid-cols-4 gap-3">
-              {COLOR_PRESETS.map((preset) => (
-                <button
-                  key={preset.hex}
-                  onClick={() => {
-                    setColorPrimario(preset.hex);
-                    setCustomColorInput('');
-                    applyThemeColor(preset.hex);
-                  }}
-                  className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all duration-200 ${colorPrimario === preset.hex
-                      ? 'border-gray-900 dark:border-white scale-105 shadow-md'
-                      : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-                    }`}
-                >
-                  <div
-                    className="size-10 rounded-full shadow-inner ring-2 ring-white dark:ring-gray-800 transition-transform"
-                    style={{ backgroundColor: preset.hex }}
-                  />
-                  <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">{preset.name}</span>
-                </button>
-              ))}
+            <div className="space-y-4">
+              {COLOR_FAMILIES.map((family) => {
+                const presets = COLOR_PRESETS.filter((preset) => preset.family === family);
+                return (
+                  <div key={family} className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">{family}</p>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                      {presets.map((preset) => (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          title={preset.label}
+                          onClick={() => {
+                            setColorPrimario(preset.hex);
+                            setCustomColorInput('');
+                            applyThemeColor(preset.hex);
+                          }}
+                          className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all duration-200 ${colorPrimario.toLowerCase() === preset.hex.toLowerCase()
+                              ? 'border-gray-900 dark:border-white scale-105 shadow-md'
+                              : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                            }`}
+                        >
+                          <div
+                            className="size-10 rounded-full shadow-inner ring-2 ring-white dark:ring-gray-800 transition-transform"
+                            style={{ backgroundColor: preset.hex }}
+                          />
+                          <span className="max-w-full text-center text-[10px] font-medium leading-tight text-gray-600 dark:text-gray-400">{preset.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Custom Color Input */}
