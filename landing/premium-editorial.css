@@ -167,6 +167,61 @@ input, textarea { font-family: var(--font-sans); }
 }
 .card-3d:hover .holo { transform: translateX(40%); }
 
+.real-card-frame {
+  background: #0d0d0f;
+  isolation: isolate;
+}
+
+.card-3d.real-card-frame > :not(.real-card-shot):not(.holo) {
+  display: none !important;
+}
+
+.real-card-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: #0d0d0f;
+}
+
+.real-card-shot.hero-shot {
+  max-height: 650px;
+}
+
+.real-card-showcase {
+  width: min(320px, 100%);
+  border-radius: 28px;
+  overflow: hidden;
+  background: #0d0d0f;
+  box-shadow: var(--shadow-card), 0 0 0 1px rgba(201,166,107,0.26);
+  position: relative;
+  transform: rotate(-2deg);
+  transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease;
+}
+
+.feature-card:hover .real-card-showcase {
+  transform: rotate(0deg) translateY(-8px);
+  box-shadow: 0 38px 80px -24px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,166,107,0.38);
+}
+
+.real-card-showcase::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+  transform: translateX(-75%);
+  transition: transform 1.2s ease;
+  pointer-events: none;
+}
+
+.feature-card:hover .real-card-showcase::after {
+  transform: translateX(60%);
+}
+
+.rg-real-card-visual > div:not(.real-card-showcase) {
+  display: none !important;
+}
+
 /* Chip */
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -325,9 +380,11 @@ input, textarea { font-family: var(--font-sans); }
   .scene .orb,
   .scene .grain { display: none; }
   .hero-grid { grid-template-columns: 1fr !important; }
-  .hero-card-col { display: none; }
+  .hero-card-col { display: flex !important; margin-top: 36px; }
+  .card-3d-wrap { width: min(360px, 92vw); }
   .feature-row, .feature-row.flip { grid-template-columns: 1fr; }
-  .feature-visual { display: none; }
+  .feature-visual { display: flex !important; border-left: 0 !important; border-right: 0 !important; border-top: 1px solid var(--line); }
+  .real-card-showcase { width: min(320px, 86vw); transform: none; }
   .steps-grid { grid-template-columns: 1fr 1fr !important; }
   .comp-grid { grid-template-columns: 1.6fr 1fr !important; }
   .comp-hide-mobile { display: none !important; }
