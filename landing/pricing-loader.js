@@ -16,24 +16,25 @@ export async function initDynamicPricing() {
         if (error) throw error;
         if (!data) return;
 
+        const formatPrice = (value, suffix = '') => {
+            const formatted = new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                maximumFractionDigits: 0
+            }).format(Number(value || 0));
+            return `${formatted}${suffix}`;
+        };
+
         data.forEach(row => {
             const monthlyElements = document.querySelectorAll(`[data-price-plan="${row.id}"][data-price-period="monthly"]`);
             const quarterlyElements = document.querySelectorAll(`[data-price-plan="${row.id}"][data-price-period="quarterly"]`);
 
-            const formattedMonthly = new Intl.NumberFormat('es-AR', {
-                style: 'currency',
-                currency: 'ARS',
-                maximumFractionDigits: 0
-            }).format(row.monthly);
-
-            const formattedQuarterly = new Intl.NumberFormat('es-AR', {
-                style: 'currency',
-                currency: 'ARS',
-                maximumFractionDigits: 0
-            }).format(row.quarterly);
-
-            monthlyElements.forEach(el => { el.textContent = formattedMonthly; });
-            quarterlyElements.forEach(el => { el.textContent = formattedQuarterly; });
+            monthlyElements.forEach(el => {
+                el.textContent = formatPrice(row.monthly, el.dataset.priceSuffix || '');
+            });
+            quarterlyElements.forEach(el => {
+                el.textContent = formatPrice(row.quarterly, el.dataset.priceSuffix || '');
+            });
         });
 
         console.log('[Pricing] Successfully hydrated from Supabase.');

@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    import('./pricing-loader.js').then(m => m.initDynamicPricing());
+    import('./pricing-loader.js?v=2.1').then(m => m.initDynamicPricing());
 });
 
 // ——— Navigation helpers ———

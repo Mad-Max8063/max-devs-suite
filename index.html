@@ -292,7 +292,7 @@
                 </div>
                 <div class="glass" style="padding:20px;border-color:rgba(201,166,107,0.35);">
                   <div class="mono" style="font-size:10px;color:var(--gold-500);letter-spacing:0.1em;">SUITO · LOCAL</div>
-                  <div style="font-family:var(--font-display);font-size:34px;margin-top:6px;color:var(--gold-500);">$ 4.900</div>
+                  <div data-price-plan="tarjeta" data-price-period="monthly" style="font-family:var(--font-display);font-size:34px;margin-top:6px;color:var(--gold-500);">$ 4.900</div>
                   <div style="font-size:12px;color:var(--fg-dim);">por mes sin impuestos extra</div>
                 </div>
               </div>
@@ -445,7 +445,7 @@
             </div>
             <span class="eyebrow">Mensual Premium</span>
             <div style="margin:32px 0 6px;display:flex;align-items:baseline;gap:4px;">
-              <span style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 4.900</span>
+              <span data-price-plan="tarjeta" data-price-period="monthly" style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 4.900</span>
             </div>
             <span style="font-size:13px;color:var(--fg-dim);">por mes · precio fijo 3 meses</span>
             <div class="dotted-gold" style="margin:24px 0;"></div>
@@ -800,6 +800,11 @@
         }
       } else {
         cell.textContent = v;
+        if (row[0] === 'Costo mensual tipico' && ci === 1) {
+          cell.dataset.pricePlan = 'tarjeta';
+          cell.dataset.pricePeriod = 'monthly';
+          cell.dataset.priceSuffix = ' ARS';
+        }
         if (typeof v === 'string' && v.startsWith('$')) cell.className += ' mono';
       }
       div.appendChild(cell);
@@ -901,7 +906,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Form logic is handled by ./landing/app.js -->
 
-<script type="module" src="./landing/app.js?v=2.0"></script>
+<script type="module" src="./landing/app.js?v=2.1"></script>
 
 </body>
 </html>

@@ -24,6 +24,10 @@ const STYLE_PRESETS = [
     { key: 'glass',  label: 'Efecto Cristal',       icon: 'fa-solid fa-wand-magic-sparkles', css: '.card-body { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.05) !important; }' },
     { key: 'shadow', label: 'Botones con Brillo',   icon: 'fa-solid fa-bolt',                css: '.btn-primary { box-shadow: 0 10px 20px -5px var(--brand-primary) !important; }' },
 ];
+const ACCENT_MARKERS = {
+    start: '/* suito:accent-color:start */',
+    end: '/* suito:accent-color:end */',
+};
 
 function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -71,6 +75,46 @@ function removePresetCSS(text, preset) {
     return withoutLegacySnippet.trim().replace(/\n{3,}/g, '\n\n');
 }
 
+function getAccentBlock(color) {
+    return `${ACCENT_MARKERS.start}
+:root { --suito-accent-color: ${color}; }
+.card-title,
+.section-title,
+.footer-brand-name,
+.card-location,
+.referral-link {
+    color: var(--suito-accent-color) !important;
+}
+.btn-secondary {
+    color: var(--suito-accent-color) !important;
+    border-color: color-mix(in srgb, var(--suito-accent-color) 42%, transparent) !important;
+}
+#btn-save-contact {
+    background: var(--suito-accent-color) !important;
+    color: #fff !important;
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--suito-accent-color) 35%, transparent) !important;
+}
+.referral-link {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--suito-accent-color) 65%, transparent) !important;
+}
+${ACCENT_MARKERS.end}`;
+}
+
+function getAccentRegex() {
+    return new RegExp(`\\s*${escapeRegExp(ACCENT_MARKERS.start)}[\\s\\S]*?${escapeRegExp(ACCENT_MARKERS.end)}\\s*`, 'g');
+}
+
+function getAccentColorFromCss(text) {
+    const match = String(text || '').match(/--suito-accent-color:\s*(#[0-9a-f]{3}(?:[0-9a-f]{3})?)\s*;/i);
+    return match ? sanitizeColor(match[1]) : '';
+}
+
+function setAccentColorCss(text, color) {
+    const cleaned = String(text || '').replace(getAccentRegex(), '\n').trim();
+    const block = getAccentBlock(sanitizeColor(color));
+    return cleaned ? `${cleaned}\n\n${block}` : block;
+}
+
 export function renderClientPanel(container, card) {
     const data = {
         _id:        card.id,
@@ -96,6 +140,7 @@ export function renderClientPanel(container, card) {
         socialColor: card.social_color || card.primary_color || card.color_primario || '#8B5CF6',
         cardTheme: card.card_theme || 'obsidian',
         customCss: card.custom_css || '',
+        accentColor: getAccentColorFromCss(card.custom_css) || card.primary_color || card.color_primario || '#8B5CF6',
         gallery: (card.gallery_images || card.gallery || []).map(img => ({
             id:      img.id,
             src:     img.image_url || img.src || '',
@@ -321,6 +366,15 @@ function buildPanelHTML(data) {
                 <div style="display:flex; gap:10px; align-items:center;">
                   <input class="cp-input" id="cp-social-color" type="color" value="${sanitizeColor(data.socialColor)}" style="width:58px; min-width:58px; padding:4px;">
                   <input class="cp-input" id="cp-social-color-text" type="text" value="${sanitizeColor(data.socialColor)}" maxlength="7" placeholder="#8B5CF6">
+                </div>
+              </div>
+
+              <div>
+                <label class="cp-label"><i class="fa-solid fa-droplet"></i> Textos destacados y Agendar</label>
+                <p class="section-hint">Cambia el color de los textos violeta, el boton Compartir y el boton Agendar.</p>
+                <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+                  <input class="cp-input" id="cp-accent-color" type="color" value="${sanitizeColor(data.accentColor)}" style="width:58px; min-width:58px; padding:4px;">
+                  <input class="cp-input" id="cp-accent-color-text" type="text" value="${sanitizeColor(data.accentColor)}" maxlength="7" placeholder="#8B5CF6">
                 </div>
               </div>
 
@@ -658,7 +712,10 @@ function wireProfileEvents(container, data) {
                     ? 'official'
                     : sanitizeColor(container.querySelector('#cp-social-color-text')?.value || '');
                 profilePayload.card_theme = container.querySelector('#cp-card-theme')?.value || 'obsidian';
-                profilePayload.custom_css = container.querySelector('#cp-custom-css')?.value || '';
+                profilePayload.custom_css = setAccentColorCss(
+                    container.querySelector('#cp-custom-css')?.value || '',
+                    container.querySelector('#cp-accent-color-text')?.value || '#8B5CF6'
+                );
             }
 
             await updateBusinessProfileSecure(data._id, data._token, profilePayload);
@@ -816,6 +873,8 @@ function rerenderGallery(container, data) {
 function wireDesignEvents(container) {
     const colorPicker = container.querySelector('#cp-social-color');
     const colorText = container.querySelector('#cp-social-color-text');
+    const accentPicker = container.querySelector('#cp-accent-color');
+    const accentText = container.querySelector('#cp-accent-color-text');
     const designSaveBtn = container.querySelector('#cp-save-design');
 
     colorPicker?.addEventListener('input', () => {
@@ -826,6 +885,17 @@ function wireDesignEvents(container) {
         const color = sanitizeColor(colorText.value);
         if (colorPicker && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorText.value.trim())) {
             colorPicker.value = color;
+        }
+    });
+
+    accentPicker?.addEventListener('input', () => {
+        if (accentText) accentText.value = sanitizeColor(accentPicker.value);
+    });
+
+    accentText?.addEventListener('input', () => {
+        const color = sanitizeColor(accentText.value);
+        if (accentPicker && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(accentText.value.trim())) {
+            accentPicker.value = color;
         }
     });
 
