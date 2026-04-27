@@ -556,6 +556,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
 
 .suito-gallery-reveal-btn:active {
   transform: scale(0.98);
