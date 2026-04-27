@@ -1,36 +1,59 @@
-# Resumen de Sesion - Suito Platform
-**Fecha:** 26 de abril de 2026
-**Sesion:** Agent Deployment Planner + unificacion estetica Turnos/Card
+# Resumen de Sesión — MiSuite Platform
+**Fecha:** 2026-04-27 02:10 (Local)
+**Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite.git)
 
 ---
 
-## Objetivo
-Registrar la nueva skill de pre-ejecucion `agent-deployment-planner` e implementar la unificacion estetica y funcional entre `/turnos`, `/card` y `/shared`.
+## 🎯 Objetivo de la sesión
+Reubicar los captions de la galería fuera de las imágenes para mejorar la legibilidad en fotos claras y asegurar que los cambios se desplieguen correctamente en producción.
 
-## Lo hecho
-1. Se creo `.agent/skills/agent-deployment-planner/SKILL.md` y se integro en `suito-dev-router/SKILL.md` y `AGENTS.md`.
-2. Se agregaron tokens y utilidades compartidas en `/shared`: `design-tokens.css`, `animations.css`, `colorUtils.ts`, `imageUtils.ts` y `vcard.ts`.
-3. Card migro a variables dinamicas de color, `engine-v2029.js` inyecta `--color-primary`, `--color-primary-dark` y `--color-primary-rgb`, y el editor clasico incluye selector de color.
-4. Turnos incorporo lightbox de galeria, barra de iconos sociales, descarga vCard, autosave con debounce y preview sticky de la tarjeta.
-5. Se agrego soporte para `whatsapp_message` en tipos/guardado y la migracion `supabase/migrations/20260426000000_add_whatsapp_message.sql`.
-6. Se refactorizo el shell de Turnos en `turnos/components/TurnosShell.tsx`: rutas admin usan layout ancho con sidebar glass en desktop; rutas cliente/auth mantienen contenedor centrado tipo mobile.
-7. Se expandio el sistema de rubros y temas de Turnos: `BusinessCategory` ahora incluye `label`, `group`, `icon` Material Symbols y `searchTags`; `ServiceManager` agrupa y busca rubros; `COLOR_PRESETS` ahora esta tipado por familias `Signature`, `Vibrant`, `Pastel` y `Corporate`.
-8. Se oculto `BottomNavigation` en desktop (`lg:hidden`) para evitar solaparse con el sidebar admin.
-9. Se agrego frecuencia configurable de grilla de horarios: migracion `20260426000001_add_slot_interval.sql`, utilidad `shared/timeUtils.ts`, `ScheduleConfig.frecuenciaTurnos`, persistencia `frecuencia_turnos` y selector de frecuencia en `ScheduleConfigPage`.
-10. Se completo la limpieza pendiente de la landing `index.html`: pricing Pro/Pack, visual de ahorro real, footer simplificado, logo transparente en footer y version `beta · build.suito.20260426`. Tambien se copio `favicon.svg` a `public/assets/favicon.svg`.
+---
 
-## Verificacion
-- `npm run typecheck`: OK.
-- `vitest run turnos/tests/constants.test.ts`: OK, 17 tests.
-- `npm run build`: OK.
-- Verificacion posterior de frecuencia de horarios: `npm run typecheck` OK. `npm run build` y Vitest no pudieron re-ejecutarse por `spawn EPERM` dentro del sandbox y rechazo de escalacion por limite de uso del entorno.
-- Verificacion posterior de landing: busqueda en `index.html` y respuesta del dev server OK para textos nuevos; `npm run build` escalado fallo por memoria de esbuild (`runtime: cannot allocate memory`) al transformar modulos, no por error de HTML.
-- Visual con `vite preview`: OK para `/card/suito` y `/turnos/index.html#/demo/identidad`.
-- Visual posterior del shell admin: OK, sidebar desktop visible y contenido ancho.
-- Visual posterior de `/turnos/index.html#/demo/config`: OK, colores agrupados y selector de rubros con buscador sin solapamiento del bottom nav.
-- Warning vigente: Vite sigue reportando que `card/js/engine-v2029.js` se importa estatica y dinamicamente desde `app-v2029-final.js`. Era un pendiente previo y no bloquea build.
+## ✅ Lo que se hizo
+- **Rediseño de Galería**:
+    - Cambiado layout de `.suito-gallery-item` a vertical (`flex-column`).
+    - Envolvimiento de imágenes en `.suito-gallery-item-img-wrap` con sombras y bordes redondeados.
+    - Posicionamiento estático de captions debajo de la imagen con fondo transparente en el grid.
+- **Mejora del Lightbox**:
+    - Implementado fondo oscuro con desenfoque (`backdrop-filter: blur(8px)`) para el caption del lightbox, garantizando legibilidad premium.
+- **Higiene del Repositorio**:
+    - Actualizado `.gitignore` para excluir carpetas de metadatos del agente (`.agent`, `.session`, `.brain`, etc.).
+- **Corrección de Build**:
+    - Solucionado error crítico de sintaxis en `styles.css` (bloque sin cerrar en `.suito-gallery-reveal-btn`) que impedía la compilación.
+- **Despliegue**:
+    - Realizado commit y push a GitHub.
+    - Despliegue exitoso en **Vercel Production**.
 
-## Pendiente
-1. Ejecutar manualmente la migracion SQL `20260426000000_add_whatsapp_message.sql` en Supabase SQL Editor.
-2. Si se quiere cerrar el warning de Vite, unificar el patron de import de `engine-v2029.js` en `app-v2029-final.js`.
-3. El validador de skills no corrio porque falta `PyYAML` para `quick_validate.py` en este entorno.
+---
+
+## ❌ Problemas encontrados
+- **Error de Build en Vercel**: El despliegue inicial falló debido a un error de sintaxis CSS pre-existente o accidental en la línea 543. Se corrigió manualmente tras debuggear el log de `npm run build`.
+- **Conflictos de reemplazo**: El tool `replace_file_content` falló varias veces por discrepancias mínimas en el contenido del archivo (espacios/saltos de línea). Se resolvió usando scripts de PowerShell para reemplazos exactos por bloques.
+
+---
+
+## 📋 Pendiente (para la próxima sesión)
+
+### Prioridad 1 — Validaciones
+1. Verificar visualmente la galería en dispositivos móviles para confirmar que el layout vertical no rompe el scroll.
+2. Confirmar que las fotos sin caption no dejen espacios vacíos innecesarios.
+
+### Prioridad 2 — Mejoras UI
+1. Considerar añadir una transición suave de entrada para los captions en el lightbox.
+2. Revisar el contraste de los iconos de navegación en el lightbox sobre fondos muy claros.
+
+---
+
+## 🔑 IDs y Referencias Importantes
+- **Commit SHAs**: 
+    - `e97c5cd`: feat(gallery): relocate captions below images...
+    - `4fba56a`: fix(css): close unclosed block...
+- **Deploy URL**: [https://max-devs-suite-a2pl0fded-matias-maximiliano-bernals-projects.vercel.app](https://max-devs-suite-a2pl0fded-matias-maximiliano-bernals-projects.vercel.app)
+- **Vercel Project**: `max-devs-suite`
+
+---
+
+## 💡 Decisiones técnicas tomadas
+- **Posicionamiento Estático**: Se decidió sacar el caption del overlay absoluto para evitar que el texto compita con el contenido de la imagen en el grid de miniaturas.
+- **Backdrop Filter**: Se optó por un blur dinámico en lugar de un color sólido para mantener la estética moderna y permitir que parte de la imagen se intuya debajo del caption en el lightbox.
+- **Git Hygiene**: Se forzó la exclusión de `.agent` para evitar problemas de sincronización en futuros entornos de trabajo.
