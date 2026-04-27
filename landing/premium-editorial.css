@@ -1,3 +1,5 @@
+@import "../shared/suito-brand-motion.css";
+
 /* ============================================================
    SUITO — Design Tokens · Premium Editorial + Glassmorphism
    ============================================================ */
@@ -167,9 +169,31 @@ input, textarea { font-family: var(--font-sans); }
 }
 .card-3d:hover .holo { transform: translateX(40%); }
 
+.card-3d.real-card-frame .holo {
+  transform: translateX(-75%);
+  animation: heroCardHoloSweep 3.8s ease-in-out infinite;
+}
+
+@keyframes heroCardHoloSweep {
+  0%,
+  16% {
+    transform: translateX(-75%);
+    opacity: 0;
+  }
+  34% {
+    opacity: 1;
+  }
+  62%,
+  100% {
+    transform: translateX(64%);
+    opacity: 0;
+  }
+}
+
 .real-card-frame {
   background: #0d0d0f;
   isolation: isolate;
+  border-radius: 36px;
 }
 
 .card-3d.real-card-frame > :not(.real-card-shot):not(.holo) {
@@ -185,7 +209,8 @@ input, textarea { font-family: var(--font-sans); }
 }
 
 .real-card-shot.hero-shot {
-  max-height: 650px;
+  max-height: 680px;
+  border-radius: 32px;
 }
 
 .real-card-showcase {

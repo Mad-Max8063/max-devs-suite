@@ -26,6 +26,7 @@ ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS font_family     TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS social_color    TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS card_theme      TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS custom_css      TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS force_watermark BOOLEAN DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS idx_businesses_edit_token ON public.businesses(edit_token);
 
@@ -605,23 +606,24 @@ GRANT SELECT (
     id, slug, nombre_negocio, telefono, email, valor_sena, alias_mp,
     link_pago, qr_image_url, modo_sandbox, foto_url, color_primario,
     notificaciones_email, recordatorios_activos, fecha_vencimiento,
-    is_premium, profession, description, location, facebook, instagram,
-    linkedin, website, booking_url, whatsapp_message, cover_url,
-    gallery_images, active_modules, subscription_status, trial_ends_at,
-    locked_price, price_lock_ends_at, free_until, font_family,
-    social_color, card_theme, custom_css, created_at, updated_at
+    is_premium, force_watermark, profession, description, location,
+    facebook, instagram, linkedin, website, booking_url, whatsapp_message,
+    cover_url, gallery_images, active_modules, subscription_status,
+    trial_ends_at, locked_price, price_lock_ends_at, free_until,
+    font_family, social_color, card_theme, custom_css, created_at,
+    updated_at
 ) ON public.businesses TO anon;
 
 GRANT SELECT (
     id, user_id, slug, nombre_negocio, telefono, email, valor_sena,
     alias_mp, link_pago, qr_image_url, modo_sandbox, foto_url,
     color_primario, notificaciones_email, recordatorios_activos,
-    fecha_vencimiento, is_premium, profession, description, location,
-    facebook, instagram, linkedin, website, booking_url, whatsapp_message,
-    cover_url, gallery_images, active_modules, subscription_status,
-    trial_ends_at, locked_price, price_lock_ends_at, free_until,
-    font_family, social_color, card_theme, custom_css, created_at,
-    updated_at
+    fecha_vencimiento, is_premium, force_watermark, profession,
+    description, location, facebook, instagram, linkedin, website,
+    booking_url, whatsapp_message, cover_url, gallery_images,
+    active_modules, subscription_status, trial_ends_at, locked_price,
+    price_lock_ends_at, free_until, font_family, social_color,
+    card_theme, custom_css, created_at, updated_at
 ) ON public.businesses TO authenticated;
 
 -- Authenticated users need table-level SELECT for the admin panel's select('*').

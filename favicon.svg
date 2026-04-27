@@ -21,8 +21,24 @@
       <stop offset="50%" stop-color="#3d2d0c"/>
       <stop offset="100%" stop-color="#1A1203"/>
     </linearGradient>
+    <style>
+      #coin-motion {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: suito-favicon-coin 1.18s cubic-bezier(.55,.04,.22,1) infinite;
+      }
+      @keyframes suito-favicon-coin {
+        0% { transform: rotateY(0deg) scale(1); filter: drop-shadow(0 0 8px rgba(212,175,55,.28)); }
+        50% { transform: rotateY(180deg) scale(.94); filter: drop-shadow(0 0 18px rgba(255,232,160,.58)) brightness(1.18); }
+        100% { transform: rotateY(360deg) scale(1); filter: drop-shadow(0 0 8px rgba(212,175,55,.28)); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #coin-motion { animation: none; }
+      }
+    </style>
   </defs>
 
+  <g id="coin-motion">
   <g id="emblem">
     <circle cx="250" cy="250" r="170" fill="url(#gold-rim-dark)"/>
     <circle cx="248" cy="248" r="166" fill="url(#gold-bright)"/>
@@ -42,5 +58,6 @@
     <text x="250" y="360" font-family="Georgia, serif" font-size="320" text-anchor="middle" fill="#5C4000" transform="translate(3, 3)">S</text>
     <text x="250" y="360" font-family="Georgia, serif" font-size="320" text-anchor="middle" fill="url(#gold-bright)">S</text>
     <text x="250" y="360" font-family="Georgia, serif" font-size="320" text-anchor="middle" fill="none" stroke="#FFF1AA" stroke-width="2" opacity="0.7">S</text>
+  </g>
   </g>
 </svg>

@@ -84,11 +84,19 @@
     transparent 66%
   );
   mix-blend-mode: screen;
-  animation: suitoGoldSweep 3.2s ease-in-out infinite;
+  animation: suitoGoldSweep 5.5s ease-in-out infinite;
 }
 
 .suito-logo-shine {
   border-radius: 16px;
+  -webkit-mask-image: url('/assets/logo-transparent.svg');
+  mask-image: url('/assets/logo-transparent.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .suito-gold-text-shine {
@@ -106,7 +114,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: #c9a66b;
-  animation: suitoTextGoldFlow 4.4s linear infinite;
+  animation: suitoTextGoldFlow 7s linear infinite;
 }
 
 .suito-favicon-coin {

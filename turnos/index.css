@@ -1,5 +1,6 @@
 @import "../shared/design-tokens.css";
 @import "../shared/animations.css";
+@import "../shared/suito-brand-motion.css";
 @import "tailwindcss";
 @config "../tailwind.config.js";
 

@@ -589,7 +589,8 @@ body {
 
 .suito-gallery-reveal-btn {
   width: 100%;
-  padding: 16px;
+  min-height: 96px;
+  padding: 18px 20px;
   background: rgba(25, 25, 25, 0.62);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -597,12 +598,35 @@ body {
   border-radius: 16px;
   color: #fff;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+  overflow: hidden;
+  text-align: left;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: opacity 0.24s ease, transform 0.2s ease;
+}
+
+.suito-gallery-reveal-btn svg {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  max-width: 36px;
+  max-height: 36px;
+  display: block;
+  flex: 0 0 36px;
+  flex-shrink: 0;
+}
+
+.suito-gallery-reveal-btn span {
+  display: block;
+  min-width: 0;
+  max-width: 150px;
 }
 
 .suito-gallery-reveal-btn:active {
@@ -695,6 +719,58 @@ body {
 .suito-lightbox.suito-hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+.suito-lb-close,
+.suito-lb-prev,
+.suito-lb-next {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(18, 18, 18, 0.62);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.suito-lb-close:hover,
+.suito-lb-prev:hover,
+.suito-lb-next:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(1.04);
+}
+
+.suito-lb-close {
+  top: 18px;
+  right: 18px;
+}
+
+.suito-lb-prev {
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.suito-lb-next {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.suito-lb-prev:hover,
+.suito-lb-next:hover {
+  transform: translateY(-50%) scale(1.04);
 }
 
 .suito-lb-img {

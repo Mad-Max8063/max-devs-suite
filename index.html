@@ -35,12 +35,17 @@
   <div class="vignette"></div>
   <div class="grain"></div>
 </div>
+<div class="suito-page-transition" id="suito-page-transition" aria-hidden="true">
+  <div class="suito-favicon-coin"></div>
+</div>
 
 <!-- ==================== NAV ==================== -->
 <div class="site-nav-shell" style="position:fixed;top:18px;left:0;right:0;z-index:50;display:flex;justify-content:center;pointer-events:none;">
   <nav class="glass site-nav" style="pointer-events:auto;display:flex;align-items:center;gap:4px;padding:8px 8px 8px 20px;border-radius:999px;">
     <a href="#" onclick="showView('landing');return false" style="padding-right:14px;border-right:1px solid var(--line);display:inline-flex;align-items:center;">
-      <img src="/assets/logo-transparent.svg" alt="Suito" style="height:34px;width:104px;object-fit:contain;display:block;filter: drop-shadow(0 0 10px rgba(201,166,107,0.25));">
+      <span class="suito-gold-shine suito-logo-shine" style="height:34px;width:104px;">
+        <img src="/assets/logo-transparent.svg" alt="Suito" style="height:100%;width:100%;object-fit:contain;display:block;filter: drop-shadow(0 0 10px rgba(201,166,107,0.25));">
+      </span>
     </a>
 
     <button onclick="showView('landing')" class="nav-btn" data-view="landing" style="padding:8px 14px;border-radius:999px;font-size:13px;letter-spacing:-0.005em;transition:all .2s ease;">Producto</button>
@@ -62,7 +67,9 @@
     <div class="wrap hero-grid" style="display:grid;grid-template-columns:1.05fr 0.95fr;gap:60px;align-items:center;">
       <div>
         <div class="reveal">
-          <img src="/assets/logo-transparent.svg" alt="Suito" style="width:min(280px, 72vw);height:auto;display:block;margin-bottom:22px;">
+          <span class="suito-gold-shine suito-logo-shine" style="width:min(280px, 72vw);margin-bottom:22px;">
+            <img src="/assets/logo-transparent.svg" alt="Suito" style="width:100%;height:auto;display:block;">
+          </span>
           <div class="hero-brand-pill" style="display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 8px;border-radius:999px;background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:var(--glass-blur);">
             <span style="padding:3px 9px;border-radius:999px;background:var(--gold-500);color:var(--ink-950);font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;">LU</span>
             <span class="hero-brand-copy" style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.02em;color:var(--fg-dim);">Diseno de Autor</span>
@@ -114,7 +121,7 @@
       <div class="reveal hero-card-col" data-delay="200" style="display:flex;justify-content:center;">
         <div class="card-3d-wrap" id="card-tilt-wrap">
           <div class="card-3d real-card-frame" id="card-tilt" style="transform:rotateX(-8deg) rotateY(12deg);">
-            <img class="real-card-shot hero-shot" src="/assets/showcase/max-devs-solutions-card.png" alt="Tarjeta Suito real de Max Devs Solutions" loading="eager">
+            <img class="real-card-shot hero-shot" src="/assets/showcase/max-devs-solutions-card.png?v=20260427" alt="Tarjeta Suito real de Max Devs Solutions" loading="eager">
             <!-- Top bar -->
             <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);">
               <span class="mono" style="font-size:10px;letter-spacing:0.2em;color:var(--gold-500);">SUITO · CARD</span>
@@ -548,7 +555,9 @@
       <div class="footer-grid" style="display:grid;grid-template-columns:1.4fr repeat(3, 1fr);gap:40px;">
         <div>
           <div style="display:inline-flex;align-items:center;">
-            <img src="/assets/logo-transparent.svg" alt="Suito" style="height:54px;width:136px;object-fit:contain;display:block;">
+            <span class="suito-gold-shine suito-logo-shine" style="height:54px;width:136px;">
+              <img src="/assets/logo-transparent.svg" alt="Suito" style="height:100%;width:100%;object-fit:contain;display:block;">
+            </span>
           </div>
           <p style="color:var(--fg-dim);font-size:14px;margin-top:16px;max-width:300px;line-height:1.55;">
             Galeria operativa para profesionales argentinos. Hecho en Buenos Aires.
@@ -828,6 +837,13 @@ function updateNavActive(viewName) {
 
 // ——— View management ———
 function showView(name) {
+  var transition = document.getElementById('suito-page-transition');
+  if (transition) {
+    transition.classList.add('is-active');
+    window.setTimeout(function() {
+      transition.classList.remove('is-active');
+    }, 520);
+  }
   ['landing-view', 'onboarding-view', 'success-view'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');

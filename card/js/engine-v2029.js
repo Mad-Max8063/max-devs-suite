@@ -320,7 +320,7 @@ class SuitoGallery {
         revealBtn.className = 'suito-gallery-reveal-btn';
         revealBtn.setAttribute('aria-expanded', 'false');
         revealBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                 <circle cx="12" cy="13" r="4"></circle>
             </svg>
@@ -638,7 +638,7 @@ function buildCardHTML(data) {
                     </div>
                 ` : ''}
                 <div class="footer-brand">
-                    <span class="footer-brand-name">Suito</span>
+                    <span class="footer-brand-name suito-gold-text-shine">Suito</span>
                     <span class="footer-brand-tagline">Gold & Obsidian</span>
                 </div>
             </footer>

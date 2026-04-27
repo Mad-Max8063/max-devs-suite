@@ -9,13 +9,14 @@ interface SuitoLogoProps {
 
 const SuitoLogo: React.FC<SuitoLogoProps> = ({ className, showText = true }) => {
   return (
-    <img
-      src={showText ? '/assets/logo.png' : '/assets/suito-symbol.png'}
-      alt="Suito"
-      className={className}
-      draggable={false}
-      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-    />
+    <span className={`suito-gold-shine suito-logo-shine ${className || ''}`}>
+      <img
+        src={showText ? '/assets/logo-transparent.svg' : '/assets/suito-symbol.png'}
+        alt="Suito"
+        draggable={false}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
+    </span>
   );
 };
 
