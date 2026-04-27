@@ -22,12 +22,18 @@ ON CONFLICT (id) DO NOTHING;
 -- 3. RLS: lectura pública, escritura solo para usuarios autenticados
 ALTER TABLE public.pricing ENABLE ROW LEVEL SECURITY;
 
-GRANT SELECT ON public.pricing TO anon, authenticated;
+-- Seguridad: limpiar cualquier permiso heredado o grant histórico.
+-- RLS no protege contra TRUNCATE, por eso no dejamos privilegios sobrantes.
+REVOKE ALL ON public.pricing FROM anon, authenticated, PUBLIC;
+
+GRANT SELECT ON public.pricing TO anon;
+GRANT SELECT ON public.pricing TO authenticated;
 GRANT UPDATE ON public.pricing TO authenticated;
 
 DROP POLICY IF EXISTS "pricing_read_all" ON public.pricing;
 CREATE POLICY "pricing_read_all" ON public.pricing
-    FOR SELECT USING (true);
+    FOR SELECT TO anon, authenticated
+    USING (true);
 
 DROP POLICY IF EXISTS "pricing_update_auth" ON public.pricing;
 DROP POLICY IF EXISTS "pricing_update_super_admin" ON public.pricing;
@@ -50,3 +56,19 @@ CREATE TRIGGER trg_pricing_updated_at
     BEFORE UPDATE ON public.pricing
     FOR EACH ROW
     EXECUTE FUNCTION public.update_pricing_timestamp();
+
+-- 5. Auditoría de seguridad
+-- Esperado: anon=SELECT, authenticated=SELECT+UPDATE, sin DELETE/TRUNCATE.
+SELECT grantee, privilege_type
+FROM information_schema.table_privileges
+WHERE table_schema = 'public'
+  AND table_name = 'pricing'
+ORDER BY grantee, privilege_type;
+
+-- Esperado: 0 filas.
+SELECT grantee, privilege_type
+FROM information_schema.table_privileges
+WHERE table_schema = 'public'
+  AND table_name = 'pricing'
+  AND grantee IN ('anon', 'PUBLIC')
+  AND privilege_type IN ('UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES', 'TRIGGER');

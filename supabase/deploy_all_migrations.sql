@@ -507,8 +507,9 @@ DROP POLICY IF EXISTS "Insercion publica de turnos" ON public.appointments;
 DROP POLICY IF EXISTS "Permitir insercion solo si el modulo appointments esta activo" ON public.appointments;
 DROP POLICY IF EXISTS "Permitir inserción solo si el modulo appointments esta activo" ON public.appointments;
 
-REVOKE SELECT ON public.appointments FROM anon;
-REVOKE SELECT ON public.appointments FROM PUBLIC;
+REVOKE ALL ON public.appointments FROM anon;
+REVOKE ALL ON public.appointments FROM PUBLIC;
+REVOKE ALL ON public.appointments FROM authenticated;
 GRANT SELECT ON public.appointments TO authenticated;
 GRANT INSERT ON public.appointments TO anon, authenticated;
 
@@ -703,7 +704,12 @@ ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE public.pricing ENABLE ROW LEVEL SECURITY;
 
-GRANT SELECT ON public.pricing TO anon, authenticated;
+REVOKE ALL ON public.pricing FROM anon;
+REVOKE ALL ON public.pricing FROM PUBLIC;
+REVOKE ALL ON public.pricing FROM authenticated;
+
+GRANT SELECT ON public.pricing TO anon;
+GRANT SELECT ON public.pricing TO authenticated;
 GRANT UPDATE ON public.pricing TO authenticated;
 
 DROP POLICY IF EXISTS "pricing_read_all" ON public.pricing;
@@ -789,3 +795,11 @@ FROM information_schema.table_privileges
 WHERE table_schema = 'public'
   AND table_name = 'pricing'
 ORDER BY grantee, privilege_type;
+
+-- H) Ningún privilegio peligroso para anon/PUBLIC en tablas sensibles (esperado: 0 filas)
+SELECT table_name, grantee, privilege_type
+FROM information_schema.table_privileges
+WHERE table_schema = 'public'
+  AND table_name IN ('pricing', 'appointments', 'businesses')
+  AND grantee IN ('anon', 'PUBLIC')
+  AND privilege_type IN ('UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES', 'TRIGGER');
