@@ -1,0 +1,162 @@
+/* Shared Suito brand motion */
+
+@keyframes suitoGoldSweep {
+  0% {
+    transform: translateX(-150%) skewX(-22deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  42% {
+    opacity: 0.55;
+  }
+  58%,
+  100% {
+    transform: translateX(150%) skewX(-22deg);
+    opacity: 0;
+  }
+}
+
+@keyframes suitoLogoGoldPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(201, 166, 107, 0.2)) saturate(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgba(255, 228, 148, 0.55)) saturate(1.22);
+  }
+}
+
+@keyframes suitoTextGoldFlow {
+  from {
+    background-position: 180% 50%;
+  }
+  to {
+    background-position: -120% 50%;
+  }
+}
+
+@keyframes suitoCoinSpin {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    filter: drop-shadow(0 0 8px rgba(201, 166, 107, 0.28));
+  }
+  50% {
+    transform: rotateY(180deg) scale(0.94);
+    filter: drop-shadow(0 0 18px rgba(255, 232, 160, 0.58)) brightness(1.22);
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+    filter: drop-shadow(0 0 8px rgba(201, 166, 107, 0.28));
+  }
+}
+
+.suito-gold-shine {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  vertical-align: middle;
+  animation: suitoLogoGoldPulse 4.8s ease-in-out infinite;
+}
+
+.suito-gold-shine > img,
+.suito-gold-shine > svg {
+  position: relative;
+  z-index: 1;
+}
+
+.suito-gold-shine::after {
+  content: "";
+  position: absolute;
+  inset: -40% -72%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 34%,
+    rgba(255, 242, 177, 0.1) 42%,
+    rgba(255, 255, 255, 0.82) 49%,
+    rgba(212, 175, 55, 0.48) 55%,
+    transparent 66%
+  );
+  mix-blend-mode: screen;
+  animation: suitoGoldSweep 3.2s ease-in-out infinite;
+}
+
+.suito-logo-shine {
+  border-radius: 16px;
+}
+
+.suito-gold-text-shine {
+  background: linear-gradient(
+    100deg,
+    #7c3aed 0%,
+    #c9a66b 28%,
+    #fff1aa 42%,
+    #d4af37 52%,
+    #7c3aed 74%,
+    #7c3aed 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #c9a66b;
+  animation: suitoTextGoldFlow 4.4s linear infinite;
+}
+
+.suito-favicon-coin {
+  width: 42px;
+  height: 42px;
+  border: 0 !important;
+  border-radius: 50%;
+  background: url("/assets/favicon.svg") center / contain no-repeat;
+  transform-style: preserve-3d;
+  animation: suitoCoinSpin 1.12s cubic-bezier(0.55, 0.04, 0.22, 1) infinite;
+}
+
+.suito-page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 0.18s ease, transform 0.28s ease;
+}
+
+.suito-page-transition::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(8, 9, 13, 0.68), rgba(8, 9, 13, 0.16) 52%, transparent 72%);
+}
+
+.suito-page-transition.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.suito-page-transition .suito-favicon-coin {
+  position: relative;
+  z-index: 1;
+  width: 58px;
+  height: 58px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suito-gold-shine,
+  .suito-gold-shine::after,
+  .suito-gold-text-shine,
+  .suito-favicon-coin,
+  .suito-page-transition {
+    animation: none !important;
+    transition: none !important;
+  }
+}
