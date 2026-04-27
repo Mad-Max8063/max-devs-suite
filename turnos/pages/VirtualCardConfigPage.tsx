@@ -12,7 +12,7 @@ import { resizeImage } from '../../shared/imageUtils';
 import { downloadVCard } from '../../shared/vcard';
 import { useDebounceSave } from '../hooks/useDebounceSave';
 
-const MAX_GALLERY_IMAGES = 4;
+const MAX_GALLERY_IMAGES = 3;
 
 type GalleryItem = { image_url: string; caption?: string };
 
@@ -360,7 +360,7 @@ const VirtualCardConfigPage: React.FC = () => {
               </button>
               {gallery.length > 0 && (
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  {gallery.filter((item) => item.image_url).slice(0, 4).map((item, index) => (
+                  {gallery.filter((item) => item.image_url).slice(0, MAX_GALLERY_IMAGES).map((item, index) => (
                     <button key={`${item.image_url}-${index}`} type="button" onClick={() => setLightboxIndex(index)} className="relative aspect-square overflow-hidden rounded-xl bg-surface-2">
                       <img src={item.image_url} alt={item.caption || `Trabajo ${index + 1}`} className="h-full w-full object-cover" />
                     </button>

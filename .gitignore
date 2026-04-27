@@ -30,3 +30,8 @@ __pycache__
 .env.local
 .vercel
 .env*.local
+.agent
+.session
+.brain
+.system_generated
+.scratch

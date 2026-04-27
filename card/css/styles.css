@@ -556,20 +556,6 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  cursor: pointer;
-  transition: opacity 0.24s ease, transform 0.2s ease, border-color 0.2s ease;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-}
-
-.suito-gallery-reveal-btn svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
-}
-
-.suito-gallery-reveal-btn:hover {
-  border-color: rgba(var(--color-primary-rgb), 0.7);
-}
 
 .suito-gallery-reveal-btn:active {
   transform: scale(0.98);
@@ -598,14 +584,27 @@ body {
 .suito-gallery-item {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
   padding: 0;
   border: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.suito-gallery-item:hover {
+  transform: translateY(-2px);
+}
+
+.suito-gallery-item-img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 14px;
   overflow: hidden;
   background: var(--surface-2);
-  cursor: pointer;
-  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .suito-gallery-item img {
@@ -613,25 +612,22 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: filter 0.2s ease, transform 0.35s ease;
+  transition: transform 0.4s ease;
 }
 
-.suito-gallery-item:hover img {
-  filter: brightness(1.08);
-  transform: scale(1.04);
+.suito-gallery-item:hover .suito-gallery-item-img-wrap img {
+  transform: scale(1.06);
 }
 
 .suito-gallery-item-caption {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 20px 10px 10px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.68), transparent);
-  color: #fff;
-  font-size: 0.76rem;
-  font-weight: 700;
-  text-align: left;
+  padding: 10px 4px;
+  color: var(--on-surface);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  background: transparent;
+  width: 100%;
 }
 
 .suito-lightbox {
@@ -654,108 +650,41 @@ body {
 }
 
 .suito-lb-img {
-  max-width: 90vw;
-  max-height: 80vh;
+  max-width: 95%;
+  max-height: 70vh;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 12px;
   user-select: none;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
 }
 
-.suito-lb-caption {
-  position: absolute;
-  right: 20px;
-  bottom: 22px;
-  left: 20px;
-  color: #fff;
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-align: center;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-}
-
-.suito-lb-close,
-.suito-lb-prev,
-.suito-lb-next {
-  position: absolute;
-  border: 0;
-  color: #fff;
-  cursor: pointer;
-  z-index: 10000;
-}
-
-.suito-lb-close {
-  top: 18px;
-  right: 18px;
-  width: 44px;
-  height: 44px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 50%;
-  font-size: 34px;
-  line-height: 1;
-}
-
-.suito-lb-prev,
-.suito-lb-next {
-  top: 50%;
-  width: 44px;
-  height: 44px;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 50%;
-  font-size: 22px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: background 0.2s ease;
-}
-
-.suito-lb-prev:hover,
-.suito-lb-next:hover,
-.suito-lb-close:hover {
-  background: rgba(255, 255, 255, 0.26);
-}
-
-.suito-lb-prev { left: 12px; }
-.suito-lb-next { right: 12px; }
-
-.social-icons-bar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  padding: 8px 0;
-  flex-wrap: wrap;
-}
-
-.social-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-  text-decoration: none;
-}
-
-.social-icon:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-
-.social-icon svg {
-  width: 22px;
-  height: 22px;
-  fill: white;
-}
-
-/* ——— Footer ——— */
-.card-footer {
-  padding: 24px;
+.suito-lb-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-top: auto;
+  gap: 20px;
+  width: 100%;
+  padding: 20px;
+  pointer-events: none;
+}
+
+.suito-lb-content > * {
+  pointer-events: auto;
+}
+
+.suito-lb-caption {
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 90%;
+  line-height: 1.4;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-divider {
@@ -1604,4 +1533,12 @@ body {
     min-height: auto;
     padding: 60px 24px;
   }
+}
+
+.suito-lb-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 90vw;
 }

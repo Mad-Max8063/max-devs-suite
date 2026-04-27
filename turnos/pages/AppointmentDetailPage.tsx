@@ -38,8 +38,12 @@ const AppointmentDetailPage: React.FC = () => {
   };
 
   // Generate WhatsApp link
+  const appBaseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
+  const cancellationUrl = appointment?.CancellationToken && slug && appBaseUrl
+    ? `${appBaseUrl}#/${slug}/cancel/${appointment.CancellationToken}`
+    : null;
   const whatsappLink = appointment
-    ? `https://wa.me/${appointment.TelefonoCliente}?text=${encodeURIComponent(`Hola ${appointment.NombreCliente}, te escribo por tu turno del ${appointment.Fecha} a las ${appointment.Hora}.`)}`
+    ? `https://wa.me/${appointment.TelefonoCliente}?text=${encodeURIComponent(`Hola ${appointment.NombreCliente}, te escribo por tu turno del ${appointment.Fecha} a las ${appointment.Hora}.${cancellationUrl ? `\n\nSi necesitás cancelar, podés hacerlo desde este link: ${cancellationUrl}` : ''}`)}`
     : '#';
 
   // Format date
@@ -204,10 +208,6 @@ const AppointmentDetailPage: React.FC = () => {
 
         {/* Actions */}
         <section className="flex flex-col gap-3">
-          <button className="w-full h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-[20px]">edit</span>
-            Editar Turno
-          </button>
           {status !== 'Cancelado' && (
             <button
               onClick={() => {

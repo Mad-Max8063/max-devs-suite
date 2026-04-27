@@ -624,16 +624,22 @@ GRANT SELECT (
     updated_at
 ) ON public.businesses TO authenticated;
 
+-- Authenticated users need table-level SELECT for the admin panel's select('*').
+-- RLS below restricts this to own rows or super_admin rows, so sensitive columns
+-- like edit_token are not exposed through the public anon profile policy.
+GRANT SELECT ON public.businesses TO authenticated;
+
 GRANT INSERT ON public.businesses TO anon, authenticated;
 GRANT UPDATE, DELETE ON public.businesses TO authenticated;
 
 CREATE POLICY "Public can view business profiles"
 ON public.businesses
 FOR SELECT
-TO anon, authenticated
+TO anon
 USING (true);
 
 DROP POLICY IF EXISTS "Owners can view their own business profile" ON public.businesses;
+DROP POLICY IF EXISTS "Authenticated owners and super admins can view business profiles" ON public.businesses;
 DROP POLICY IF EXISTS "Solo dueños editan su negocio" ON public.businesses;
 DROP POLICY IF EXISTS "Solo duenos editan su negocio" ON public.businesses;
 DROP POLICY IF EXISTS "Dueños y Admins gestionan negocios" ON public.businesses;
@@ -663,6 +669,12 @@ ON public.businesses
 FOR INSERT
 TO authenticated
 WITH CHECK (auth.uid() = user_id OR public.is_super_admin(auth.uid()));
+
+CREATE POLICY "Authenticated owners and super admins can view business profiles"
+ON public.businesses
+FOR SELECT
+TO authenticated
+USING (auth.uid() = user_id OR public.is_super_admin(auth.uid()));
 
 CREATE POLICY "Owners and super admins can manage business profiles"
 ON public.businesses

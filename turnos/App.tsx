@@ -11,6 +11,7 @@ import AgendaPage from './pages/AgendaPage';
 import AppointmentDetailPage from './pages/AppointmentDetailPage';
 import BookingPage from './pages/BookingPage';
 import ConfirmationPage from './pages/ConfirmationPage';
+import CancelPage from './pages/CancelPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VirtualCardConfigPage from './pages/VirtualCardConfigPage';
@@ -67,6 +68,7 @@ const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => 
  * Rutas para CLIENTE (públicas):
  * /:slug/booking       - Reservar turno
  * /:slug/confirmation  - Confirmación y pago
+ * /:slug/cancel/:token - Cancelación autogestionada
  */
 const App: React.FC = () => {
   return (
@@ -94,6 +96,7 @@ const App: React.FC = () => {
                   <Route path="/demo/booking" element={<DemoRoute element={<ModuleGuard requiredModule="appointments"><BookingPage /></ModuleGuard>} />} />
                   <Route path="/demo/confirmation" element={<DemoRoute element={<ModuleGuard requiredModule="appointments"><ConfirmationPage /></ModuleGuard>} />} />
                   <Route path="/demo/confirmation/:id" element={<DemoRoute element={<ModuleGuard requiredModule="appointments"><ConfirmationPage /></ModuleGuard>} />} />
+                  <Route path="/demo/cancel/:token" element={<DemoRoute element={<CancelPage />} />} />
 
                   {/* Entrepreneur (Admin) Routes - Protected */}
                   <Route path="/:slug" element={
@@ -149,6 +152,7 @@ const App: React.FC = () => {
                       <ConfirmationPage />
                     </ModuleGuard>
                   } />
+                  <Route path="/:slug/cancel/:token" element={<CancelPage />} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/demo" replace />} />

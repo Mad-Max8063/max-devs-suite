@@ -7,6 +7,8 @@
 import { sanitize, getCardUrl, resizeGalleryImage, dataUriToFile } from './utils.js';
 import { uploadImage, addGalleryImageSecure, deleteGalleryImageSecure, updateGalleryCaptionSecure } from './supabase-v2029.js';
 
+const FREE_GALLERY_LIMIT = 3;
+
 export function renderGalleryEditor(container, card) {
   // card comes from Supabase (DB format with _id etc.)
   const data = {
@@ -15,7 +17,7 @@ export function renderGalleryEditor(container, card) {
     photo: card.photo_url,
     _id: card.id,
     _token: card.edit_token || '',
-    gallery: (card.gallery_images || []).map(img => ({
+    gallery: (card.gallery_images || card.gallery || []).map(img => ({
       id: img.id,
       src: img.image_url,
       caption: img.caption || '',
@@ -38,7 +40,7 @@ function buildGalleryEditorHTML(data) {
     </div>
   `).join('');
 
-  const addBtn = data.gallery.length < 4 ? `
+  const addBtn = data.gallery.length < FREE_GALLERY_LIMIT ? `
     <label for="ge-gallery-input" class="gallery-add-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="12" y1="5" x2="12" y2="19"/>
@@ -70,7 +72,7 @@ function buildGalleryEditorHTML(data) {
       <div class="glass-card">
         <div class="form-section">
           <div class="section-label">Fotos de trabajos</div>
-          <p class="section-hint">Subí hasta 4 fotos y escribí una breve descripción de cada una. Tus clientes van a poder verlas.</p>
+          <p class="section-hint">Subí hasta ${FREE_GALLERY_LIMIT} fotos y escribí una breve descripción de cada una. Tus clientes van a poder verlas.</p>
 
           <div class="gallery-upload">
             <div class="gallery-grid" id="ge-gallery-grid">
@@ -140,7 +142,7 @@ function wireGalleryEditorEvents(container, data) {
       const files = Array.from(e.target.files);
       if (!files.length) return;
 
-      const remaining = 4 - data.gallery.length;
+      const remaining = FREE_GALLERY_LIMIT - data.gallery.length;
       const toProcess = files.slice(0, remaining);
 
       for (const file of toProcess) {

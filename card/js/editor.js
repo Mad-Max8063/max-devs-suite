@@ -3,10 +3,17 @@
 // ============================================
 
 import { resizeImage, resizeBanner, resizeGalleryImage, dataUriToFile } from './utils.js';
-import { createCard, updateCard, uploadImage, getSupabaseClient } from './supabase-v2029.js';
+import {
+  addGalleryImageSecure,
+  createCard,
+  getSupabaseClient,
+  updateBusinessProfileSecure,
+  uploadImage,
+} from './supabase-v2029.js';
 
 const FIELDS = ['name', 'profession', 'description', 'phone', 'email', 'location', 'instagram', 'linkedin', 'website', 'bookingUrl'];
 const MAX_DESC = 160;
+const FREE_GALLERY_LIMIT = 3;
 const COLOR_PRESETS = [
   { name: 'Violeta', hex: '#7c3aed' },
   { name: 'Rosa', hex: '#ec4899' },
@@ -192,7 +199,7 @@ export function initEditor(container, onPreview) {
       <div class="glass-card">
         <div class="form-section">
           <div class="section-label">Fotos de trabajos (opcional)</div>
-          <p class="section-hint">Mostrá tus trabajos realizados. Máximo 4 fotos con descripción.</p>
+          <p class="section-hint">Mostrá tus trabajos realizados. Máximo ${FREE_GALLERY_LIMIT} fotos con descripción.</p>
 
           <div class="gallery-upload" id="gallery-upload">
             <div class="gallery-grid" id="gallery-grid">
@@ -209,7 +216,7 @@ export function initEditor(container, onPreview) {
                     placeholder="Ej: Instalación de aire split" value="${caption}" maxlength="60">
                 </div>
               `}).join('')}
-              ${(data.gallery || []).length < 4 ? `
+              ${(data.gallery || []).length < FREE_GALLERY_LIMIT ? `
                 <label for="gallery-input" class="gallery-add-btn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -427,20 +434,19 @@ export function initEditor(container, onPreview) {
       // 4. Update card with image URLs if any were uploaded
       if (photoUrl || coverUrl) {
         const updates = {};
-        if (photoUrl) updates.photo_url = photoUrl;
+        if (photoUrl) updates.foto_url = photoUrl;
         if (coverUrl) updates.cover_url = coverUrl;
-        await updateCard(card.id, updates);
+        await updateBusinessProfileSecure(card.id, card.edit_token, updates);
       }
 
       // 5. Upload gallery images
       if (data.gallery && data.gallery.length > 0) {
-        const { addGalleryImage, uploadImage: upload } = await import('./supabase-v2029.js');
         for (let i = 0; i < data.gallery.length; i++) {
           const item = data.gallery[i];
           if (item.src && item.src.startsWith('data:')) {
             const file = dataUriToFile(item.src, `gallery-${i}.jpg`);
-            const imgUrl = await upload(file, card.id, 'gallery');
-            await addGalleryImage(card.id, imgUrl, item.caption || '', i);
+            const imgUrl = await uploadImage(file, card.id, 'gallery');
+            await addGalleryImageSecure(card.id, card.edit_token, imgUrl, item.caption || '', i);
           }
         }
       }
@@ -456,7 +462,11 @@ export function initEditor(container, onPreview) {
       console.error('Error saving card:', err);
       submitBtn.disabled = false;
       submitBtn.innerHTML = '👁 Previsualizar tarjeta';
-      alert('Error al guardar. Revisá tu conexión e intentá de nuevo.');
+      if (isInvalidTokenError(err)) {
+        alert('El enlace de edición no es válido o expiró. Volvé a abrir el enlace original e intentá de nuevo.');
+      } else {
+        alert('Error al guardar. Revisá tu conexión e intentá de nuevo.');
+      }
     }
   });
 
@@ -495,7 +505,7 @@ export function initEditor(container, onPreview) {
       data.gallery = data.gallery.map(item =>
         typeof item === 'string' ? { src: item, caption: '' } : item
       );
-      const remaining = 4 - data.gallery.length;
+      const remaining = FREE_GALLERY_LIMIT - data.gallery.length;
       const toProcess = files.slice(0, remaining);
 
       for (const file of toProcess) {
@@ -549,6 +559,17 @@ function showMissingFields(container) {
       }, { once: true });
     }
   });
+}
+
+function isInvalidTokenError(err) {
+  const text = [
+    err?.message,
+    err?.details,
+    err?.hint,
+    err?.code,
+  ].filter(Boolean).join(' ');
+  return /invalid(_| )?edit(_| )?token|invalid_token|token.*no v/i.test(text)
+    || err?.code === '28000';
 }
 
 export function getEditorData() {

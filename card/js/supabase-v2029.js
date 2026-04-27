@@ -10,6 +10,39 @@ function getClient() {
     return supabase;
 }
 
+const PUBLIC_BUSINESS_SELECT = [
+    'id',
+    'slug',
+    'nombre_negocio',
+    'profession',
+    'description',
+    'telefono',
+    'email',
+    'location',
+    'foto_url',
+    'cover_url',
+    'color_primario',
+    'instagram',
+    'facebook',
+    'linkedin',
+    'website',
+    'booking_url',
+    'active_modules',
+    'whatsapp_message',
+    'gallery_images',
+    'is_premium',
+    'created_at',
+    'subscription_status',
+    'trial_ends_at',
+    'free_until',
+    'locked_price',
+    'price_lock_ends_at',
+    'font_family',
+    'social_color',
+    'card_theme',
+    'custom_css',
+].join(',');
+
 // ——————— ID Generation ———————
 
 function generateId(length = 8) {
@@ -57,14 +90,14 @@ export async function createCard(data) {
             status: 'active',
             active_modules: ['card']
         })
-        .select()
+        .select(PUBLIC_BUSINESS_SELECT)
         .single();
 
     if (error) {
         console.error('Error creating business/card:', error);
         throw error;
     }
-    return business;
+    return { ...business, edit_token: editToken };
 }
 
 export async function updateCard(businessId, updates) {
@@ -87,7 +120,7 @@ export async function updateCard(businessId, updates) {
         .from('businesses')
         .update(dbUpdates)
         .eq('id', businessId)
-        .select()
+        .select(PUBLIC_BUSINESS_SELECT)
         .single();
 
     if (error) {
@@ -131,7 +164,7 @@ export async function getCard(slug) {
     // Fetch business profile (Purely from businesses table to avoid 400 errors)
     const { data: business, error: bizError } = await db
         .from('businesses')
-        .select('*')
+        .select(PUBLIC_BUSINESS_SELECT)
         .or(isUUID ? `id.eq.${slug},slug.eq.${slug}` : `slug.eq.${slug}`)
         .maybeSingle();
 

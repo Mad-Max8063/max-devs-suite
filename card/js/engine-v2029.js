@@ -336,11 +336,15 @@ class SuitoGallery {
             item.className = 'suito-gallery-item';
             item.setAttribute('aria-label', photo.caption || `Trabajo ${index + 1}`);
 
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'suito-gallery-item-img-wrap';
+
             const img = document.createElement('img');
             img.src = photo.src;
             img.loading = 'lazy';
             img.alt = photo.caption || `Trabajo ${index + 1}`;
-            item.appendChild(img);
+            imgWrap.appendChild(img);
+            item.appendChild(imgWrap);
 
             if (photo.caption) {
                 const caption = document.createElement('span');
@@ -379,8 +383,10 @@ class SuitoGallery {
         lightbox.innerHTML = `
             <button type="button" class="suito-lb-close" aria-label="Cerrar">&times;</button>
             <button type="button" class="suito-lb-prev" aria-label="Foto anterior">&#10094;</button>
-            <img class="suito-lb-img" src="" alt="">
-            <div class="suito-lb-caption"></div>
+            <div class="suito-lb-content">
+                <img class="suito-lb-img" src="" alt="">
+                <div class="suito-lb-caption"></div>
+            </div>
             <button type="button" class="suito-lb-next" aria-label="Foto siguiente">&#10095;</button>
         `;
 
@@ -533,7 +539,7 @@ function buildCardHTML(data) {
     const isPremium = status === 'premium';
     const whatsappMessage = data.whatsapp_message || data.whatsappMessage || '';
     const rawGallery = data.gallery || [];
-    const gallery = isPremium ? rawGallery : rawGallery.slice(0, 2);
+    const gallery = isPremium ? rawGallery : rawGallery.slice(0, 3);
 
     return `
         ${!isPremium ? `
@@ -648,7 +654,7 @@ function attachCardEvents(container, data) {
 
     const status = getSubscriptionStatus(data);
     const rawGallery = data.gallery || [];
-    const galleryData = status === 'premium' ? rawGallery : rawGallery.slice(0, 2);
+    const galleryData = status === 'premium' ? rawGallery : rawGallery.slice(0, 3);
     const galleryRoot = container.querySelector('.suito-gallery-mount');
     if (galleryRoot) {
         new SuitoGallery(galleryData).renderGallerySection(galleryRoot);

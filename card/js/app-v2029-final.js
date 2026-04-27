@@ -119,7 +119,7 @@ function navigate() {
                 return;
             }
 
-            if (card.edit_token !== token && token !== MASTER_TOKEN) {
+            if (!token && token !== MASTER_TOKEN) {
                 app.innerHTML = `
                     <div style="text-align:center; padding:60px 20px;">
                       <h2 style="margin-bottom:8px;">🔒 Acceso denegado</h2>
@@ -127,6 +127,10 @@ function navigate() {
                     </div>`;
                 return;
             }
+
+            // edit_token is intentionally absent from public reads. Pass the URL
+            // token to SECURITY DEFINER RPCs, which validate it before writes.
+            card.edit_token = token;
 
             const editView = document.createElement('div');
             editView.className = 'view active';

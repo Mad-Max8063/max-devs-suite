@@ -35,7 +35,8 @@ const ConfirmationPage: React.FC = () => {
         Estado: 'Pendiente',
         MontoSena: profile?.ValorSena || 2000,
         TelefonoCliente: '5491112345678',
-        Slug: 'demo'
+        Slug: 'demo',
+        CancellationToken: 'demo-token'
       };
       // @ts-ignore - solo para demo
       setCurrentAppointment(demoApt);
@@ -59,8 +60,12 @@ const ConfirmationPage: React.FC = () => {
   const aliasMP = profile?.AliasMP || 'mi.negocio.mp';
   const linkPago = profile?.LinkPago;
   const qrImageUrl = profile?.QrImageUrl;
+  const appBaseUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : '';
+  const cancellationUrl = appointment?.CancellationToken && slug && appBaseUrl
+    ? `${appBaseUrl}#/${slug}/cancel/${appointment.CancellationToken}`
+    : null;
 
-  const whatsappMessage = `¡Hola! Soy ${clientName}, ya transferí la seña de $${depositAmount.toLocaleString('es-AR')} para el turno del ${dateDisplay} 🙌`;
+  const whatsappMessage = `¡Hola! Soy ${clientName}, ya transferí la seña de $${depositAmount.toLocaleString('es-AR')} para el turno del ${dateDisplay} 🙌${cancellationUrl ? `\n\nSi necesito cancelar, uso este link: ${cancellationUrl}` : ''}`;
   const whatsappLink = `https://wa.me/${businessPhone}?text=${encodeURIComponent(whatsappMessage)}`;
 
   const calendarLinks = appointment ? generateCalendarLinks({
@@ -186,6 +191,18 @@ const ConfirmationPage: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {cancellationUrl && (
+              <div className="pt-4 border-t border-zinc-50 dark:border-zinc-800">
+                <a
+                  href={cancellationUrl}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                >
+                  <span className="material-symbols-outlined text-[18px]">event_busy</span>
+                  Link para cancelar
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
@@ -272,4 +289,4 @@ const ConfirmationPage: React.FC = () => {
   );
 };
 
-export default ConfirmationPage;
+export default ConfirmationPage;

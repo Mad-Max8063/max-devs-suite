@@ -7,6 +7,39 @@ import { useScheduleInfo } from '../hooks/useSchedule';
 import { Service } from '../constants';
 import ViralFooter from '../components/ViralFooter';
 
+const ARGENTINE_MOBILE_REGEX = /^549\d{10}$/;
+
+function normalizeArgentineMobilePhone(value: string): string | null {
+    const digits = value.replace(/\D/g, '').replace(/^0+/, '');
+    let normalized = digits;
+
+    if (digits.startsWith('549')) {
+        normalized = digits;
+    } else if (digits.startsWith('54')) {
+        normalized = `549${digits.slice(digits.startsWith('549') ? 3 : 2)}`;
+    } else if (digits.startsWith('9')) {
+        normalized = `54${digits}`;
+    } else {
+        normalized = `549${digits}`;
+    }
+
+    return ARGENTINE_MOBILE_REGEX.test(normalized) ? normalized : null;
+}
+
+function formatPhoneInput(value: string): string {
+    let digits = value.replace(/\D/g, '');
+
+    if (digits.startsWith('549')) digits = digits.slice(3);
+    else if (digits.startsWith('54')) digits = digits.slice(2);
+    else if (digits.startsWith('9')) digits = digits.slice(1);
+
+    digits = digits.slice(0, 10);
+
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
+    return `${digits.slice(0, 2)} ${digits.slice(2, 6)} ${digits.slice(6)}`;
+}
+
 const BookingPage: React.FC = () => {
     const navigate = useNavigate();
     const { slug: urlSlug } = useParams<{ slug: string }>();
@@ -31,6 +64,8 @@ const BookingPage: React.FC = () => {
     const [clientPhone, setClientPhone] = useState('');
     const [clientEmail, setClientEmail] = useState('');
     const [formError, setFormError] = useState<string | null>(null);
+    const [honeypot, setHoneypot] = useState('');
+    const [submitCooldown, setSubmitCooldown] = useState(false);
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -90,10 +125,20 @@ const BookingPage: React.FC = () => {
     const hasServices = selectedServices.length > 0;
     const servicePrice = hasServices ? selectedServices.reduce((sum, s) => sum + s.precio, 0) : 0;
     const totalDeposit = selectedServices.reduce((sum, s) => sum + s.sena, 0) || profile?.ValorSena || 0;
+    const normalizedClientPhone = normalizeArgentineMobilePhone(clientPhone);
+    const hasPhoneInput = clientPhone.replace(/\D/g, '').length > 0;
+    const isClientPhoneInvalid = hasPhoneInput && !normalizedClientPhone;
 
     const handleSubmit = async () => {
+        if (honeypot) return;
+
         if (!selectedDate || !selectedTime || !clientName || !clientPhone || !slug) {
             setFormError('Completá todos los campos para continuar');
+            return;
+        }
+
+        if (!normalizedClientPhone) {
+            setFormError('Ingresá un celular argentino válido. Ej: 11 2345 6789');
             return;
         }
 
@@ -115,7 +160,7 @@ const BookingPage: React.FC = () => {
                 Fecha: dateStr,
                 Hora: selectedTime,
                 NombreCliente: clientName,
-                TelefonoCliente: clientPhone.replace(/\D/g, ''),
+                TelefonoCliente: normalizedClientPhone,
                 EmailCliente: clientEmail || undefined,
                 Servicio: serviceNames,
                 PrecioTotal: servicePrice,
@@ -124,6 +169,10 @@ const BookingPage: React.FC = () => {
 
             navigate(`/${slug}/confirmation/${result}`);
         } catch (error) {
+            const message = error instanceof Error ? error.message : 'No pudimos crear tu reserva. Por favor intentá de nuevo.';
+            setFormError(message);
+            setSubmitCooldown(true);
+            setTimeout(() => setSubmitCooldown(false), 5000);
             logger.error('Booking failed:', error);
         }
     };
@@ -376,6 +425,15 @@ const BookingPage: React.FC = () => {
                                 </div>
 
                                 <div className="glass-card ambient-shadow rounded-[2.5rem] p-7 border-white/60 space-y-6">
+                                    <input
+                                        type="text"
+                                        name="website_url"
+                                        value={honeypot}
+                                        onChange={(e) => setHoneypot(e.target.value)}
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, width: 0 }}
+                                    />
                                     <div className="space-y-2">
                                         <label className="text-[9px] font-black uppercase tracking-widest opacity-30 ml-4">Nombre Completo</label>
                                         <input
@@ -390,11 +448,23 @@ const BookingPage: React.FC = () => {
                                         <label className="text-[9px] font-black uppercase tracking-widest opacity-30 ml-4">Teléfono de Contacto</label>
                                         <input
                                             type="tel"
+                                            inputMode="numeric"
+                                            autoComplete="tel"
                                             value={clientPhone}
-                                            onChange={(e) => setClientPhone(e.target.value.replace(/[^0-9]/g, ''))}
-                                            className="w-full rounded-[1.25rem] border border-white/10 bg-surface/60 px-5 py-4 text-sm font-bold focus:border-primary focus:ring-0 text-white placeholder:opacity-20 outline-none transition-all"
-                                            placeholder="Ej: 1123456789"
+                                            onChange={(e) => {
+                                                setClientPhone(formatPhoneInput(e.target.value));
+                                                if (formError) setFormError(null);
+                                            }}
+                                            className={`w-full rounded-[1.25rem] border bg-surface/60 px-5 py-4 text-sm font-bold focus:ring-0 text-white placeholder:opacity-20 outline-none transition-all ${
+                                                isClientPhoneInvalid
+                                                    ? 'border-red-400 focus:border-red-400'
+                                                    : 'border-white/10 focus:border-primary'
+                                            }`}
+                                            placeholder="Ej: 11 2345 6789"
                                         />
+                                        <p className={`ml-4 text-[10px] font-bold ${isClientPhoneInvalid ? 'text-red-400' : 'text-on-surface-variant opacity-40'}`}>
+                                            {isClientPhoneInvalid ? 'Usá un celular argentino sin 0 ni 15.' : 'Formato WhatsApp Argentina.'}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -419,7 +489,7 @@ const BookingPage: React.FC = () => {
                 <div className="fixed bottom-10 left-0 right-0 z-50 px-6 flex justify-center animate-fade-in-up">
                     <button
                         onClick={handleSubmit}
-                        disabled={creating || !selectedDate || !selectedTime || !clientName || !clientPhone}
+                        disabled={creating || submitCooldown || !selectedDate || !selectedTime || !clientName || !clientPhone || !normalizedClientPhone}
                         className="group w-full max-w-md bg-primary text-white font-black py-5 rounded-full shadow-2xl shadow-primary/40 active:scale-95 transition-all text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3"
                     >
                         {creating ? (

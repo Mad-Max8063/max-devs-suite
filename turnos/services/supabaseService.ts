@@ -57,6 +57,7 @@ export interface Appointment {
     PrecioTotal: number;
     MontoSena: number;
     CreatedAt: string;
+    CancellationToken?: string;
 }
 
 export interface CreateAppointmentData {
@@ -93,6 +94,23 @@ export interface ServicesData {
 export interface BlockedDate {
     Fecha: string;
     Motivo: string;
+}
+
+export interface CancellationAppointment {
+    ID: string;
+    Slug: string;
+    NombreNegocio: string;
+    Fecha: string;
+    Hora: string;
+    Servicio: string;
+    Estado: 'Pendiente' | 'Confirmado' | 'Cancelado';
+    CanCancel: boolean;
+    Reason: 'ok' | 'already_cancelled' | 'too_late';
+}
+
+export interface CancellationResult {
+    appointmentId: string | null;
+    result: 'cancelled' | 'already_cancelled' | 'too_late' | 'not_found';
 }
 
 export interface AuthResult {
@@ -138,7 +156,15 @@ function clearBusinessCache(slug?: string) {
 export async function getProfile(slug: string): Promise<Profile | null> {
     const { data, error } = await supabase
         .from('businesses')
-        .select('*')
+        .select(`
+            id, slug, nombre_negocio, telefono, email, valor_sena, alias_mp, 
+            link_pago, qr_image_url, modo_sandbox, foto_url, color_primario, 
+            notificaciones_email, recordatorios_activos, fecha_vencimiento, 
+            is_premium, profession, description, location, facebook, 
+            instagram, website, whatsapp_message, cover_url, gallery_images, 
+            active_modules, subscription_status, trial_ends_at, locked_price, 
+            price_lock_ends_at, free_until
+        `)
         .eq('slug', slug)
         .single();
 
@@ -250,6 +276,7 @@ export async function getAppointments(
         PrecioTotal: row.precio_total || 0,
         MontoSena: row.monto_sena || 0,
         CreatedAt: row.created_at,
+        CancellationToken: row.cancellation_token || undefined,
     }));
 }
 
@@ -275,6 +302,7 @@ export async function getAppointmentById(id: string): Promise<Appointment | null
         PrecioTotal: data.precio_total || 0,
         MontoSena: data.monto_sena || 0,
         CreatedAt: data.created_at,
+        CancellationToken: data.cancellation_token || undefined,
     };
 }
 
@@ -322,6 +350,56 @@ export async function updateAppointmentStatus(
 
     if (error) throw new Error(error.message);
     return { id, status };
+}
+
+export async function getAppointmentForCancellation(
+    slug: string,
+    token: string
+): Promise<CancellationAppointment | null> {
+    const { data, error } = await supabase
+        .rpc('get_appointment_for_cancellation', {
+            p_slug: slug,
+            p_token: token,
+        })
+        .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+
+    const row = data as any;
+
+    return {
+        ID: row.appointment_id,
+        Slug: row.business_slug,
+        NombreNegocio: row.business_name,
+        Fecha: row.fecha,
+        Hora: row.hora,
+        Servicio: row.servicio || '',
+        Estado: row.estado,
+        CanCancel: row.can_cancel === true,
+        Reason: row.reason || 'ok',
+    };
+}
+
+export async function cancelAppointmentByToken(
+    slug: string,
+    token: string
+): Promise<CancellationResult> {
+    const { data, error } = await supabase
+        .rpc('cancel_appointment_by_token', {
+            p_slug: slug,
+            p_token: token,
+        })
+        .single();
+
+    if (error) throw new Error(error.message);
+
+    const row = data as any;
+
+    return {
+        appointmentId: row.appointment_id || null,
+        result: row.result,
+    };
 }
 
 export async function deleteAppointment(id: string): Promise<{ success: boolean }> {
@@ -443,16 +521,15 @@ export async function getAvailableSlots(
 
     if (blockedData && blockedData.length > 0) return [];
 
-    // Get booked slots
-    const { data: bookedData } = await supabase
-        .from('appointments')
-        .select('hora')
-        .eq('business_id', businessId)
-        .eq('fecha', date);
+    // Get booked slots through a privacy-preserving RPC.
+    const { data: busySlots, error: busySlotsError } = await supabase.rpc('get_busy_slots', {
+        p_business_id: businessId,
+        p_date: date,
+    });
 
-    const bookedSlots = (bookedData || []).map(a => a.hora);
+    if (busySlotsError) throw new Error(busySlotsError.message);
 
-    return daySlots.filter(slot => !bookedSlots.includes(slot));
+    return daySlots.filter(slot => !(busySlots || []).includes(slot));
 }
 
 export async function getBlockedDates(slug: string): Promise<BlockedDate[]> {
@@ -749,6 +826,8 @@ export const sheetsService = {
     getAppointmentById,
     createAppointment,
     updateAppointmentStatus,
+    getAppointmentForCancellation,
+    cancelAppointmentByToken,
     deleteAppointment,
 
     // Schedule

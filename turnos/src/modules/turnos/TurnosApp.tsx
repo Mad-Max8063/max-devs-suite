@@ -11,6 +11,7 @@ import AgendaPage from '../../../pages/AgendaPage';
 import AppointmentDetailPage from '../../../pages/AppointmentDetailPage';
 import BookingPage from '../../../pages/BookingPage';
 import ConfirmationPage from '../../../pages/ConfirmationPage';
+import CancelPage from '../../../pages/CancelPage';
 import LoginPage from '../../../pages/LoginPage';
 import RegisterPage from '../../../pages/RegisterPage';
 import VirtualCardConfigPage from '../../../pages/VirtualCardConfigPage';
@@ -63,6 +64,7 @@ export default function TurnosApp() {
                   <Route path="/demo/booking" element={<DemoRoute element={<ModuleGuard requiredModule="appointments"><BookingPage /></ModuleGuard>} />} />
                   <Route path="/demo/confirmation" element={<DemoRoute element={<ModuleGuard requiredModule="appointments"><ConfirmationPage /></ModuleGuard>} />} />
                   <Route path="/demo/confirmation/:id" element={<DemoRoute element={<ModuleGuard requiredModule="appointments"><ConfirmationPage /></ModuleGuard>} />} />
+                  <Route path="/demo/cancel/:token" element={<DemoRoute element={<CancelPage />} />} />
 
                   {/* Entrepreneur (Admin) Routes - Protected */}
                   <Route path="/:slug" element={
@@ -118,6 +120,7 @@ export default function TurnosApp() {
                       <ConfirmationPage />
                     </ModuleGuard>
                   } />
+                  <Route path="/:slug/cancel/:token" element={<CancelPage />} />
 
                   {/* Fallback */}
                   <Route path="*" element={<Navigate to="/demo" replace />} />

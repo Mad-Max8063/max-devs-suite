@@ -1,49 +1,36 @@
-# Resumen de Sesión — Suito Platform
-**Fecha:** 25 de abril de 2026, 18:16
-**Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
+# Resumen de Sesion - Suito Platform
+**Fecha:** 26 de abril de 2026
+**Sesion:** Agent Deployment Planner + unificacion estetica Turnos/Card
 
 ---
 
-## 🎯 Objetivo de la sesión
-Solucionar problemas de previsualización (OG Images) en redes sociales y planificar nuevas funcionalidades de contacto para las tarjetas virtuales.
+## Objetivo
+Registrar la nueva skill de pre-ejecucion `agent-deployment-planner` e implementar la unificacion estetica y funcional entre `/turnos`, `/card` y `/shared`.
 
----
+## Lo hecho
+1. Se creo `.agent/skills/agent-deployment-planner/SKILL.md` y se integro en `suito-dev-router/SKILL.md` y `AGENTS.md`.
+2. Se agregaron tokens y utilidades compartidas en `/shared`: `design-tokens.css`, `animations.css`, `colorUtils.ts`, `imageUtils.ts` y `vcard.ts`.
+3. Card migro a variables dinamicas de color, `engine-v2029.js` inyecta `--color-primary`, `--color-primary-dark` y `--color-primary-rgb`, y el editor clasico incluye selector de color.
+4. Turnos incorporo lightbox de galeria, barra de iconos sociales, descarga vCard, autosave con debounce y preview sticky de la tarjeta.
+5. Se agrego soporte para `whatsapp_message` en tipos/guardado y la migracion `supabase/migrations/20260426000000_add_whatsapp_message.sql`.
+6. Se refactorizo el shell de Turnos en `turnos/components/TurnosShell.tsx`: rutas admin usan layout ancho con sidebar glass en desktop; rutas cliente/auth mantienen contenedor centrado tipo mobile.
+7. Se expandio el sistema de rubros y temas de Turnos: `BusinessCategory` ahora incluye `label`, `group`, `icon` Material Symbols y `searchTags`; `ServiceManager` agrupa y busca rubros; `COLOR_PRESETS` ahora esta tipado por familias `Signature`, `Vibrant`, `Pastel` y `Corporate`.
+8. Se oculto `BottomNavigation` en desktop (`lg:hidden`) para evitar solaparse con el sidebar admin.
+9. Se agrego frecuencia configurable de grilla de horarios: migracion `20260426000001_add_slot_interval.sql`, utilidad `shared/timeUtils.ts`, `ScheduleConfig.frecuenciaTurnos`, persistencia `frecuencia_turnos` y selector de frecuencia en `ScheduleConfigPage`.
+10. Se completo la limpieza pendiente de la landing `index.html`: pricing Pro/Pack, visual de ahorro real, footer simplificado, logo transparente en footer y version `beta · build.suito.20260426`. Tambien se copio `favicon.svg` a `public/assets/favicon.svg`.
 
-## ✅ Lo que se hizo
-1. **Migración a JSX**: Se transformó el generador de imágenes de `[slug].ts` a `[slug].tsx` para mayor estabilidad.
-2. **Configuración TypeScript**: Se creó un `tsconfig.json` en la raíz para habilitar JSX y modularidad moderna.
-3. **Redirección WWW**: Se verificó y aseguró la redirección de `suito.pro` a `www.suito.pro`.
-4. **Middleware de Bots**: Se implementó y verificó la detección de crawlers (WhatsApp/Facebook) para servir HTML estático con metatags OG.
-5. **Planificación de Feature**: Se diseñó el plan para iconos de contacto dinámicos con mensajes de WhatsApp personalizados.
+## Verificacion
+- `npm run typecheck`: OK.
+- `vitest run turnos/tests/constants.test.ts`: OK, 17 tests.
+- `npm run build`: OK.
+- Verificacion posterior de frecuencia de horarios: `npm run typecheck` OK. `npm run build` y Vitest no pudieron re-ejecutarse por `spawn EPERM` dentro del sandbox y rechazo de escalacion por limite de uso del entorno.
+- Verificacion posterior de landing: busqueda en `index.html` y respuesta del dev server OK para textos nuevos; `npm run build` escalado fallo por memoria de esbuild (`runtime: cannot allocate memory`) al transformar modulos, no por error de HTML.
+- Visual con `vite preview`: OK para `/card/suito` y `/turnos/index.html#/demo/identidad`.
+- Visual posterior del shell admin: OK, sidebar desktop visible y contenido ancho.
+- Visual posterior de `/turnos/index.html#/demo/config`: OK, colores agrupados y selector de rubros con buscador sin solapamiento del bottom nav.
+- Warning vigente: Vite sigue reportando que `card/js/engine-v2029.js` se importa estatica y dinamicamente desde `app-v2029-final.js`. Era un pendiente previo y no bloquea build.
 
----
-
-## ❌ Problemas encontrados
-1. **Vercel Edge 0-bytes**: El generador de imágenes `@vercel/og` en el runtime `edge` sigue devolviendo 0 bytes a pesar de la migración a `.tsx`. Se decidió pausar este debug para priorizar otras tareas.
-2. **Conflicto de extensiones**: Vercel fallaba al encontrar `[slug].ts` y `[slug].tsx` simultáneamente; se eliminó el archivo antiguo.
-
----
-
-## 📋 Pendiente (para la próxima sesión)
-
-### Prioridad 1 — Funcionalidad de Contacto
-1. Agregar columna `whatsapp_message` en Supabase (tabla `businesses`).
-2. Añadir el campo de texto en el Editor de Tarjetas para el mensaje personalizado.
-3. Implementar la lógica de generación de links `wa.me` con encoding.
-
-### Prioridad 2 — Mantenimiento
-1. Resolver el warning de Vite sobre la doble importación de `engine-v2029.js`.
-2. Verificar por qué el runtime de Vercel no está emitiendo el body de la imagen OG.
-
----
-
-## 🔑 IDs y Referencias Importantes
-- **Vercel Project**: `max-devs-suite`
-- **Latest Deploy**: `dpl_CFxdzu3QBmHg3ESFMZY5QvWRQRsh`
-- **Repo GitHub**: `Mad-Max8063/max-devs-suite`
-
----
-
-## 💡 Decisiones técnicas tomadas
-- Se optó por usar un `tsconfig.json` global para unificar la compilación de funciones API y el frontend.
-- Se mantuvo el uso de Edge Runtime por performance, a pesar de los problemas de debug actuales.
+## Pendiente
+1. Ejecutar manualmente la migracion SQL `20260426000000_add_whatsapp_message.sql` en Supabase SQL Editor.
+2. Si se quiere cerrar el warning de Vite, unificar el patron de import de `engine-v2029.js` en `app-v2029-final.js`.
+3. El validador de skills no corrio porque falta `PyYAML` para `quick_validate.py` en este entorno.

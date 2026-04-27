@@ -5,7 +5,7 @@ interface TurnosShellProps {
   children: React.ReactNode;
 }
 
-const clientRouteFragments = ['/booking', '/confirmation', '/login', '/register'];
+const clientRouteFragments = ['/booking', '/confirmation', '/cancel', '/login', '/register'];
 
 function isAdminPath(pathname: string): boolean {
   if (pathname === '/') return false;

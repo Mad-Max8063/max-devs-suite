@@ -11,6 +11,8 @@ export type {
     ScheduleConfig,
     ServicesData,
     BlockedDate,
+    CancellationAppointment,
+    CancellationResult,
     AuthResult,
 } from './supabaseService';
 
@@ -21,6 +23,8 @@ export {
     getAppointmentById,
     createAppointment,
     updateAppointmentStatus,
+    getAppointmentForCancellation,
+    cancelAppointmentByToken,
     deleteAppointment,
     getAvailableSlots,
     getSchedule,

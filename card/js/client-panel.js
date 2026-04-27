@@ -24,6 +24,8 @@ const STYLE_PRESETS = [
     { key: 'glass',  label: 'Efecto Cristal',       icon: 'fa-solid fa-wand-magic-sparkles', css: '.card-body { backdrop-filter: blur(20px) !important; background: rgba(255,255,255,0.05) !important; }' },
     { key: 'shadow', label: 'Botones con Brillo',   icon: 'fa-solid fa-bolt',                css: '.btn-primary { box-shadow: 0 10px 20px -5px var(--brand-primary) !important; }' },
 ];
+const FREE_GALLERY_LIMIT = 3;
+const PREMIUM_GALLERY_LIMIT = 12;
 const ACCENT_MARKERS = {
     start: '/* suito:accent-color:start */',
     end: '/* suito:accent-color:end */',
@@ -439,7 +441,7 @@ function buildPanelHTML(data) {
         <div class="glass-card">
           <div class="form-section">
             <div class="section-label">Fotos de trabajos</div>
-            <p class="section-hint">Subí hasta ${data.isPremium ? '12' : '4'} fotos y escribí una descripción de cada una. Tus clientes las van a ver en tu tarjeta.</p>
+            <p class="section-hint">Subí hasta ${data.isPremium ? '12' : '3'} fotos y escribí una descripción de cada una. Tus clientes las van a ver en tu tarjeta.</p>
 
             <div class="gallery-upload">
               <div class="gallery-grid" id="cp-gallery-grid">
@@ -543,7 +545,7 @@ function sanitizeColor(value) {
 // ——— Event Wiring ———
 
 function getGalleryLimit(isPremium) {
-    return isPremium ? 12 : 4;
+    return isPremium ? PREMIUM_GALLERY_LIMIT : FREE_GALLERY_LIMIT;
 }
 
 function validateGalleryUpload(currentPhotosCount, isPremium) {
@@ -553,8 +555,8 @@ function validateGalleryUpload(currentPhotosCount, isPremium) {
         return {
             allowed: false,
             message: isPremium
-                ? 'Has alcanzado el limite maximo de 12 fotos.'
-                : 'Limite de 4 fotos alcanzado. Actualiza a Premium para subir hasta 12 fotos.',
+                ? `Has alcanzado el limite maximo de ${PREMIUM_GALLERY_LIMIT} fotos.`
+                : `Limite de ${FREE_GALLERY_LIMIT} fotos alcanzado. Actualiza a Premium para subir hasta ${PREMIUM_GALLERY_LIMIT} fotos.`,
         };
     }
 
