@@ -31,7 +31,6 @@ const PUBLIC_BUSINESS_SELECT = [
     'whatsapp_message',
     'gallery_images',
     'is_premium',
-    'force_watermark',
     'created_at',
     'subscription_status',
     'trial_ends_at',
@@ -42,6 +41,7 @@ const PUBLIC_BUSINESS_SELECT = [
     'social_color',
     'card_theme',
     'custom_css',
+    'force_watermark'
 ].join(',');
 
 // ——————— ID Generation ———————

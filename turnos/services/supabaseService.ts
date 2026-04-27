@@ -42,6 +42,7 @@ export interface Profile {
     locked_price?: number;
     price_lock_ends_at?: string;
     free_until?: string;
+    force_watermark?: boolean;
 }
 
 export interface Appointment {
@@ -163,7 +164,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
             is_premium, profession, description, location, facebook, 
             instagram, website, whatsapp_message, cover_url, gallery_images, 
             active_modules, subscription_status, trial_ends_at, locked_price, 
-            price_lock_ends_at, free_until
+            price_lock_ends_at, free_until, force_watermark
         `)
         .eq('slug', slug)
         .single();
@@ -201,6 +202,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         trial_ends_at: data.trial_ends_at,
         locked_price: data.locked_price,
         price_lock_ends_at: data.price_lock_ends_at,
+        force_watermark: data.force_watermark || false,
     };
 }
 
