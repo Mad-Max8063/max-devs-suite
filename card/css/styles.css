@@ -146,6 +146,13 @@ body {
   animation: spin 0.8s linear infinite;
 }
 
+.suito-loader-logo {
+  display: block;
+  width: min(180px, 56vw);
+  height: auto;
+  animation: suitoLogoGoldPulse 2.4s ease-in-out infinite;
+}
+
 /* ——— Card Container ——— */
 .card-container {
   width: 100%;
@@ -1504,9 +1511,14 @@ body {
 }
 
 @media (max-width: 767px) {
+  :root {
+    --card-max-width: 100%;
+  }
+
   .app-container,
   .card-container {
     width: 100%;
+    max-width: 100%;
   }
 }
 

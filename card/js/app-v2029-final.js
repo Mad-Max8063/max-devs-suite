@@ -162,7 +162,7 @@ function navigate() {
         localStorage.setItem('last_card_url', `card/${cardId}`);
         app.classList.add('landing-mode');
 
-        app.innerHTML = '<div class="loading-screen"><div class="spinner suito-favicon-coin"></div><p>Cargando tarjeta...</p></div>';
+        app.innerHTML = '<div class="loading-screen"><img src="/assets/logo-transparent.svg" alt="Suito" class="suito-loader-logo"><p>Cargando tarjeta...</p></div>';
 
         getCard(cardId).then(card => {
             if (!card) {
