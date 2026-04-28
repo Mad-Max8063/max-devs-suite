@@ -414,7 +414,7 @@ input, textarea { font-family: var(--font-sans); }
   .comp-grid { grid-template-columns: 1.6fr 1fr !important; }
   .comp-hide-mobile { display: none !important; }
   .pricing-grid { grid-template-columns: 1fr !important; }
-  .footer-grid { grid-template-columns: 1fr 1fr !important; }
+  .footer-grid { grid-template-columns: 1fr !important; gap: 32px; }
   .nav-items { display: none !important; }
   .dark-to-cream-divider { height: 96px; }
 }
