@@ -130,7 +130,7 @@ yarn test --watch
 
 1. Fork del repositorio
 2. Crear rama (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit (`git commit -m 'Agrega nueva funcionalidad'`)
+3. Commit (`git commit -m 'Agregá nueva funcionalidad'`)
 4. Push (`git push origin feature/nueva-funcionalidad`)
 5. Abrir Pull Request
 

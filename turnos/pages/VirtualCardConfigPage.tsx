@@ -223,19 +223,19 @@ const VirtualCardConfigPage: React.FC = () => {
             </div>
             <div className="px-5 pb-5 pt-16 text-center">
               <h2 className="text-xl font-extrabold">{businessName}</h2>
-              <p className="text-sm font-semibold uppercase tracking-wide text-primary">{draftProfile.Profession || 'Profesion / especialidad'}</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">{draftProfile.Profession || 'Profesión / especialidad'}</p>
             </div>
           </div>
 
           <div className="glass-card rounded-2xl p-5 space-y-4">
-            <SectionTitle icon="person" title="Informacion publica" />
-            <Field label="Profesion / titulo">
-              <input value={draftProfile.Profession || ''} onChange={(event) => updateDraft('Profession', event.target.value)} placeholder="Ej. Barberia, Salon de Belleza" className="suito-input" />
+            <SectionTitle icon="person" title="Información pública" />
+            <Field label="Profesión / título">
+              <input value={draftProfile.Profession || ''} onChange={(event) => updateDraft('Profession', event.target.value)} placeholder="Ej. Barbería, Salón de Belleza" className="suito-input" />
             </Field>
             <Field label="Sobre nosotros">
               <textarea value={draftProfile.Description || ''} onChange={(event) => updateDraft('Description', event.target.value)} placeholder="Conta sobre vos y tus servicios..." rows={3} className="suito-input resize-none" />
             </Field>
-            <Field label="Ubicacion">
+            <Field label="Ubicación">
               <input value={draftProfile.Location || ''} onChange={(event) => updateDraft('Location', event.target.value)} placeholder="Calle 123, Ciudad" className="suito-input" />
             </Field>
           </div>
@@ -252,13 +252,13 @@ const VirtualCardConfigPage: React.FC = () => {
               <input value={draftProfile.Website || ''} onChange={(event) => updateDraft('Website', event.target.value)} placeholder="https://..." className="suito-input" />
             </Field>
             <Field label="Mensaje predefinido de WhatsApp">
-              <textarea value={draftProfile.whatsapp_message || ''} onChange={(event) => updateDraft('whatsapp_message', event.target.value)} placeholder="Hola! Vi tu tarjeta y me gustaria hacer una consulta." rows={3} maxLength={240} className="suito-input resize-none" />
+              <textarea value={draftProfile.whatsapp_message || ''} onChange={(event) => updateDraft('whatsapp_message', event.target.value)} placeholder="Hola! Vi tu tarjeta y me gustaría hacer una consulta." rows={3} maxLength={240} className="suito-input resize-none" />
             </Field>
           </div>
 
           <div className="glass-card rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <SectionTitle icon="collections" title="Galeria de trabajos" />
+              <SectionTitle icon="collections" title="Galería de trabajos" />
               <span className="rounded-md bg-white/10 px-2 py-1 text-xs font-bold text-on-surface-variant">{gallery.length} / {MAX_GALLERY_IMAGES}</span>
             </div>
 
@@ -291,7 +291,7 @@ const VirtualCardConfigPage: React.FC = () => {
                           nextGallery[index] = { ...nextGallery[index], caption: event.target.value };
                           updateDraft('GalleryImages', nextGallery);
                         }}
-                        placeholder="Titulo..."
+                        placeholder="Título..."
                         className="suito-input px-3 py-2 text-center text-xs disabled:opacity-45"
                       />
                       {item?.image_url && (

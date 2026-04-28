@@ -55,7 +55,7 @@ if ($status === 200 && is_string($body)) {
 $name    = isset($row['nombre_negocio']) ? (string) $row['nombre_negocio'] : 'Suito | Tarjeta Digital';
 $prof    = isset($row['profession'])     ? (string) $row['profession']     : '';
 $descRaw = isset($row['description'])    ? (string) $row['description']
-    : 'Tarjeta digital profesional. Compartí tu contacto al instante.';
+    : 'Tarjeta digital para emprendedores y profesionales. Compartí tu contacto al instante.';
 $desc    = $prof !== '' ? $prof . ' — ' . $descRaw : $descRaw;
 $img     = isset($row['cover_url']) && $row['cover_url']
     ? (string) $row['cover_url']

@@ -53,7 +53,7 @@ export function initEditor(container, onPreview) {
   container.innerHTML = `
     <div class="editor-header">
       <h1>✨ Tu Tarjeta Virtual</h1>
-      <p>Completá tus datos y compartí tu perfil profesional</p>
+      <p>Completá tus datos y compartí tu perfil profesional o emprendedor</p>
     </div>
 
     <form id="editor-form" autocomplete="off">

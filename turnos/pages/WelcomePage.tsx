@@ -191,7 +191,7 @@ const WelcomePage: React.FC = () => {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Actividad de Hoy</p>
-                  <h2 className="text-3xl font-black tracking-tighter">Turnos <span className="opacity-30">&</span> Senas</h2>
+                  <h2 className="text-3xl font-black tracking-tighter">Turnos <span className="opacity-30">&</span> Señas</h2>
                 </div>
                 <div className="bg-primary/10 text-primary p-2.5 rounded-2xl">
                     <span className="material-symbols-outlined">analytics</span>

@@ -298,7 +298,7 @@ function buildPanelHTML(data) {
               <div class="cp-toggle-row" style="display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top:20px;">
                   <div style="flex:1; padding-right:12px;">
                       <label class="cp-label" style="margin-bottom:2px; display:block;">Gestor de Turnos</label>
-                      <p style="font-size:11px; opacity:0.5; margin:0; line-height:1.3;">Activá el módulo si sos un profesional que da turnos online.</p>
+                      <p style="font-size:11px; opacity:0.5; margin:0; line-height:1.3;">Activá el módulo si atendés con turnos online.</p>
                   </div>
                   <label class="cp-switch">
                       <input type="checkbox" id="cp-toggle-appointments" ${data.activeModules.includes('appointments') ? 'checked' : ''}>
