@@ -373,7 +373,7 @@ function buildPanelHTML(data) {
 
               <div>
                 <label class="cp-label"><i class="fa-solid fa-droplet"></i> Textos destacados y Agendar</label>
-                <p class="section-hint">Cambia el color de los textos violeta, el boton Compartir y el boton Agendar.</p>
+                <p class="section-hint">Cambia el color de los textos violeta, el botón Compartir y el botón Agendar.</p>
                 <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
                   <input class="cp-input" id="cp-accent-color" type="color" value="${sanitizeColor(data.accentColor)}" style="width:58px; min-width:58px; padding:4px;">
                   <input class="cp-input" id="cp-accent-color-text" type="text" value="${sanitizeColor(data.accentColor)}" maxlength="7" placeholder="#8B5CF6">
@@ -555,8 +555,8 @@ function validateGalleryUpload(currentPhotosCount, isPremium) {
         return {
             allowed: false,
             message: isPremium
-                ? `Has alcanzado el limite maximo de ${PREMIUM_GALLERY_LIMIT} fotos.`
-                : `Limite de ${FREE_GALLERY_LIMIT} fotos alcanzado. Actualiza a Premium para subir hasta ${PREMIUM_GALLERY_LIMIT} fotos.`,
+                ? `Has alcanzado el límite máximo de ${PREMIUM_GALLERY_LIMIT} fotos.`
+                : `Límite de ${FREE_GALLERY_LIMIT} fotos alcanzado. Actualizá a Premium para subir hasta ${PREMIUM_GALLERY_LIMIT} fotos.`,
         };
     }
 
@@ -791,7 +791,7 @@ function wireGalleryEvents(container, data) {
         const remaining = validation.remaining;
         const toProcess = files.slice(0, remaining);
         if (files.length > remaining) {
-            showGalleryFeedback(container, `Se subiran ${remaining} foto${remaining === 1 ? '' : 's'}: alcanzaste el limite de ${getGalleryLimit(data.isPremium)}.`);
+            showGalleryFeedback(container, `Se subirán ${remaining} foto${remaining === 1 ? '' : 's'}: alcanzaste el límite de ${getGalleryLimit(data.isPremium)}.`);
         }
 
         try {
@@ -804,7 +804,7 @@ function wireGalleryEvents(container, data) {
             }
         } catch (err) {
             console.error('[ClientPanel] Gallery upload error:', err);
-            showGalleryFeedback(container, 'Error al subir imagenes. Intenta de nuevo.', 'error');
+            showGalleryFeedback(container, 'Error al subir imágenes. Intentá de nuevo.', 'error');
         } finally {
             e.target.value = '';
         }

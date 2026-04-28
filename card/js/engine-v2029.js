@@ -320,11 +320,20 @@ class SuitoGallery {
         revealBtn.className = 'suito-gallery-reveal-btn';
         revealBtn.setAttribute('aria-expanded', 'false');
         revealBtn.innerHTML = `
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            <span>Ver galeria de trabajos (${this.photos.length} fotos)</span>
+            <div class="suito-gallery-icon-wrap">
+                <div class="suito-gallery-icon-circle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="suito-gallery-badge">${this.photos.length}</div>
+            </div>
+            <div class="suito-gallery-expand-hint">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </div>
         `;
 
         const grid = document.createElement('div');
@@ -358,13 +367,24 @@ class SuitoGallery {
         });
 
         revealBtn.addEventListener('click', () => {
-            revealBtn.classList.add('suito-fade-out');
-            revealBtn.setAttribute('aria-expanded', 'true');
-            setTimeout(() => {
-                revealBtn.hidden = true;
+            const isExpanded = revealBtn.getAttribute('aria-expanded') === 'true';
+            const nextState = !isExpanded;
+            
+            revealBtn.setAttribute('aria-expanded', nextState.toString());
+            
+            if (nextState) {
                 grid.classList.remove('suito-hidden');
-                grid.classList.add('suito-expanded');
-            }, 240);
+                setTimeout(() => {
+                    grid.classList.add('suito-expanded');
+                }, 10);
+            } else {
+                grid.classList.remove('suito-expanded');
+                setTimeout(() => {
+                    if (revealBtn.getAttribute('aria-expanded') === 'false') {
+                        grid.classList.add('suito-hidden');
+                    }
+                }, 400); // Duración de la transición
+            }
         });
 
         wrapper.appendChild(revealBtn);

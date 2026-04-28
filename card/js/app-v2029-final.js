@@ -280,7 +280,7 @@ function showPasswordGate() {
           </form>
           <div class="gate-footer">
             <a href="https://wa.me/5491162621406?text=${encodeURIComponent('Hola! Me interesa sumarme al ecosistema Suito y crear mi propia Suite.')}" target="_blank" rel="noopener">
-              ¿Querés tu Suite? Contactanos
+              ¿Querés tu Suite? Contáctanos
             </a>
           </div>
         </div>

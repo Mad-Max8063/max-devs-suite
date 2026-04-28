@@ -589,48 +589,103 @@ body {
 
 .suito-gallery-reveal-btn {
   width: 100%;
-  min-height: 96px;
-  padding: 18px 20px;
-  background: rgba(25, 25, 25, 0.62);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(var(--color-primary-rgb), 0.42);
-  border-radius: 16px;
-  color: #fff;
-  font: inherit;
-  font-size: 0.86rem;
-  font-weight: 800;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  overflow: hidden;
-  text-align: left;
-  line-height: 1.25;
+  gap: 8px;
   cursor: pointer;
-  transition: opacity 0.24s ease, transform 0.2s ease;
-}
-
-.suito-gallery-reveal-btn svg {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  max-width: 36px;
-  max-height: 36px;
-  display: block;
-  flex: 0 0 36px;
-  flex-shrink: 0;
-}
-
-.suito-gallery-reveal-btn span {
-  display: block;
-  min-width: 0;
-  max-width: 150px;
+  transition: transform 0.2s ease;
+  outline: none;
+  margin-bottom: 8px;
 }
 
 .suito-gallery-reveal-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
+}
+
+.suito-gallery-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suito-gallery-icon-circle {
+  width: 64px;
+  height: 64px;
+  background: var(--theme-gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.suito-gallery-reveal-btn:hover .suito-gallery-icon-circle {
+  transform: scale(1.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.suito-gallery-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #FF3B30; /* iOS Alert Red */
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 2.5px solid var(--background);
+  z-index: 2;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.suito-gallery-reveal-btn:hover .suito-gallery-badge {
+  transform: scale(1.1);
+}
+
+.suito-gallery-expand-hint {
+  color: var(--on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease, opacity 0.3s ease;
+}
+
+.suito-gallery-reveal-btn:hover .suito-gallery-expand-hint {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.suito-gallery-reveal-btn[aria-expanded="true"] .suito-gallery-expand-hint {
+  transform: rotate(180deg);
+  color: var(--primary);
+  opacity: 1;
+}
+
+.suito-gallery-reveal-btn[aria-expanded="false"] .suito-gallery-expand-hint {
+  animation: suito-bounce 2.4s infinite ease-in-out;
+}
+
+@keyframes suito-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(6px); }
+  60% { transform: translateY(3px); }
 }
 
 .suito-fade-out {
