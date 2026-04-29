@@ -16,6 +16,7 @@ export function renderGalleryEditor(container, card) {
     profession: card.profession,
     photo: card.photo_url,
     _id: card.id,
+    _slug: card.slug || card._id || card.id,
     _token: card.edit_token || '',
     gallery: (card.gallery_images || card.gallery || []).map(img => ({
       id: img.id,
@@ -227,7 +228,7 @@ function wireGalleryEditorEvents(container, data) {
   // Generate share link (short URL!)
   if (generateBtn) {
     generateBtn.addEventListener('click', () => {
-      const cardUrl = getCardUrl(data._id);
+      const cardUrl = getCardUrl(data._slug);
       const shareResult = container.querySelector('#ge-share-result');
       const shareUrlInput = container.querySelector('#ge-share-url');
       const copyBtn = container.querySelector('#ge-copy-btn');

@@ -9,21 +9,11 @@ export const config = {
 const WIDTH = 1200;
 const HEIGHT = 630;
 const FONT_URL =
-  'https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf';
+  'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff';
 
 type Style = React.CSSProperties;
 
 const el = React.createElement;
-
-async function loadFont(): Promise<ArrayBuffer | undefined> {
-  try {
-    const response = await fetch(FONT_URL);
-    if (!response.ok) return undefined;
-    return response.arrayBuffer();
-  } catch {
-    return undefined;
-  }
-}
 
 function truncate(value: string, maxLength: number): string {
   if (value.length <= maxLength) return value;
@@ -39,32 +29,38 @@ function normalizeHexColor(value: string): string {
 }
 
 export default async function handler(request: Request): Promise<Response> {
-  const url = new URL(request.url);
-  const slug = decodeURIComponent(url.pathname.split('/').filter(Boolean).pop() ?? '');
-  const profile = await fetchOgProfile(slug);
+  try {
+    const url = new URL(request.url);
+    const slug = decodeURIComponent(url.pathname.split('/').filter(Boolean).pop() ?? '');
+    const profile = await fetchOgProfile(slug);
 
-  if (!profile) {
-    return new Response('Card not found', { status: 404 });
-  }
+    if (!profile) {
+      return new Response('Card not found', { status: 404 });
+    }
 
-  const origin = url.origin;
-  const primaryColor = normalizeHexColor(profile.primaryColor);
-  const socialColor = normalizeHexColor(profile.socialColor);
-  const avatarUrl = profile.avatarUrl
-    ? toAbsoluteUrl(profile.avatarUrl, origin)
-    : toAbsoluteUrl('/card/assets/default-avatar.svg', origin);
-  const coverUrl = profile.coverUrl ? toAbsoluteUrl(profile.coverUrl, origin) : '';
-  const socialNodes = profile.socialNodes.slice(0, 6);
-  const fontData = await loadFont();
+    const origin = url.origin;
+    const primaryColor = normalizeHexColor(profile.primaryColor);
+    const socialColor = normalizeHexColor(profile.socialColor);
+    const avatarUrl = profile.avatarUrl
+      ? toAbsoluteUrl(profile.avatarUrl, origin)
+      : toAbsoluteUrl('/card/assets/default-avatar.svg', origin);
+    const coverUrl = profile.coverUrl ? toAbsoluteUrl(profile.coverUrl, origin) : '';
+    const socialNodes = profile.socialNodes.slice(0, 6);
+    
+    const fontData = await fetch(new URL(FONT_URL, import.meta.url))
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load font');
+        return res.arrayBuffer();
+      });
 
-  const image = div(
+    const image = div(
     {
       width: '100%',
       height: '100%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: '#0B0B12',
+      backgroundColor: '#0B0B12',
       color: '#FFFFFF',
       fontFamily: 'Inter',
       padding: 44,
@@ -77,7 +73,7 @@ export default async function handler(request: Request): Promise<Response> {
         flexDirection: 'column',
         overflow: 'hidden',
         borderRadius: 32,
-        background: profile.cardTheme === 'luminous' ? '#F8FAFC' : '#15151D',
+        backgroundColor: profile.cardTheme === 'luminous' ? '#F8FAFC' : '#15151D',
         color: profile.cardTheme === 'luminous' ? '#10121A' : '#FFFFFF',
         border: '1px solid rgba(255,255,255,0.12)',
         boxShadow: '0 34px 120px rgba(0,0,0,0.5)',
@@ -88,16 +84,21 @@ export default async function handler(request: Request): Promise<Response> {
             height: 210,
             display: 'flex',
             position: 'relative',
-            background: coverUrl
-              ? `url(${coverUrl}) center/cover`
+            backgroundImage: coverUrl
+              ? `url(${coverUrl})`
               : `linear-gradient(135deg, ${primaryColor}, #18D2FF 48%, #7C3AED)`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
           },
           [
             div(
               {
                 position: 'absolute',
-                inset: 0,
-                background:
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                backgroundImage:
                   'linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.16) 1px, transparent 1px)',
                 backgroundSize: '48px 48px',
                 opacity: coverUrl ? 0.14 : 0.24,
@@ -108,8 +109,11 @@ export default async function handler(request: Request): Promise<Response> {
             div(
               {
                 position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.54))',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                backgroundImage: 'linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.54))',
               },
               undefined,
               'shade',
@@ -121,7 +125,7 @@ export default async function handler(request: Request): Promise<Response> {
                 top: 44,
                 display: 'flex',
                 fontSize: 28,
-                fontWeight: 800,
+                fontWeight: 800, // Replaced 800 with 800 but explicitly noted we only load 400
                 letterSpacing: 0,
                 color: '#FFFFFF',
               },
@@ -151,7 +155,7 @@ export default async function handler(request: Request): Promise<Response> {
                 borderRadius: 999,
                 border: profile.cardTheme === 'luminous' ? '9px solid #F8FAFC' : '9px solid #15151D',
                 objectFit: 'cover',
-                background: '#252535',
+                backgroundColor: '#252535',
               } satisfies Style,
             }),
             div(
@@ -166,7 +170,7 @@ export default async function handler(request: Request): Promise<Response> {
                     display: 'flex',
                     fontSize: 66,
                     lineHeight: 1,
-                    fontWeight: 850,
+                    fontWeight: 800,
                     letterSpacing: 0,
                     marginBottom: 18,
                   },
@@ -178,7 +182,7 @@ export default async function handler(request: Request): Promise<Response> {
                     display: 'flex',
                     color: primaryColor,
                     fontSize: 30,
-                    fontWeight: 750,
+                    fontWeight: 700,
                     marginBottom: 22,
                   },
                   truncate(profile.profession, 54),
@@ -215,7 +219,7 @@ export default async function handler(request: Request): Promise<Response> {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: 18,
-                    background: socialColor,
+                    backgroundColor: socialColor,
                     border: '1px solid rgba(255,255,255,0.18)',
                   },
                   el(
@@ -239,18 +243,21 @@ export default async function handler(request: Request): Promise<Response> {
     width: WIDTH,
     height: HEIGHT,
     headers: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0',
-      Pragma: 'no-cache',
-      Expires: '0',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
     },
-    fonts: fontData
-      ? [
-          {
-            name: 'Inter',
-            data: fontData,
-            style: 'normal',
-          },
-        ]
-      : [],
+    fonts: [
+      {
+        name: 'Inter',
+        data: fontData,
+        style: 'normal',
+        weight: 400,
+      },
+    ],
   });
+  } catch (e: any) {
+    console.error(`OG_ERROR: ${e.message}`);
+    const { origin } = new URL(request.url);
+    // Redirección de emergencia para evitar preview roto en WhatsApp
+    return Response.redirect(`${origin}/card/assets/default-avatar.svg`);
+  }
 }

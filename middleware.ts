@@ -19,7 +19,7 @@ function isSocialCrawler(req: Request): boolean {
 }
 
 function getCardSlug(pathname: string): string | null {
-  const match = pathname.match(/^\/card\/([^/?#]+)\/?$/);
+  const match = pathname.match(/^\/(?:card|edit)\/([^/?#]+)\/?$/);
   return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
@@ -55,8 +55,9 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
-  <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
-  <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
+  <meta property="og:image" content="https://www.suito.pro/api/og/${slug}">
+  <meta property="og:image:secure_url" content="https://www.suito.pro/api/og/${slug}">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="${escapeHtml(title)}">
@@ -64,7 +65,7 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
-  <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
+  <meta name="twitter:image" content="https://www.suito.pro/api/og/${slug}">
   <script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Person',

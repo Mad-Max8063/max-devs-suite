@@ -27,6 +27,47 @@ const _leadsCache = new Map();
 // Business Profile State
 let userBusiness = null;
 
+function normalizeWhatsAppNumber(value) {
+    let digits = String(value || '').replace(/\D/g, '');
+    if (!digits) return '';
+
+    if (digits.startsWith('00')) {
+        digits = digits.slice(2);
+    }
+
+    if (digits.startsWith('549')) {
+        return digits;
+    }
+
+    if (digits.startsWith('54')) {
+        const national = digits.slice(2).replace(/^0+/, '');
+        return national.startsWith('9') ? digits : `549${national}`;
+    }
+
+    digits = digits.replace(/^0+/, '');
+
+    if (digits.startsWith('9')) {
+        return `54${digits}`;
+    }
+
+    if (digits.startsWith('1115')) {
+        digits = `11${digits.slice(4)}`;
+    }
+
+    return `549${digits}`;
+}
+
+function buildWhatsAppUrl(phone, text = '') {
+    const normalizedPhone = normalizeWhatsAppNumber(phone);
+    if (!normalizedPhone) return '';
+
+    const url = new URL(`https://wa.me/${normalizedPhone}`);
+    if (text) {
+        url.searchParams.set('text', text);
+    }
+    return url.toString();
+}
+
 // ——— Init ———
 document.addEventListener('DOMContentLoaded', async () => {
     currentPricing = await getPricing();
@@ -708,7 +749,7 @@ function _renderLeadCards(leads) {
                     <i class="fa-solid fa-bolt"></i> ⚡ Activar Cliente
                 </button>
                 <div style="display:flex; gap:8px;">
-                    <a href="https://wa.me/549${encodeURIComponent(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
+                    <a href="${buildWhatsAppUrl(l.phone)}" target="_blank" class="action-btn-link purple" title="Hablar por WhatsApp">
                         <i class="fa-brands fa-whatsapp"></i>
                     </a>
                     <button class="action-btn danger" 
@@ -826,7 +867,12 @@ window._deliverClient = async function(id) {
 
     message += `¡Cualquier duda avisame! ✨`;
 
-    const win = window.open(`https://wa.me/549${encodeURIComponent(client.whatsapp)}?text=${encodeURIComponent(message)}`, '_blank');
+    const waUrl = buildWhatsAppUrl(client.whatsapp, message);
+    if (!waUrl) {
+        showToast('El cliente no tiene un WhatsApp valido cargado.', 'error');
+        return;
+    }
+    window.open(waUrl, '_blank');
 };
 
 // ——— Subscription Logic ———
@@ -1099,7 +1145,7 @@ window._activateLead = async function(id) {
         }
         msg += `¡Cualquier duda estoy acá! 💪`;
 
-        const waUrl = `https://wa.me/549${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+        const waUrl = buildWhatsAppUrl(lead.phone, msg);
         window.open(waUrl, '_blank');
 
         showToast(`✅ ${lead.name} activado exitosamente`);

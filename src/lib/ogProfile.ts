@@ -94,6 +94,10 @@ export function isValidCardSlug(slug: string): boolean {
   return /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/i.test(slug);
 }
 
+function isUUID(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
 export function toAbsoluteUrl(value: string, origin: string): string {
   if (/^https?:\/\//i.test(value)) return value;
   return new URL(value, origin).toString();
@@ -104,7 +108,11 @@ export async function fetchOgProfile(slug: string): Promise<OgProfile | null> {
 
   const { url, anonKey } = getSupabaseEnv();
   const endpoint = new URL('/rest/v1/businesses', url);
-  endpoint.searchParams.set('slug', `eq.${slug}`);
+  if (isUUID(slug)) {
+    endpoint.searchParams.set('or', `(id.eq.${slug},slug.eq.${slug})`);
+  } else {
+    endpoint.searchParams.set('slug', `eq.${slug}`);
+  }
   endpoint.searchParams.set('select', BUSINESS_SELECT);
   endpoint.searchParams.set('limit', '1');
 
