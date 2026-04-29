@@ -98,13 +98,26 @@ export default async function handler(request: Request): Promise<Response> {
                 right: 0,
                 bottom: 0,
                 left: 0,
-                backgroundImage:
-                  'linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.16) 1px, transparent 1px)',
+                backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px)',
                 backgroundSize: '48px 48px',
                 opacity: coverUrl ? 0.14 : 0.24,
               },
               undefined,
-              'grid',
+              'grid-x',
+            ),
+            div(
+              {
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                backgroundImage: 'linear-gradient(0deg, rgba(255,255,255,0.16) 1px, transparent 1px)',
+                backgroundSize: '48px 48px',
+                opacity: coverUrl ? 0.14 : 0.24,
+              },
+              undefined,
+              'grid-y',
             ),
             div(
               {
@@ -256,8 +269,20 @@ export default async function handler(request: Request): Promise<Response> {
   });
   } catch (e: any) {
     console.error(`OG_ERROR: ${e.message}`);
-    const { origin } = new URL(request.url);
-    // Redirección de emergencia para evitar preview roto en WhatsApp
-    return Response.redirect(`${origin}/card/assets/default-avatar.svg`);
+    // Redirección a un PNG fallback si todo falla
+    const fallbackImage = div(
+      {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#0B0B12',
+        color: '#FFFFFF',
+        fontSize: 80,
+      },
+      'Suito'
+    );
+    return new ImageResponse(fallbackImage, { width: 1200, height: 630 });
   }
 }
