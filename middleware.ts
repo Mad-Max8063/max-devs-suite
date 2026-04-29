@@ -36,13 +36,14 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   const title = `${profile.name}${profile.profession ? ` - ${profile.profession}` : ''}`;
   const description = profile.description || `Contacta a ${profile.name}`;
   
-  const avatarUrl = profile.avatarUrl
-    ? toAbsoluteUrl(profile.avatarUrl, url.origin)
-    : toAbsoluteUrl('/assets/suito-symbol.png', url.origin); // fallback PNG
+  const fallbackUrl = toAbsoluteUrl('/assets/suito-symbol.png', url.origin);
+  const avatarUrl = profile.avatarUrl ? toAbsoluteUrl(profile.avatarUrl, url.origin) : null;
+  const coverUrl = profile.coverUrl ? toAbsoluteUrl(profile.coverUrl, url.origin) : null;
 
-  const ogImageUrl = profile.coverUrl 
-    ? toAbsoluteUrl(profile.coverUrl, url.origin) 
-    : avatarUrl;
+  // Prioridad: 1. Foto de Perfil (Avatar/Logo) -> 2. Portada (Cover) -> 3. Fallback de Suito
+  const ogImageUrl = avatarUrl || coverUrl || fallbackUrl;
+
+  const finalAvatarUrl = avatarUrl || fallbackUrl;
 
   return `<!doctype html>
 <html lang="es">
@@ -74,7 +75,7 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
     name: profile.name,
     jobTitle: profile.profession,
     description,
-    image: avatarUrl,
+    image: finalAvatarUrl,
     url: canonicalUrl,
   }).replace(/</g, '\\u003c')}</script>
 </head>
