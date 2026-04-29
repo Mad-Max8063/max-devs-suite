@@ -32,14 +32,17 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
 
   const url = new URL(req.url);
   const canonicalUrl = new URL(`/card/${slug}`, url.origin).toString();
-  const imageUrl = new URL(`/api/og/${slug}`, url.origin);
-  imageUrl.searchParams.set('v', Date.now().toString());
-  const ogImageUrl = imageUrl.toString();
+  
   const title = `${profile.name}${profile.profession ? ` - ${profile.profession}` : ''}`;
   const description = profile.description || `Contacta a ${profile.name}`;
+  
   const avatarUrl = profile.avatarUrl
     ? toAbsoluteUrl(profile.avatarUrl, url.origin)
-    : toAbsoluteUrl('/card/assets/default-avatar.svg', url.origin);
+    : toAbsoluteUrl('/assets/suito-symbol.png', url.origin); // fallback PNG
+
+  const ogImageUrl = profile.coverUrl 
+    ? toAbsoluteUrl(profile.coverUrl, url.origin) 
+    : avatarUrl;
 
   return `<!doctype html>
 <html lang="es">
@@ -55,17 +58,16 @@ function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typ
   <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
-  <meta property="og:image" content="https://www.suito.pro/api/og/${slug}">
-  <meta property="og:image:secure_url" content="https://www.suito.pro/api/og/${slug}">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+  <meta property="og:image:secure_url" content="${escapeHtml(ogImageUrl)}">
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="800">
   <meta property="og:image:alt" content="${escapeHtml(title)}">
   <meta property="profile:first_name" content="${escapeHtml(profile.name)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
-  <meta name="twitter:image" content="https://www.suito.pro/api/og/${slug}">
+  <meta name="twitter:image" content="${escapeHtml(ogImageUrl)}">
   <script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Person',
