@@ -168,7 +168,7 @@ function businessToClient(b) {
 
 // ——— admin client form → businesses columns ———
 // Accepts a superset: basic admin fields + optional business-specific fields.
-function clientToBusiness(clientData, userId = null) {
+function clientToBusiness(clientData, userId = null, { partial = false } = {}) {
     const row = {
         contact_name:   clientData.name?.trim()            || null,
         nombre_negocio: clientData.business?.trim()        || clientData.name?.trim() || '',
@@ -190,10 +190,10 @@ function clientToBusiness(clientData, userId = null) {
         // Map edit_token only if provided to avoid accidental rotation during partial updates
         edit_token:     clientData.edit_token,
         // --- New Monetization Fields ---
-        subscription_status: clientData.subscription_status || undefined,
-        trial_ends_at:       clientData.trial_ends_at       || undefined,
-        locked_price:        clientData.locked_price        || undefined,
-        price_lock_ends_at:  clientData.price_lock_ends_at  || undefined
+        subscription_status: clientData.subscription_status === undefined ? undefined : clientData.subscription_status,
+        trial_ends_at:       clientData.trial_ends_at       === undefined ? undefined : clientData.trial_ends_at,
+        locked_price:        clientData.locked_price        === undefined ? undefined : clientData.locked_price,
+        price_lock_ends_at:  clientData.price_lock_ends_at  === undefined ? undefined : clientData.price_lock_ends_at
     };
     if (userId) row.user_id = userId;
 
@@ -204,6 +204,38 @@ function clientToBusiness(clientData, userId = null) {
         'recordatorios_activos', 'foto_url', 'cover_url',
     ];
     extra.forEach(f => { if (clientData[f] !== undefined) row[f] = clientData[f]; });
+
+    if (partial) {
+        const has = (key) => Object.prototype.hasOwnProperty.call(clientData, key);
+        const keep = {
+            contact_name: has('name'),
+            nombre_negocio: has('business') || has('name'),
+            telefono: has('whatsapp'),
+            email: has('email'),
+            slug: has('slug'),
+            plan: has('plan'),
+            status: has('status'),
+            is_premium: has('is_premium'),
+            force_watermark: has('force_watermark'),
+            notes: has('notes'),
+            transfer_email: has('transfer_email'),
+            free_until: has('free_until'),
+            paid_until: has('paid_until'),
+            profession: has('profession'),
+            foto_url: has('foto_url'),
+            cover_url: has('cover_url'),
+            gallery_images: has('gallery_images'),
+            edit_token: has('edit_token') && clientData.edit_token != null,
+            subscription_status: has('subscription_status'),
+            trial_ends_at: has('trial_ends_at'),
+            locked_price: has('locked_price'),
+            price_lock_ends_at: has('price_lock_ends_at'),
+        };
+
+        Object.keys(row).forEach((key) => {
+            if (keep[key] === false) delete row[key];
+        });
+    }
 
     return row;
 }
@@ -305,32 +337,75 @@ export async function addClient(clientData) {
 }
 
 export async function updateClient(id, updates) {
-    const row = clientToBusiness(updates);
+    const row = clientToBusiness(updates, null, { partial: true });
     
-    // Remove nullish keys that shouldn't overwrite existing business data
+    // Remove nullish keys that shouldn't overwrite existing business data.
+    // In particular, admin benefit buttons are partial updates and must not
+    // accidentally blank customer profile fields.
     Object.keys(row).forEach(k => {
+        if (row[k] === undefined) delete row[k];
         if (row[k] === null && updates[k] === undefined) delete row[k];
     });
 
+    if (Object.keys(row).length === 0) {
+        console.warn('[clients] updateClient called with no writable fields:', updates);
+        return null;
+    }
+
     console.log('[updateClient] Attempting update for ID:', id, 'with data:', row);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from('businesses')
         .update(row)
-        .eq('id', id)
-        .select(); // Removed .single() to avoid PGRST116 during debug
+        .eq('id', id);
 
     if (error) {
         console.error('[clients] updateClient error details:', error);
         throw error;
     }
 
-    if (!data || data.length === 0) {
-        console.warn('[clients] updateClient: No rows were updated. Check RLS or ID.');
+    const { data, error: fetchError } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+    if (fetchError) {
+        console.warn('[clients] updateClient: update succeeded but refresh failed:', fetchError);
         return null;
     }
 
-    return businessToClient(data[0]);
+    return data ? businessToClient(data) : null;
+}
+
+export async function updateClientBenefits(id, updates) {
+    const { error } = await supabase.rpc('admin_update_business_benefits', {
+        p_business_id: id,
+        p_is_premium: updates.is_premium ?? null,
+        p_subscription_status: updates.subscription_status ?? null,
+        p_trial_ends_at: updates.trial_ends_at ?? null,
+        p_free_until: updates.free_until ?? null,
+        p_clear_trial_ends_at: updates.clear_trial_ends_at === true,
+        p_clear_free_until: updates.clear_free_until === true,
+    });
+
+    if (error) {
+        console.error('[clients] updateClientBenefits error details:', error);
+        throw error;
+    }
+
+    const { data, error: fetchError } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+    if (fetchError) {
+        console.warn('[clients] updateClientBenefits: update succeeded but refresh failed:', fetchError);
+        return null;
+    }
+
+    return data ? businessToClient(data) : null;
 }
 
 export async function deleteClient(id) {

@@ -12,7 +12,7 @@ const CONFIG = {
 };
 
 import { supabase } from '@shared/supabase.js';
-import { getClients, addClient, updateClient, deleteClient, getClientStats, initImageUploads } from './clients.js';
+import { getClients, addClient, updateClient, updateClientBenefits, deleteClient, getClientStats, initImageUploads } from './clients.js';
 import { getPricing, updatePricing, applyInflation } from './pricing.js';
 
 // ——— State ———
@@ -506,7 +506,13 @@ function initModal() {
 
         try {
             if (editingClientId) {
-                await updateClient(editingClientId, data);
+                const { is_premium, free_until, ...profileData } = data;
+                await updateClient(editingClientId, profileData);
+                await updateClientBenefits(editingClientId, {
+                    is_premium,
+                    free_until,
+                    clear_free_until: free_until === null,
+                });
                 showToast('Cliente actualizado ✅');
             } else {
                 await addClient(data);
@@ -664,10 +670,7 @@ window.bonificarPlan = async function(days) {
         const newDate = new Date(baseDate.getTime() + (days * 24 * 60 * 60 * 1000));
         const free_until = newDate.toISOString().split('T')[0];
         
-        await updateClient(editingClientId, { 
-            ...client,
-            free_until 
-        });
+        await updateClientBenefits(editingClientId, { free_until });
         
         showToast(`¡Plan bonificado ${days} días! (Hasta ${free_until})`, 'success');
         
@@ -688,12 +691,11 @@ window.setVitalicio = async function() {
     if (!confirm('¿Convertir este cliente a Vitalicio? Tendrá acceso premium permanente.')) return;
     
     try {
-        const clients = await getClients();
-        const client = clients.find(c => c.id === editingClientId);
-        
-        await updateClient(editingClientId, { 
-            ...client,
-            is_premium: true 
+        await updateClientBenefits(editingClientId, {
+            is_premium: true,
+            subscription_status: 'active',
+            clear_trial_ends_at: true,
+            clear_free_until: true
         });
         
         showToast('¡Cliente convertido a VITALICIO! 👑', 'success');
