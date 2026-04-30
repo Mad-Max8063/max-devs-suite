@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ——— Navigation ———
 function initNavigation() {
     document.querySelectorAll('.nav-links li').forEach(li => {
+        if (li.dataset.external) return;
         li.addEventListener('click', (e) => {
             e.preventDefault();
             const section = li.dataset.section;
