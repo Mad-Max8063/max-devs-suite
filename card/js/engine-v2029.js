@@ -194,6 +194,7 @@ export function applyPremiumBranding(dbData = {}) {
             --primary: ${primaryColor};
             --primary-container: ${primaryDark};
             --theme-gradient: linear-gradient(135deg, ${primaryColor} 0%, ${primaryDark} 100%);
+            --font-scale: ${dbData.font_scale || 1.0};
         }
 
         body,
@@ -525,6 +526,7 @@ export function renderLanding(container, data) {
     attachCardEvents(container, data);
     injectDynamicManifest(data);
     wireInstallButton();
+    if (typeof gtag === 'function') gtag('event', 'card_view', { slug: data.slug || '' });
 }
 
 export function renderPreview(container, data, onBack, onSave) {
@@ -602,10 +604,10 @@ function buildCardHTML(data) {
                         <span class="material-symbols-outlined">person_add</span>
                         Agendar
                     </button>
-                    <button class="btn-secondary" onclick="navigator.share ? navigator.share({title:'${name}',url:window.location.href}).catch(()=>{}) : navigator.clipboard.writeText(window.location.href)">
+                    ${!data.disable_share ? `<button class="btn-secondary" onclick="if(typeof gtag==='function')gtag('event','share',{slug:'${data.slug || ''}'});navigator.share ? navigator.share({title:'${name}',url:window.location.href}).catch(()=>{}) : navigator.clipboard.writeText(window.location.href)">
                         <span class="material-symbols-outlined">share</span>
                         Compartir
-                    </button>
+                    </button>` : ''}
                     <button id="install-btn" class="btn-secondary" style="display:none;">
                         <span class="material-symbols-outlined">download</span>
                         Instalar app
@@ -669,7 +671,10 @@ function buildCardHTML(data) {
 function attachCardEvents(container, data) {
     const saveBtn = container.querySelector('#btn-save-contact');
     if (saveBtn) {
-        saveBtn.onclick = () => downloadVCard(data);
+        saveBtn.onclick = () => {
+            if (typeof gtag === 'function') gtag('event', 'contact_click', { slug: data.slug || '' });
+            downloadVCard(data);
+        };
     }
 
     const status = getSubscriptionStatus(data);

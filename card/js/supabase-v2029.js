@@ -41,7 +41,9 @@ const PUBLIC_BUSINESS_SELECT = [
     'social_color',
     'card_theme',
     'custom_css',
-    'force_watermark'
+    'force_watermark',
+    'disable_share',
+    'font_scale'
 ].join(',');
 
 // ——————— ID Generation ———————
@@ -247,7 +249,9 @@ export async function getCard(slug) {
         font_family: business.font_family || '',
         social_color: business.social_color || '',
         card_theme: business.card_theme || '',
-        custom_css: business.custom_css || ''
+        custom_css: business.custom_css || '',
+        disable_share: business.disable_share || false,
+        font_scale: business.font_scale || 1.0
     };
 
     return cardData;

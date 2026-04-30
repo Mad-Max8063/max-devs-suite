@@ -163,6 +163,8 @@ function businessToClient(b) {
         trial_ends_at:       b.trial_ends_at || null,
         locked_price:        b.locked_price || null,
         price_lock_ends_at:  b.price_lock_ends_at || null,
+        disable_share:       b.disable_share || false,
+        font_scale:          b.font_scale || 1.0,
     };
 }
 
@@ -179,6 +181,8 @@ function clientToBusiness(clientData, userId = null, { partial = false } = {}) {
         status:         clientData.status                  || 'active',
         is_premium:     clientData.is_premium              || false,
         force_watermark:clientData.force_watermark         || false,
+        disable_share:  clientData.disable_share           || false,
+        font_scale:     parseFloat(clientData.font_scale)  || 1.0,
         notes:          clientData.notes?.trim()           || null,
         transfer_email: clientData.transfer_email?.trim()  || null,
         free_until:     clientData.free_until              || null,
@@ -217,6 +221,8 @@ function clientToBusiness(clientData, userId = null, { partial = false } = {}) {
             status: has('status'),
             is_premium: has('is_premium'),
             force_watermark: has('force_watermark'),
+            disable_share: has('disable_share'),
+            font_scale: has('font_scale'),
             notes: has('notes'),
             transfer_email: has('transfer_email'),
             free_until: has('free_until'),

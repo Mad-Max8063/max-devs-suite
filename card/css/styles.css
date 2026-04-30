@@ -238,7 +238,7 @@ body {
 }
 
 .card-name {
-  font-size: clamp(1.25rem, 4vw + 0.5rem, 1.75rem);
+  font-size: calc(clamp(1.25rem, 4vw + 0.5rem, 1.75rem) * var(--font-scale, 1));
   font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--on-surface);
@@ -247,7 +247,7 @@ body {
 /* Legacy alias */
 .card-profession,
 .card-title {
-  font-size: clamp(0.7rem, 2vw + 0.25rem, 0.9rem);
+  font-size: calc(clamp(0.7rem, 2vw + 0.25rem, 0.9rem) * var(--font-scale, 1));
   font-weight: 600;
   color: var(--primary);
   text-transform: uppercase;
@@ -255,7 +255,7 @@ body {
 }
 
 .card-bio {
-  font-size: clamp(0.85rem, 2.5vw + 0.2rem, 0.95rem);
+  font-size: calc(clamp(0.85rem, 2.5vw + 0.2rem, 0.95rem) * var(--font-scale, 1));
   color: var(--on-surface-variant);
   font-weight: 500;
   max-width: min(320px, 100%);
@@ -414,7 +414,7 @@ body {
 }
 
 .section-title {
-  font-size: clamp(0.9rem, 2.5vw + 0.25rem, 1.15rem);
+  font-size: calc(clamp(0.9rem, 2.5vw + 0.25rem, 1.15rem) * var(--font-scale, 1));
   font-weight: 700;
   color: var(--on-surface);
 }
