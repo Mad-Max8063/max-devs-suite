@@ -1,48 +1,46 @@
-# Resumen de Sesión — Suito Admin Fix & Deploy
-**Fecha:** 2026-04-29 22:35 (Hora Local)
-**Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
+# Resumen de Sesión — Suito Platform
+**Fecha:** 2026-04-30
+**Proyecto:** MiSuite
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Resolver errores HTTP 403 en el Panel Admin al intentar otorgar beneficios (Premium/Vitalicio) mediante la implementación de un mecanismo seguro por base de datos (RPC) y realizar el despliegue final.
+Implementar tres ajustes clave post-lanzamiento de la Tarjeta Virtual: ocultar el botón compartir de forma opcional, configurar el tamaño de fuente global desde el panel, e integrar métricas de Google Analytics (GA4) en todo el ecosistema.
 
 ---
 
 ## ✅ Lo que se hizo
-- **Implementación de RPC:** Se creó la función `admin_update_business_benefits` en Postgres para manejar actualizaciones de beneficios con `SECURITY DEFINER`, evitando la fragilidad de los updates directos de PostgREST.
-- **Gestión de Permisos:** Se creó la tabla `super_admins` y la función `is_super_admin(uid)` para centralizar la autorización administrativa.
-- **Configuración de Admin:** Se actualizó el script de fix para el usuario `hola@suito.pro` (ID `1aca93a8-6f2e-4801-bb0a-d8167e7e190c`).
-- **Build & Deploy:** Se realizó un `npm run build` exitoso y se desplegó a producción en Vercel.
-- **Investigación:** Se determinó que el inicio del desarrollo del ecosistema (vía Planazol) fue el **26 de noviembre de 2025**.
+- Migración en Supabase SQL añadiendo las columnas `disable_share` y `font_scale` en la tabla `businesses`.
+- Integración de scripts de Google Analytics 4 (GA4) en:
+  - `card/index.html` (Tarjetas Virtuales)
+  - `turnos/index.html` (App React)
+  - `admin/dashboard-v2029.html` (Panel Admin)
+- Inyección de eventos `gtag` para clicks de compartir y agendar contacto.
+- Refactorización del renderizador `engine-v2029.js` y `styles.css` para escalar fuentes usando variables `--font-scale` combinadas con CSS `clamp()`.
+- Adición de controles en el Admin (UI/JS) para modificar las preferencias de compartir y tamaño de fuente de los clientes bidireccionalmente con Supabase.
+- Push completo a GitHub branch `main` y deploy exitoso automático en Vercel.
 
 ---
 
 ## ❌ Problemas encontrados
-- **Error 403 persistente:** Causado por el uso de `UPDATE` directos sobre tablas con RLS restrictivo y el uso de enums (`subscription_status_enum`) sin permisos de `USAGE`.
-- **Límite de Vercel:** En sesiones previas hubo bloqueos por cuota, pero en esta sesión el deploy fue exitoso.
+- Ninguno en esta sesión. Todo se verificó y commiteó exitosamente.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Base de Datos
-1. **Ejecutar SQL en Supabase:** El usuario debe correr el archivo `FIX_SUPER_ADMIN_403.sql` en el Editor SQL de Supabase para activar el RPC y los permisos.
-
-### Prioridad 2 — Verificación
-1. **Testear en Vivo:** Verificar que los botones "Vitalicio" y "Bonificar" funcionen sin errores en [suito.pro/admin](https://suito.pro/admin).
-2. **Validar RLS:** Asegurarse de que solo el super_admin pueda ejecutar el nuevo RPC.
+### Prioridad 1 — Funcionalidades Premium
+1. **Integración Galería con Catálogo de WhatsApp:** Añadir link directo (`action_link` o `wa_catalog_id`) a cada foto de la Galería de la tarjeta virtual para redirigir directamente al producto específico en el catálogo de WhatsApp Business.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Vercel Deploy:** [https://suito.pro](https://suito.pro)
-- **Vercel URL Técnica:** `max-devs-suite-2s44c4r45-matias-maximiliano-bernals-projects.vercel.app`
-- **Admin User ID:** `1aca93a8-6f2e-4801-bb0a-d8167e7e190c`
-- **Admin Email:** `hola@suito.pro`
+- **DB Migrations:** `20260430000000_disable_share_font_scale.sql`
+- **GA4 Measurement ID:** `G-CVXZ2XWP9W`
+- **Engine Core:** `engine-v2029.js`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **Uso de RPC vs UPDATE:** Se optó por un RPC con `SECURITY DEFINER` para que las actualizaciones críticas de monetización ocurran en el lado del servidor bajo reglas estrictas, evitando errores de RLS en el frontend.
-- **Casteo Dinámico de Enums:** El RPC incluye lógica para detectar si la columna `subscription_status` es de tipo `enum` y aplicar el casteo necesario automáticamente.
+- Se utilizó Google Analytics 4 por su integración sencilla para eventos de embudo.
+- El tamaño de fuente no se hardcodeó en píxeles fijos, sino que se inyecta como un multiplicador proporcional (escala 0.8 a 1.5) que se aplica sobre los tamaños fluidos base de la interfaz para mantener la integridad del diseño (evitar desbordes en mobile).
