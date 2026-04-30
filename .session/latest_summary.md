@@ -1,49 +1,48 @@
-# Resumen de Sesión — Suito (Tarjeta Virtual MVP)
-**Fecha:** 2026-04-29
-**Proyecto:** [max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
+# Resumen de Sesión — Suito Admin Fix & Deploy
+**Fecha:** 2026-04-29 22:35 (Hora Local)
+**Proyecto:** [Mad-Max8063/max-devs-suite](https://github.com/Mad-Max8063/max-devs-suite)
 
 ---
 
 ## 🎯 Objetivo de la sesión
-Simplificar la landing page de Suito y limpiar los términos legales para enfocar el producto exclusivamente en el MVP de la Tarjeta Virtual, removiendo todas las fricciones del módulo "Gestor de Turnos".
+Resolver errores HTTP 403 en el Panel Admin al intentar otorgar beneficios (Premium/Vitalicio) mediante la implementación de un mecanismo seguro por base de datos (RPC) y realizar el despliegue final.
 
 ---
 
 ## ✅ Lo que se hizo
-- Limpieza integral de `index.html`: Eliminación de la tabla de comparación, reducción de planes (solo Gratis y Pro), eliminación de copies contra la competencia extranjera ("60% ahorro").
-- Reemplazo de métricas hero: Se cambió el 60% por "1 link - Para todas tus redes".
-- Limpieza de Términos y Privacidad (`legal.html`): Remoción de cobros de señas, reembolsos y período de prueba de agenda para evitar confusiones legales.
-- Deploy automático en Vercel completado exitosamente a lo largo de todos los commits.
-- Corrección de la previsualización del link (Open Graph) saltando la renderización dinámica defectuosa en Vercel.
+- **Implementación de RPC:** Se creó la función `admin_update_business_benefits` en Postgres para manejar actualizaciones de beneficios con `SECURITY DEFINER`, evitando la fragilidad de los updates directos de PostgREST.
+- **Gestión de Permisos:** Se creó la tabla `super_admins` y la función `is_super_admin(uid)` para centralizar la autorización administrativa.
+- **Configuración de Admin:** Se actualizó el script de fix para el usuario `hola@suito.pro` (ID `1aca93a8-6f2e-4801-bb0a-d8167e7e190c`).
+- **Build & Deploy:** Se realizó un `npm run build` exitoso y se desplegó a producción en Vercel.
+- **Investigación:** Se determinó que el inicio del desarrollo del ecosistema (vía Planazol) fue el **26 de noviembre de 2025**.
 
 ---
 
 ## ❌ Problemas encontrados
-- Fallo en Vercel al generar la imagen OG dinámicamente (`ImageResponse` import error y `fetch` local fallido). *Solución*: Bypass del endpoint dinámico y uso directo de la `avatar_url` de Supabase en los metadatos y JSON-LD.
+- **Error 403 persistente:** Causado por el uso de `UPDATE` directos sobre tablas con RLS restrictivo y el uso de enums (`subscription_status_enum`) sin permisos de `USAGE`.
+- **Límite de Vercel:** En sesiones previas hubo bloqueos por cuota, pero en esta sesión el deploy fue exitoso.
 
 ---
 
 ## 📋 Pendiente (para la próxima sesión)
 
-### Prioridad 1 — Pruebas en Vivo
-1. Validar el flujo de creación de tarjeta desde la nueva landing.
-2. Asegurar que las imágenes de Open Graph cargan bien en Telegram/WhatsApp con el nuevo sistema directo.
+### Prioridad 1 — Base de Datos
+1. **Ejecutar SQL en Supabase:** El usuario debe correr el archivo `FIX_SUPER_ADMIN_403.sql` en el Editor SQL de Supabase para activar el RPC y los permisos.
 
-### Prioridad 2 — Gestor de Turnos (Futuro)
-1. Probar el Gestor de Turnos internamente con casos reales antes de plantear un lanzamiento v2.
-2. Reconectar los componentes de turnos a la interfaz cuando la feature esté estable.
+### Prioridad 2 — Verificación
+1. **Testear en Vivo:** Verificar que los botones "Vitalicio" y "Bonificar" funcionen sin errores en [suito.pro/admin](https://suito.pro/admin).
+2. **Validar RLS:** Asegurarse de que solo el super_admin pueda ejecutar el nuevo RPC.
 
 ---
 
 ## 🔑 IDs y Referencias Importantes
-- **Repositorio**: `Mad-Max8063/max-devs-suite`
-- **Últimos Commits**:
-  - `d0277e5` (Legal terms cleanup)
-  - `4e25a4e` (Hero stat replacement)
-- **Despliegue**: Automático en Vercel vinculado a rama `main`.
+- **Vercel Deploy:** [https://suito.pro](https://suito.pro)
+- **Vercel URL Técnica:** `max-devs-suite-2s44c4r45-matias-maximiliano-bernals-projects.vercel.app`
+- **Admin User ID:** `1aca93a8-6f2e-4801-bb0a-d8167e7e190c`
+- **Admin Email:** `hola@suito.pro`
 
 ---
 
 ## 💡 Decisiones técnicas tomadas
-- **MVP Focus**: Remover características avanzadas pero incompletas/no probadas (Turnos) de la Landing Page para garantizar alta conversión.
-- **OG Tags Directos**: Usar la URL de Supabase para las OG tags para evitar los bloqueos computacionales de Vercel (Error 500 en endpoint `/api/og`).
+- **Uso de RPC vs UPDATE:** Se optó por un RPC con `SECURITY DEFINER` para que las actualizaciones críticas de monetización ocurran en el lado del servidor bajo reglas estrictas, evitando errores de RLS en el frontend.
+- **Casteo Dinámico de Enums:** El RPC incluye lógica para detectar si la columna `subscription_status` es de tipo `enum` y aplicar el casteo necesario automáticamente.
