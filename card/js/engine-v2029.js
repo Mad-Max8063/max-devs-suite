@@ -599,7 +599,7 @@ function buildCardHTML(data) {
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="card-actions">
+                <div class="card-actions${data.disable_share ? ' share-hidden' : ''}">
                     <button class="btn-primary" id="btn-save-contact" style="background: linear-gradient(135deg, #10b981, #059669);">
                         <span class="material-symbols-outlined">person_add</span>
                         Agendar

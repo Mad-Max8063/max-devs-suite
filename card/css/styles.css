@@ -294,7 +294,7 @@ body {
   flex-wrap: wrap;
 }
 
-.card-actions .btn-primary:only-of-type {
+.card-actions.share-hidden .btn-primary {
   flex: 1 1 100%;
   max-width: 100%;
 }
