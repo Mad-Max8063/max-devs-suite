@@ -29,7 +29,7 @@ const DemoSaveModal: React.FC<DemoSaveModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Description */}
                 <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 leading-relaxed">
-                    Los cambios no se guardarán porque estás probando la app.
+                    Tus cambios se guardaron solo para esta sesión de demo.
                     <strong className="text-primary"> Creá tu cuenta gratis</strong> para guardar tu configuración real.
                 </p>
 

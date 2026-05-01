@@ -149,7 +149,17 @@ export const SubscriptionBanner: React.FC = () => {
                 </button>
 
                 <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.8 }}>
-                    <img src="https://www.mercadopago.com/instore/merchant/resources/images/check.svg" width="16" alt="MP" />
+                    <span
+                        className="material-symbols-outlined"
+                        aria-hidden="true"
+                        style={{
+                            fontSize: '16px',
+                            lineHeight: 1,
+                            color: isExpired ? '#b91c1c' : '#a16207',
+                        }}
+                    >
+                        check_circle
+                    </span>
                     <span style={{ fontSize: '11px', color: isExpired ? '#b91c1c' : '#a16207' }}>
                         Cobro local en Pesos Argentinos vía Mercado Pago
                     </span>

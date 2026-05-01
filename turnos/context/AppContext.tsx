@@ -73,6 +73,37 @@ const DEMO_PROFILE: Profile = {
     ActiveModules: ['appointments', 'card'],
 };
 
+const DEMO_PROFILE_STORAGE_KEY = 'misuite.turnos.demo.profile';
+const DEMO_SERVICES_STORAGE_KEY = 'misuite.turnos.demo.services';
+
+const readSessionJson = <T,>(key: string): T | null => {
+    if (typeof window === 'undefined') return null;
+
+    try {
+        const stored = window.sessionStorage.getItem(key);
+        return stored ? JSON.parse(stored) as T : null;
+    } catch (error) {
+        logger.warn(`[AppContext] Ignoring invalid session storage for ${key}:`, error);
+        return null;
+    }
+};
+
+const writeSessionJson = (key: string, value: unknown) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+        window.sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+        logger.warn(`[AppContext] Could not persist ${key} in session storage:`, error);
+    }
+};
+
+const getDemoProfile = (slug: string): Profile => ({
+    ...DEMO_PROFILE,
+    ...readSessionJson<Partial<Profile>>(DEMO_PROFILE_STORAGE_KEY),
+    Slug: slug,
+});
+
 // Helper to get local date string
 const getLocalDateString = (daysOffset: number = 0): string => {
     const d = new Date();
@@ -396,13 +427,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 setProfile(data);
             } else {
                 // Use demo data
-                setProfile({ ...DEMO_PROFILE, Slug: slug });
+                setProfile(getDemoProfile(slug));
             }
         } catch (error) {
             setProfileError(error instanceof Error ? error.message : 'Error cargando perfil');
             // Only fallback to demo data if in demo mode
             if (isDemo) {
-                setProfile({ ...DEMO_PROFILE, Slug: slug });
+                setProfile(getDemoProfile(slug));
             }
         } finally {
             setProfileLoading(false);
@@ -431,6 +462,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         const updatedProfile = { ...baseProfile, ...data };
         logger.debug('[updateProfile] Saving profile:', updatedProfile);
         setProfile(updatedProfile as Profile);
+
+        if (isDemo) {
+            writeSessionJson(DEMO_PROFILE_STORAGE_KEY, updatedProfile);
+        }
 
         if (shouldCallApi) {
             try {
@@ -538,16 +573,33 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 } else {
                     logger.debug('[App] No services in backend, using defaults');
                 }
+            } else if (isDemo) {
+                const stored = readSessionJson<{ services: Service[]; categoryId: string | null }>(DEMO_SERVICES_STORAGE_KEY);
+                if (stored?.services?.length) {
+                    setServices(stored.services.map((s, i) => ({
+                        ...s,
+                        activo: s.activo !== false,
+                        orden: s.orden ?? i,
+                    })));
+                    setSelectedCategoryId(stored.categoryId);
+                }
             }
         } catch (error) {
             logger.error('[App] Error loading services:', error);
             // Keep default services on error
         }
-    }, [slug, shouldCallApi]);
+    }, [slug, shouldCallApi, isDemo]);
 
     // Save services to backend
     const saveServicesToBackend = useCallback(async (svcs: Service[], categoryId: string | null) => {
         if (!slug) return;
+
+        if (isDemo) {
+            setServices(svcs);
+            setSelectedCategoryId(categoryId);
+            writeSessionJson(DEMO_SERVICES_STORAGE_KEY, { services: svcs, categoryId });
+            return;
+        }
 
         if (shouldCallApi) {
             try {
@@ -558,7 +610,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 throw error;
             }
         }
-    }, [slug, shouldCallApi]);
+    }, [slug, shouldCallApi, isDemo]);
 
     // Auto-load profile when slug changes
     useEffect(() => {

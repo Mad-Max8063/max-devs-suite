@@ -194,12 +194,6 @@ const BusinessConfigPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    // Show demo modal if in demo mode
-    if (slug === 'demo') {
-      setShowDemoModal(true);
-      return;
-    }
-
     setSaving(true);
     setSaved(false);
 
@@ -218,6 +212,9 @@ const BusinessConfigPage: React.FC = () => {
       // Save services alongside profile
       await saveServicesToBackend(services, selectedCategoryId);
       setSaved(true);
+      if (slug === 'demo') {
+        setShowDemoModal(true);
+      }
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       alert('Error guardando los cambios');
