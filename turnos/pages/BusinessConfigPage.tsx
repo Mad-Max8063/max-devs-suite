@@ -224,7 +224,7 @@ const BusinessConfigPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-gray-900 dark:text-white font-sans relative overflow-hidden">
       {/* Mesh Background Decorative */}
       <div className="fixed inset-0 mesh-gradient-bg opacity-[0.06] -z-10" />
 
@@ -277,8 +277,8 @@ const BusinessConfigPage: React.FC = () => {
       {slug && <DemoBanner slug={slug} />}
 
       {/* Top App Bar */}
-      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-4 bg-background/60 backdrop-blur-xl border-b border-white/5">
-        <button onClick={() => navigate(-1)} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-2xl bg-surface border border-white/10 text-white hover:scale-105 transition-all">
+      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-4 bg-background-light/80 dark:bg-background-dark/60 backdrop-blur-xl border-b border-gray-200/70 dark:border-white/5">
+        <button onClick={() => navigate(-1)} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-2xl bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white hover:scale-105 transition-all">
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <h1 className="text-lg font-black tracking-tighter text-center flex-1">Configuración</h1>
@@ -340,7 +340,7 @@ const BusinessConfigPage: React.FC = () => {
                 type="text"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full pl-11 pr-4 py-4 bg-surface/60 border border-white/10 rounded-2xl text-base text-white placeholder-white/20 focus:outline-none focus:border-primary transition-all duration-200 shadow-inner outline-none"
+                className="w-full pl-11 pr-4 py-4 bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 rounded-2xl text-base text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/20 focus:outline-none focus:border-primary transition-all duration-200 shadow-inner outline-none"
                 placeholder="Ej. Barbería Styles"
                 disabled={loading}
               />
@@ -419,7 +419,7 @@ const BusinessConfigPage: React.FC = () => {
                       applyThemeColor(val);
                     }
                   }}
-                  className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-mono focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-mono text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   placeholder="#hex custom, ej: #FF6B35"
                 />
               </div>
@@ -483,7 +483,7 @@ const BusinessConfigPage: React.FC = () => {
                   type="text"
                   value={alias}
                   onChange={(e) => setAlias(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   placeholder="mi.negocio.mp"
                 />
               </div>
@@ -499,7 +499,7 @@ const BusinessConfigPage: React.FC = () => {
                   type="url"
                   value={linkPago}
                   onChange={(e) => setLinkPago(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   placeholder="https://link-de-pago.com/tu-link"
                 />
               </div>

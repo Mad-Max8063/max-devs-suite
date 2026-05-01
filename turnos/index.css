@@ -10,9 +10,19 @@
   --color-secondary: #3b82f6;
   --color-tertiary: #10b981;
   --color-surface: #1e1e1e;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #1e1e1e;
+  --color-surface-2: #2c2c2c;
   --color-background: #121212;
+  --color-background-light: #f8fafc;
+  --color-background-dark: #121212;
   --color-on-surface: #f5f5f5;
   --color-on-surface-variant: #a0a0a0;
+  --color-primary-dark: #b8860b;
+  --color-text-primary-light: #111827;
+  --color-text-primary-dark: #f9fafb;
+  --color-text-secondary-light: #4b5563;
+  --color-text-secondary-dark: #a0a0a0;
   
   /* Glass Surface Tokens */
   --color-glass-surface: rgba(30, 30, 30, 0.4);

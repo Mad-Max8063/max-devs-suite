@@ -12,13 +12,27 @@ export default {
         extend: {
             colors: {
                 "primary": "#D4AF37",
+                "primary-dark": "#B8860B",
                 "primary-hover": "#B8860B",
                 "secondary": "#E5C158",
                 "tertiary": "#A67C00",
-                "surface": "#1E1E1E",
-                "background": "#121212",
+                "surface": {
+                    DEFAULT: "#1E1E1E",
+                    light: "#FFFFFF",
+                    dark: "#1E1E1E",
+                    2: "#2C2C2C",
+                },
+                "background": {
+                    DEFAULT: "#121212",
+                    light: "#F8FAFC",
+                    dark: "#121212",
+                },
                 "on-surface": "#F5F5F5",
                 "on-surface-variant": "#A0A0A0",
+                "text-primary-light": "#111827",
+                "text-primary-dark": "#F9FAFB",
+                "text-secondary-light": "#4B5563",
+                "text-secondary-dark": "#A0A0A0",
             },
             fontFamily: {
                 "display": ["Plus Jakarta Sans", "sans-serif"],
