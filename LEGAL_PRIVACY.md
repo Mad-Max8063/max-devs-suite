@@ -4,7 +4,7 @@
 **Suito Suite** actúa como intermediario tecnológico para la provisión de servicios digitales ("Tarjeta Virtual", "Gestor de Turnos (Beta Privada)", "Panel de Administración" y "Onboarding/Tracking").
 
 1. **Acceso a Módulos:** El acceso al "Gestor de Turnos" es discrecional y manual durante su fase de beta privada. El registro no implica activación automática.
-2. **Almacenamiento de Medios (Storage):** Toda imagen (Perfil y Portada) subida por potenciales clientes se almacena bajo el dominio privado en Supabase. Estos recursos tienen uso exclusivo para la gestión interna comercial y la customización estructural del servicio solicitado y NO serán distribuidos a terceros fuera del ecosistema "Suito".
+2. **Almacenamiento de Medios (Storage):** Toda imagen subida por potenciales clientes o usuarios (perfil, portada, galería y QR de pago) se almacena en Supabase Storage. Estos recursos se usan para la gestión comercial, la personalización del servicio y la visualización pública cuando el usuario los publica en su tarjeta o configuración de cobro. Las imágenes pueden ser accesibles mediante URL directa.
 3. **Registro de Leads (Base de Datos):** La suite recopila datos estructurados (nombre, teléfono, ocupación, origen y especificaciones del servicio). Este almacenamiento está protegido a nivel Row Level Security (RLS) en Postgres.
 4. **Datos de Terceros (Agenda):** En el uso del Gestor de Turnos, el usuario es el Responsable del Tratamiento de los datos de sus clientes. Suito es el Procesador/Encargado.
 5. **Resguardo de Contraseñas:** Suito Suite y las aplicaciones satélites JAMÁS solicitarán información financiera, de tarjetas de crédito o contraseñas a través de la interfaz web abierta.

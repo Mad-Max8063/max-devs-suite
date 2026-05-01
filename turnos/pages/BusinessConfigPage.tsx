@@ -9,14 +9,16 @@ import DemoSaveModal from '../components/DemoSaveModal';
 import SharePaymentModal from '../components/SharePaymentModal';
 import ServiceManager from '../components/ServiceManager';
 import { COLOR_FAMILIES, COLOR_PRESETS, DEFAULT_PRIMARY, applyThemeColor } from '../hooks/useTheme';
+import { uploadBusinessImage } from '../services/sheetsService';
 
 /**
- * Utility to resize and compress images to fit Google Sheets cell limits (50k chars)
+ * Utility to resize and compress images before uploading to Supabase Storage.
  */
 const resizeImage = (base64Str: string, maxWidth = 400, maxHeight = 400, quality = 0.7): Promise<string> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.src = base64Str;
+    img.onerror = () => reject(new Error('No se pudo procesar la imagen'));
     img.onload = () => {
       const canvas = document.createElement('canvas');
       let width = img.width;
@@ -45,6 +47,15 @@ const resizeImage = (base64Str: string, maxWidth = 400, maxHeight = 400, quality
   });
 };
 
+const readFileAsDataUrl = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('No se pudo leer la imagen'));
+    reader.readAsDataURL(file);
+  });
+};
+
 const BusinessConfigPage: React.FC = () => {
   const navigate = useNavigate();
   const { slug: urlSlug } = useParams<{ slug: string }>();
@@ -65,6 +76,8 @@ const BusinessConfigPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [qrUploading, setQrUploading] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [notificacionesEmail, setNotificacionesEmail] = useState(true);
@@ -119,18 +132,64 @@ const BusinessConfigPage: React.FC = () => {
     logger.debug('[Config] Profile Loading:', loading);
   }, [slug, profile, loading]);
 
-  // Handle QR image upload
-  const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadResizedBusinessImage = async (
+    file: File,
+    folder: 'photo' | 'qr',
+    maxWidth: number,
+    maxHeight: number,
+    quality: number
+  ) => {
+    const base64 = await readFileAsDataUrl(file);
+    logger.debug(`[${folder}Upload] Base64 length before resize:`, base64.length);
+    const compressed = await resizeImage(base64, maxWidth, maxHeight, quality);
+    logger.debug(`[${folder}Upload] Compressed length:`, compressed.length);
+    return uploadBusinessImage(compressed, folder, slug);
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result as string;
-        // Resize and compress before setting state
-        const compressed = await resizeImage(base64, 500, 500, 0.6);
-        setQrImageUrl(compressed);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (slug === 'demo') {
+      setShowDemoModal(true);
+      e.target.value = '';
+      return;
+    }
+
+    setPhotoUploading(true);
+    try {
+      const publicUrl = await uploadResizedBusinessImage(file, 'photo', 250, 250, 0.7);
+      logger.debug('[PhotoUpload] Calling updateProfile with public URL...');
+      await updateProfile({ FotoURL: publicUrl });
+    } catch (err) {
+      logger.error('[PhotoUpload] Error:', err);
+      alert('Error al procesar o subir la imagen: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setPhotoUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (slug === 'demo') {
+      setShowDemoModal(true);
+      e.target.value = '';
+      return;
+    }
+
+    setQrUploading(true);
+    try {
+      const publicUrl = await uploadResizedBusinessImage(file, 'qr', 500, 500, 0.7);
+      setQrImageUrl(publicUrl);
+    } catch (err) {
+      logger.error('[QR Upload] Error:', err);
+      alert('Error al procesar o subir el QR: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setQrUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -226,9 +285,9 @@ const BusinessConfigPage: React.FC = () => {
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <h1 className="text-lg font-black tracking-tighter text-center flex-1">Configuración</h1>
-        <button onClick={handleSave} disabled={saving} className="flex items-center justify-end px-2 py-1">
+        <button onClick={handleSave} disabled={saving || photoUploading || qrUploading} className="flex items-center justify-end px-2 py-1">
           <span className={`font-black text-base transition-all ${saved ? 'text-green-500' : 'text-primary hover:scale-105'}`}>
-            {saving ? '...' : saved ? '¡OK!' : 'Guardar'}
+            {saving ? '...' : saved ? '¡OK!' : photoUploading || qrUploading ? 'Subiendo...' : 'Guardar'}
           </span>
         </button>
       </div>
@@ -240,44 +299,27 @@ const BusinessConfigPage: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-8">
           <div className="relative group">
             <label className="cursor-pointer">
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-surface-dark shadow-lg bg-gray-200 dark:bg-gray-700">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-surface-dark shadow-lg bg-gray-200 dark:bg-gray-700">
                 <img
                   src={profile?.FotoURL || "https://picsum.photos/seed/barber/200/200"}
                   alt="Logo actual"
-                  className="w-full h-full object-cover transition-opacity group-hover:opacity-90"
+                  className={`w-full h-full object-cover transition-opacity ${photoUploading ? 'opacity-40' : 'group-hover:opacity-90'}`}
                 />
+                {photoUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <span className="material-symbols-outlined text-white animate-spin">progress_activity</span>
+                  </div>
+                )}
               </div>
               {/* Camera Icon Badge */}
               <div className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-2.5 border-[3px] border-background-light dark:border-background-dark shadow-md flex items-center justify-center transition-transform transform group-hover:scale-110 active:scale-95">
-                <span className="material-symbols-outlined text-[20px]">photo_camera</span>
+                <span className="material-symbols-outlined text-[20px]">{photoUploading ? 'hourglass_top' : 'photo_camera'}</span>
               </div>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  logger.debug('[PhotoUpload] File selected:', file?.name, file?.size);
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = async () => {
-                      const base64 = reader.result as string;
-                      logger.debug('[PhotoUpload] Base64 length before resize:', base64.length);
-                      // Resize and compress before saving
-                      try {
-                        const compressed = await resizeImage(base64, 250, 250, 0.7);
-                        logger.debug('[PhotoUpload] Compressed length:', compressed.length);
-                        logger.debug('[PhotoUpload] Calling updateProfile with FotoURL...');
-                        const result = await updateProfile({ FotoURL: compressed });
-                        logger.debug('[PhotoUpload] updateProfile result:', result);
-                        alert('¡Foto guardada correctamente!');
-                      } catch (err) {
-                        logger.error('[PhotoUpload] Error:', err);
-                        alert('Error al procesar o subir la imagen: ' + (err instanceof Error ? err.message : String(err)));
-                      }
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
+                onChange={handlePhotoUpload}
+                disabled={photoUploading || loading}
                 className="hidden"
               />
             </label>
@@ -480,36 +522,32 @@ const BusinessConfigPage: React.FC = () => {
                     <img
                       src={qrImageUrl}
                       alt="QR de pago"
-                      className="size-20 rounded-lg border border-gray-200 dark:border-gray-700 object-cover"
+                      className={`size-20 rounded-lg border border-gray-200 dark:border-gray-700 object-cover ${qrUploading ? 'opacity-40' : ''}`}
                     />
+                    {qrUploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                        <span className="material-symbols-outlined text-white animate-spin">progress_activity</span>
+                      </div>
+                    )}
                     <button
                       onClick={() => setQrImageUrl('')}
+                      disabled={qrUploading}
                       className="absolute -top-2 -right-2 size-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
                     >
                       ×
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center size-20 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
-                    <span className="material-symbols-outlined text-gray-400 text-xl">qr_code_2</span>
-                    <span className="text-[9px] text-gray-400 mt-1">Subir QR</span>
+                  <label className={`flex flex-col items-center justify-center size-20 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg transition-colors ${qrUploading ? 'cursor-wait opacity-70' : 'cursor-pointer hover:border-primary/50'}`}>
+                    <span className={`material-symbols-outlined text-gray-400 text-xl ${qrUploading ? 'animate-spin' : ''}`}>
+                      {qrUploading ? 'progress_activity' : 'qr_code_2'}
+                    </span>
+                    <span className="text-[9px] text-gray-400 mt-1">{qrUploading ? 'Subiendo' : 'Subir QR'}</span>
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = async () => {
-                            const base64 = reader.result as string;
-                            // Resize and compress QR image to fit Google Sheets limits
-                            const compressed = await resizeImage(base64, 300, 300, 0.7);
-                            logger.debug('[QR Upload] Compressed length:', compressed.length);
-                            setQrImageUrl(compressed);
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
+                      onChange={handleQrUpload}
+                      disabled={qrUploading}
                       className="hidden"
                     />
                   </label>
@@ -625,11 +663,11 @@ const BusinessConfigPage: React.FC = () => {
           <div className="pt-6">
             <button
               onClick={handleSave}
-              disabled={saving || loading}
+              disabled={saving || loading || photoUploading || qrUploading}
               className="w-full bg-primary hover:bg-primary/90 active:bg-primary/95 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <span className="material-symbols-outlined">{saved ? 'check_circle' : 'save'}</span>
-              {saving ? 'Guardando...' : saved ? '¡Cambios Guardados!' : 'Guardar Cambios'}
+              {saving ? 'Guardando...' : photoUploading || qrUploading ? 'Subiendo imagen...' : saved ? '¡Cambios Guardados!' : 'Guardar Cambios'}
             </button>
           </div>
 

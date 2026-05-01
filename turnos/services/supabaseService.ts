@@ -749,33 +749,44 @@ export async function loginUser(
 // ============================================
 
 /**
- * Converts a data URI produced by resizeImage() to a Blob, uploads it to
- * the `images` bucket, and returns the public URL.
- *
- * Path structure: `${slug}/${folder}/${Date.now()}.jpg`
- * Folders: 'photo' | 'cover' | 'gallery'
+ * Converts a data URI produced by resizeImage() to a Blob.
  */
-export async function uploadBusinessImage(
-    dataUri: string,
-    folder: 'photo' | 'cover' | 'gallery',
-    slug: string
-): Promise<string> {
+export function dataURLtoBlob(dataUri: string): Blob {
     const [header, base64Data] = dataUri.split(',');
+    if (!header || !base64Data) {
+        throw new Error('Formato de imagen invalido');
+    }
+
     const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg';
-    const ext = mimeType === 'image/png' ? 'png' : 'jpg';
 
     const byteChars = atob(base64Data);
     const byteArray = new Uint8Array(byteChars.length);
     for (let i = 0; i < byteChars.length; i++) {
         byteArray[i] = byteChars.charCodeAt(i);
     }
-    const blob = new Blob([byteArray], { type: mimeType });
+    return new Blob([byteArray], { type: mimeType });
+}
+
+/**
+ * Uploads a resized business image to the `images` bucket and returns
+ * the public URL.
+ *
+ * Path structure: `${slug}/${folder}/${Date.now()}.jpg`
+ * Folders: 'photo' | 'cover' | 'gallery' | 'qr'
+ */
+export async function uploadBusinessImage(
+    dataUri: string,
+    folder: 'photo' | 'cover' | 'gallery' | 'qr',
+    slug: string
+): Promise<string> {
+    const blob = dataURLtoBlob(dataUri);
+    const ext = blob.type === 'image/png' ? 'png' : 'jpg';
 
     const path = `${slug}/${folder}/${Date.now()}.${ext}`;
 
     const { error } = await supabase.storage
         .from('images')
-        .upload(path, blob, { contentType: mimeType, upsert: true });
+        .upload(path, blob, { contentType: blob.type || 'image/jpeg', upsert: true });
 
     if (error) throw new Error(error.message);
 
