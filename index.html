@@ -293,7 +293,7 @@
         </div>
       </div>
 
-      <div class="pricing-grid" style="max-width:840px;margin:60px auto 0;display:grid;grid-template-columns:repeat(2, 1fr);gap:20px;">
+      <div class="pricing-grid" style="max-width:1200px;margin:60px auto 0;display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:20px;">
         <!-- Plan: Tarjeta -->
         <div class="reveal" data-delay="0">
           <div class="glass pricing-card-premium plan-card">
@@ -328,7 +328,7 @@
           </div>
         </div>
 
-        <!-- Plan: Gestor de Turnos (highlighted) -->
+        <!-- Plan: Tarjeta Pro (highlighted) -->
         <div class="reveal" data-delay="80">
           <div class="glass-strong pricing-card-premium plan-card is-featured">
             <span style="position:absolute;top:20px;right:20px;padding:4px 10px;border-radius:999px;background:var(--gold-500);color:var(--ink-950);font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;">MÁS ELEGIDO</span>
@@ -337,7 +337,7 @@
             </div>
             <span class="eyebrow">Mensual Premium</span>
             <div style="margin:32px 0 6px;display:flex;align-items:baseline;gap:4px;">
-              <span data-price-plan="tarjeta" data-price-period="monthly" style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 4.900</span>
+              <span data-price-plan="tarjeta" data-price-period="monthly" style="font-family:var(--font-display);font-size:56px;letter-spacing:-0.02em;line-height:1;">$ 6.500</span>
             </div>
             <span style="font-size:13px;color:var(--fg-dim);">por mes · precio fijo 3 meses</span>
             <div class="dotted-gold" style="margin:24px 0;"></div>
@@ -368,7 +368,73 @@
           </div>
         </div>
 
+        <!-- Plan: Gestor de Turnos (Próximamente) -->
+        <div class="reveal" data-delay="160">
+          <div class="glass pricing-card-premium plan-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="font-family:var(--font-display);font-style:italic;font-size:24px;">Gestor de Turnos</span>
+            </div>
+            <span class="eyebrow" style="color:var(--gold-500);">Beta privada</span>
+            <div style="margin:32px 0 6px;display:flex;align-items:baseline;gap:4px;">
+              <span style="font-family:var(--font-display);font-size:42px;letter-spacing:-0.02em;line-height:1;">A confirmar</span>
+            </div>
+            <span style="font-size:13px;color:var(--fg-dim);">precio fundador para primeros casos</span>
+            <div class="dotted-gold" style="margin:24px 0;"></div>
+            <ul style="display:flex;flex-direction:column;gap:10px;flex:1;">
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Agenda automatizada
+              </li>
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Recordatorios asistidos por WhatsApp
+              </li>
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Bloqueo Anti-Doble Reserva
+              </li>
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Señas y validación de pago
+              </li>
+            </ul>
+            <button class="btn btn-ghost" onclick="startOnboarding('turnos')" style="margin-top:28px;width:100%;justify-content:center;">Solicitar acceso beta</button>
+          </div>
+        </div>
 
+        <!-- Plan: Combo (Próximamente) -->
+        <div class="reveal" data-delay="240">
+          <div class="glass pricing-card-premium plan-card" style="border: 1px solid var(--gold-500);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="font-family:var(--font-display);font-style:italic;font-size:24px;">Combo Suito</span>
+            </div>
+            <span class="eyebrow" style="color:var(--gold-500);">Identidad + Beta Turnos</span>
+            <div style="margin:32px 0 6px;display:flex;align-items:baseline;gap:4px;">
+              <span style="font-family:var(--font-display);font-size:42px;letter-spacing:-0.02em;line-height:1;">A confirmar</span>
+            </div>
+            <span style="font-size:13px;color:var(--fg-dim);">lista prioritaria para combinar módulos</span>
+            <div class="dotted-gold" style="margin:24px 0;"></div>
+            <ul style="display:flex;flex-direction:column;gap:10px;flex:1;">
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <strong>Tarjeta Pro</strong> completa
+              </li>
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <strong>Gestor de Turnos</strong> Pro
+              </li>
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Galería de 12 fotos
+              </li>
+              <li style="display:flex;gap:10px;font-size:14px;">
+                <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Prioridad para integraciones
+              </li>
+            </ul>
+            <button class="btn btn-gold" onclick="startOnboarding('combo')" style="margin-top:28px;width:100%;justify-content:center;">Solicitar acceso beta</button>
+          </div>
+        </div>
       </div>
 
       <p style="text-align:center;margin-top:40px;font-size:13px;color:var(--fg-mute);">
@@ -654,14 +720,14 @@ window.startOnboarding = function(serviceType) {
   if (inputService) inputService.value = serviceType;
 
   var isTarjeta = serviceType === 'tarjeta' || serviceType === 'combo';
-  var isGestor = serviceType === 'gestor' || serviceType === 'combo';
+  var isGestor = serviceType === 'gestor' || serviceType === 'turnos' || serviceType === 'combo';
 
   if (sectionTarjeta) sectionTarjeta.style.display = isTarjeta ? 'block' : 'none';
   if (sectionGestor) sectionGestor.style.display = isGestor ? 'block' : 'none';
 
   if (footerText) {
-    footerText.textContent = (serviceType === 'gestor' || serviceType === 'combo')
-      ? 'Pre-inscribite y te avisamos apenas el gestor esté 100% operativo.'
+    footerText.textContent = (isGestor)
+      ? 'Postulate a la beta privada. Si tu caso encaja, te habilitamos el gestor manualmente para validar el flujo.'
       : 'Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.';
   }
 

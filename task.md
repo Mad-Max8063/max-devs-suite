@@ -13,7 +13,7 @@
   - [x] Restringir columnas sensibles (`edit_token`) en `businesses`.
   - [x] Mantener `user_id` visible solo para `authenticated` como soporte de ownership/RLS.
 - [x] **Frontend:** Refactorizar `getProfile` en `supabaseService.ts` para usar columnas explicitas.
-- [ ] **Verificacion Final:** Ejecutar queries de auditoria en consola de Supabase (Manual).
+- [x] **Verificacion Final:** Ejecutar queries de auditoria en consola de Supabase (Manual).
 
 ## 1. Capa de Datos y Configuracion
 - [x] **DB:** Ejecutar migracion pendiente `20260426000000_add_whatsapp_message.sql`.
@@ -40,3 +40,13 @@
 - [x] **Frontend:** Validador estricto de telefono argentino (`549...`).
 - [x] **Frontend:** Boton "Verificar en MP" con busqueda por nombre.
 - [ ] **(Beta) Frontend/DB:** Staff `1:N` (Postergado v1.1).
+
+## 6. Lanzamiento Discrecional (Gestor de Turnos)
+- [x] **Configuración Inicial:** Cambiar valor por defecto de `active_modules` a `['card']` en `supabaseService.ts`.
+- [x] **Admin UI:** Implementar checkboxes de "Módulos Habilitados" en `dashboard-v2029.html`.
+- [x] **Admin Logic:** Sincronizar form y plan selector con módulos en `admin/app.js`.
+- [x] **Admin Data:** Mapear `active_modules` en `admin/clients.js`.
+- [x] **Frontend Gating:** Bloque "Próximamente" en `WelcomePage.tsx` y protección en `ModuleGuard.tsx`.
+- [x] **Landing Page:** Posicionamiento como producto futuro y ajuste de grilla de precios en `index.html`.
+- [x] **Legales:** Actualizar `legal.html` y `LEGAL_PRIVACY.md` con términos de Beta Privada y tratamiento de datos de terceros.
+- [x] **Validación:** El habilitar el módulo en el CRM desbloquea instantáneamente el acceso al emprendedor.

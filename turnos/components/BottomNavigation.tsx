@@ -10,7 +10,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ slug }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { profile } = useProfile();
-    const activeModules = profile?.ActiveModules || ['appointments', 'card'];
+    const activeModules = profile?.ActiveModules || ['card'];
     const hasAppointments = activeModules.includes('appointments');
     const hasCard = activeModules.includes('card');
 

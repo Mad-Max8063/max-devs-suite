@@ -52,8 +52,8 @@ serve(async (req) => {
         .single();
 
       if (pricingError || !pricingRow) {
-        const fallbackPrices: Record<string, number> = { tarjeta: 4900, turnos: 9900, combo: 12900 };
-        price = fallbackPrices[plan_type] || 4900;
+        const fallbackPrices: Record<string, number> = { tarjeta: 6500, turnos: 9900, combo: 12900 };
+        price = fallbackPrices[plan_type] || 6500;
       } else {
         price = Number(pricingRow.monthly);
       }

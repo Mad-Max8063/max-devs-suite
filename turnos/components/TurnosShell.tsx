@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useProfile } from '../context/AppContext';
 
 interface TurnosShellProps {
   children: React.ReactNode;
@@ -19,16 +20,19 @@ function getSlug(pathname: string): string {
 
 const navItems = [
   { label: 'Panel', icon: 'dashboard', suffix: '' },
-  { label: 'Diseno', icon: 'style', suffix: 'identidad' },
-  { label: 'Agenda', icon: 'calendar_month', suffix: 'agenda' },
-  { label: 'Horarios', icon: 'event_available', suffix: 'schedule' },
+  { label: 'Diseno', icon: 'style', suffix: 'identidad', module: 'card' },
+  { label: 'Agenda', icon: 'calendar_month', suffix: 'agenda', module: 'appointments' },
+  { label: 'Horarios', icon: 'event_available', suffix: 'schedule', module: 'appointments' },
   { label: 'Ajustes', icon: 'settings_suggest', suffix: 'config' },
 ];
 
 const AdminSidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile } = useProfile();
   const slug = getSlug(location.pathname);
+  const activeModules = profile?.ActiveModules || ['card'];
+  const visibleNavItems = navItems.filter((item) => !item.module || activeModules.includes(item.module));
 
   return (
     <aside className="hidden lg:flex sticky top-0 z-40 h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-[#121212]/72 backdrop-blur-2xl shadow-2xl">
@@ -39,7 +43,7 @@ const AdminSidebar: React.FC = () => {
       </div>
 
       <nav className="flex-1 space-y-2 px-4">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const href = item.suffix ? `/${slug}/${item.suffix}` : `/${slug}`;
           const isRoot = item.suffix === '';
           const isActive = isRoot

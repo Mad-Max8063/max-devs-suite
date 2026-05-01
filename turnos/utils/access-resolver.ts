@@ -27,7 +27,7 @@ export function resolveAccessPriority(userObject: any): boolean {
 
     // Tier 4: Active trial
     const trialEndsAt = userObject.trial_ends_at || userObject.trialEndsAt || userObject.TrialEndsAt || null;
-    if (subStatus === 'trial' && trialEndsAt && new Date(trialEndsAt) > now) {
+    if ((subStatus === 'trial' || subStatus === 'trialing') && trialEndsAt && new Date(trialEndsAt) > now) {
         return true;
     }
 

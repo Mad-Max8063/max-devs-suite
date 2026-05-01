@@ -425,7 +425,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             ValorSena: 0,
             AliasMP: '',
             FotoURL: '',
-            ActiveModules: ['appointments', 'card'],
+            ActiveModules: ['card'],
         };
 
         const updatedProfile = { ...baseProfile, ...data };

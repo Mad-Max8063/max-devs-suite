@@ -13,7 +13,6 @@ import {
     deleteGalleryImageSecure,
     updateGalleryCaptionSecure,
     updateBusinessProfileSecure,
-    updateActiveModulesSecure,
 } from './supabase-v2029.js';
 import { injectSubscriptionBanner } from '../../shared/SubscriptionBanner.js';
 
@@ -295,20 +294,20 @@ function buildPanelHTML(data) {
               <input class="cp-input" id="cp-website" type="url" value="${sanitize(data.website)}" placeholder="https://tuempresa.com">
 
               <!-- Module Toggle: Appointments -->
-              <div class="cp-toggle-row" style="display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top:20px;">
+              <div class="cp-toggle-row" style="display:none; align-items:center; justify-content:space-between; padding:16px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top:20px;">
                   <div style="flex:1; padding-right:12px;">
                       <label class="cp-label" style="margin-bottom:2px; display:block;">Gestor de Turnos</label>
                       <p style="font-size:11px; opacity:0.5; margin:0; line-height:1.3;">Activá el módulo si atendés con turnos online.</p>
                   </div>
                   <label class="cp-switch">
-                      <input type="checkbox" id="cp-toggle-appointments" ${data.activeModules.includes('appointments') ? 'checked' : ''}>
+                      <input type="checkbox" id="cp-toggle-appointments-disabled" ${data.activeModules.includes('appointments') ? 'checked' : ''}>
                       <span class="cp-slider"></span>
                   </label>
               </div>
 
-              <div id="cp-booking-section" style="${data.activeModules.includes('appointments') ? '' : 'display:none;'} transition: all 0.3s ease;">
+              <div id="cp-booking-section-disabled" style="display:none; transition: all 0.3s ease;">
                 <label class="cp-label">Link de Turnos</label>
-                <input class="cp-input" id="cp-bookingUrl" type="url" value="${sanitize(data.bookingUrl)}" placeholder="https://turnos.suito.pro/#/.../booking" maxlength="200">
+                <input class="cp-input" id="cp-bookingUrl-disabled" type="url" value="${sanitize(data.bookingUrl)}" placeholder="https://turnos.suito.pro/#/.../booking" maxlength="200">
               </div>
 
               <!-- Font Scale -->
@@ -611,7 +610,6 @@ function wirePanelEvents(container, data) {
     wireDesignEvents(container);
     wireProfileEvents(container, data);
     wireGalleryEvents(container, data);
-    wireModuleEvents(container, data);
     wireCopyBtn(container, data);
 }
 
@@ -726,7 +724,6 @@ function wireProfileEvents(container, data) {
                 facebook:       container.querySelector('#cp-facebook')?.value || '',
                 linkedin:       container.querySelector('#cp-linkedin')?.value || '',
                 website:        container.querySelector('#cp-website')?.value || '',
-                booking_url:    container.querySelector('#cp-bookingUrl')?.value || '',
                 whatsapp_message: container.querySelector('#cp-whatsapp-message')?.value || '',
                 disable_share: !(container.querySelector('#cp-toggle-share')?.checked ?? true),
                 font_scale: parseFloat(container.querySelector('#cp-font-scale')?.value) || 1.0,
@@ -1030,6 +1027,7 @@ function showPremiumBlockedFeedback(container, message) {
 }
 
 function wireModuleEvents(container, data) {
+    return;
     const toggleAppts = container.querySelector('#cp-toggle-appointments');
     const bookingSection = container.querySelector('#cp-booking-section');
 

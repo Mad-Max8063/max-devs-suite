@@ -230,7 +230,7 @@
                     <select id="leadsServiceFilter" style="padding:10px 14px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.9rem; background:#fff; cursor:pointer; outline:none;">
                         <option value="">Todos los servicios</option>
                         <option value="TARJETA">Tarjeta</option>
-                        <option value="GESTOR">Turnos</option>
+                        <option value="TURNOS">Turnos beta</option>
                         <option value="COMBO">Combo</option>
                     </select>
                 </div>
@@ -484,10 +484,23 @@
                     <div class="form-group">
                         <label for="clientPlan">Plan Contratado *</label>
                         <select id="clientPlan" required>
-                            <option value="tarjeta">Tarjeta Virtual — $4.900/mes</option>
+                            <option value="tarjeta">Tarjeta Virtual — $6.500/mes</option>
                             <option value="turnos">Gestor de Turnos — $9.900/mes</option>
                             <option value="combo">Pack Emprendedor — $12.900/mes</option>
                         </select>
+                    </div>
+                    <div class="form-group full-width" style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <label style="display: block; margin-bottom: 12px; font-weight: 700; color: var(--text-muted); font-size: 11px; uppercase; tracking-widest;">Módulos Habilitados (Rollout Discresional)</label>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="module-card" value="card" checked style="width: 18px; height: 18px;">
+                                <span style="font-size: 13px; font-weight: 600;">Tarjeta Virtual</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="module-appointments" value="appointments" style="width: 18px; height: 18px;">
+                                <span style="font-size: 13px; font-weight: 600;">Gestor de Turnos</span>
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 24px;">
                         <input type="checkbox" id="clientPremium" style="width: 18px; height: 18px; cursor: pointer;">

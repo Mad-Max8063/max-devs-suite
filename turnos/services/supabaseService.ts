@@ -37,7 +37,7 @@ export interface Profile {
     GalleryImages?: { image_url: string; caption?: string }[];
     ActiveModules?: string[];
     id?: string;
-    subscription_status?: 'trial' | 'active' | 'past_due' | 'canceled' | 'none';
+    subscription_status?: 'basic' | 'trial' | 'active' | 'expired' | 'none';
     trial_ends_at?: string;
     locked_price?: number;
     price_lock_ends_at?: string;
@@ -197,7 +197,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         whatsapp_message: data.whatsapp_message || '',
         CoverURL: data.cover_url || '',
         GalleryImages: data.gallery_images || [],
-        ActiveModules: data.active_modules || ['appointments', 'card'],
+        ActiveModules: data.active_modules || ['card'],
         subscription_status: data.subscription_status || 'none',
         trial_ends_at: data.trial_ends_at,
         locked_price: data.locked_price,
@@ -232,7 +232,7 @@ export async function saveProfile(profile: Profile): Promise<{ slug: string }> {
             whatsapp_message: profile.whatsapp_message || '',
             cover_url: profile.CoverURL || '',
             gallery_images: profile.GalleryImages || [],
-            active_modules: profile.ActiveModules || ['appointments', 'card'],
+            active_modules: profile.ActiveModules || ['card'],
             updated_at: new Date().toISOString(),
         })
         .eq('slug', profile.Slug);
@@ -686,7 +686,7 @@ export async function registerUser(
             recordatorios_activos: true,
             fecha_vencimiento: trial_ends_at.split('T')[0],
             is_premium: false,
-            subscription_status: 'trialing',
+            subscription_status: 'trial',
             trial_ends_at
         });
 
@@ -701,7 +701,7 @@ export async function registerUser(
         user: {
             email,
             slug,
-            subscription_status: 'trialing',
+            subscription_status: 'trial',
             trial_ends_at,
             createdAt: new Date().toISOString()
         },
@@ -789,7 +789,7 @@ export async function uploadBusinessImage(
  */
 export async function updateSubscriptionStatus(
     slug: string,
-    status: 'trialing' | 'active' | 'expired' | 'canceled',
+    status: 'trial' | 'active' | 'expired',
     isPremium: boolean,
     trialEndsAt?: string
 ): Promise<void> {

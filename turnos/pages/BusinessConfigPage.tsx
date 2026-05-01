@@ -75,7 +75,7 @@ const BusinessConfigPage: React.FC = () => {
   const [colorPrimario, setColorPrimario] = useState(DEFAULT_PRIMARY);
   const [customColorInput, setCustomColorInput] = useState('');
 
-  const activeModules = profile?.ActiveModules || ['appointments', 'card'];
+  const activeModules = profile?.ActiveModules || ['card'];
   const hasAppointments = activeModules.includes('appointments');
 
   // Handle logout

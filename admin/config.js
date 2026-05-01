@@ -11,7 +11,7 @@ export const CONFIG = {
     },
     // Pricing in ARS (editable from the panel — these are fallback defaults)
     pricing: {
-        tarjeta: { monthly: 4900, quarterly: 12500 },
+        tarjeta: { monthly: 6500, quarterly: 12500 },
         turnos: { monthly: 9900, quarterly: 25000 },
         combo: { monthly: 12900, quarterly: 33000 },
     }

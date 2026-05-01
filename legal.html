@@ -43,7 +43,7 @@
 <div class="legal-wrap">
 
   <h1>Términos y <em>Privacidad</em></h1>
-  <span class="legal-date">Vigencia: 28 de abril de 2026 · suito.pro</span>
+  <span class="legal-date">Vigencia: 1 de mayo de 2026 · suito.pro</span>
 
   <ol class="legal-toc">
     <li><a href="#terminos">1. Términos de Uso</a></li>
@@ -63,8 +63,14 @@
   </p>
   <ul>
     <li><strong>Tarjeta Virtual</strong> — perfil profesional con branding personalizado, galería de fotos y contacto directo por WhatsApp.</li>
-    <li><strong>Panel de Administración</strong> — gestión de tu identidad digital y configuración de enlaces.</li>
+    <li><strong>Gestor de Turnos (Beta Privada)</strong> — sistema de reservas online con agenda automatizada, recordatorios y gestión de servicios.</li>
+    <li><strong>Panel de Administración</strong> — gestión de tu identidad digital, módulos activos y configuración de enlaces.</li>
   </ul>
+
+  <h3>1.1.1 Acceso a la Beta Privada</h3>
+  <p>
+    El módulo "Gestor de Turnos" se encuentra en fase de <strong>Beta Privada Discrecional</strong>. El registro en la plataforma no garantiza el acceso inmediato a este módulo. Suito se reserva el derecho de habilitar el Gestor de Turnos de manera manual y selectiva tras evaluar la solicitud y la compatibilidad del negocio con las funcionalidades actuales.
+  </p>
   <p>
     Al registrarse en Suito, el usuario declara haber leído y aceptado estos términos, y presta su consentimiento libre e informado para el tratamiento de sus datos personales conforme a la política de privacidad.
   </p>
@@ -108,8 +114,14 @@
   <ul>
     <li><strong>Registro y perfil de negocio:</strong> nombre, teléfono (WhatsApp), email, nombre del negocio, profesión, ubicación, redes sociales (Instagram, Facebook, LinkedIn, sitio web).</li>
     <li><strong>Imágenes:</strong> fotos de perfil, portada y galería de trabajos.</li>
-    <li><strong>Solicitudes de onboarding:</strong> los datos del formulario de la landing page se almacenan como solicitudes pendientes de revisión.</li>
+    <li><strong>Solicitudes de onboarding:</strong> los datos del formulario de la landing page se almacenan como solicitudes de acceso beta pendientes de revisión.</li>
+    <li><strong>Datos de Turnos (Agenda):</strong> en caso de tener habilitado el Gestor de Turnos, se almacenan los datos de las reservas realizadas por los clientes finales del usuario (nombre, teléfono de contacto, servicio solicitado, fecha y hora).</li>
   </ul>
+
+  <h3>2.1.1 Responsabilidad sobre datos de terceros</h3>
+  <p>
+    En el marco del Gestor de Turnos, el usuario de Suito (profesional/negocio) actúa como <strong>Responsable del Tratamiento</strong> de los datos de sus propios clientes. Suito actúa como <strong>Procesador de Datos</strong> (encargado de tratamiento), proveyendo la infraestructura técnica para el almacenamiento y gestión. El usuario se compromete a utilizar dichos datos únicamente para fines de gestión de turnos y cumplimiento del servicio, respetando la privacidad de sus clientes según la normativa vigente.
+  </p>
 
   <h3>2.2 Dónde se almacenan los datos</h3>
   <p>
@@ -118,7 +130,7 @@
 
   <h3>2.3 Cómo protegemos los datos</h3>
   <ul>
-    <li><strong>Row Level Security (RLS):</strong> cada tabla tiene políticas que limitan quién puede leer, crear o modificar registros.</li>
+    <li><strong>Row Level Security (RLS):</strong> cada tabla (negocios, turnos, agendas, servicios) tiene políticas estrictas que limitan el acceso. Los datos de turnos solo son accesibles para el dueño del negocio con el módulo habilitado y para el cliente final mediante un token de cancelación único.</li>
     <li><strong>Permisos por columna:</strong> los datos sensibles (tokens de edición, IDs internos) no se exponen en consultas públicas.</li>
     <li><strong>Tokens de capacidad:</strong> las operaciones de edición y cancelación requieren tokens únicos que solo posee el propietario.</li>
     <li><strong>Funciones de seguridad:</strong> las operaciones críticas se ejecutan con privilegios controlados en el servidor.</li>

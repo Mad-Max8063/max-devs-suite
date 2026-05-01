@@ -711,7 +711,7 @@ CREATE TABLE IF NOT EXISTS public.pricing (
 );
 
 INSERT INTO public.pricing (id, monthly, quarterly) VALUES
-    ('tarjeta', 4900,  12500),
+    ('tarjeta', 6500,  12500),
     ('turnos',  9900,  25000),
     ('combo',   12900, 33000)
 ON CONFLICT (id) DO NOTHING;

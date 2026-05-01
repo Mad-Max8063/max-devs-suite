@@ -5,7 +5,7 @@ const CONFIG = {
         gestorTurnos: 'https://suito.pro/turnos',
     },
     pricing: {
-        tarjeta: { monthly: 4900, quarterly: 12500 },
+        tarjeta: { monthly: 6500, quarterly: 12500 },
         turnos: { monthly: 9900, quarterly: 25000 },
         combo: { monthly: 12900, quarterly: 33000 },
     }
@@ -19,7 +19,9 @@ import { getPricing, updatePricing, applyInflation } from './pricing.js';
 let currentSection = 'dashboard';
 let currentFilter = 'all';
 let editingClientId = null;
-let currentPricing = null; // loaded from Supabase on init
+let currentPricing = null;
+let originalModules = [];
+
 
 // In-memory cache for leads — avoids unsafe JSON serialization in onclick attrs
 const _leadsCache = new Map();
@@ -460,6 +462,28 @@ function handleApplyInflation() {
 function updatePlanSelector() {
     const select = document.getElementById('clientPlan');
     if (!select) return;
+
+    // Solo agregar el listener si no existe
+    if (!select._planWired) {
+        select._planWired = true;
+        select.addEventListener('change', (e) => {
+            const plan = e.target.value;
+            const checkCard = document.getElementById('module-card');
+            const checkTurnos = document.getElementById('module-appointments');
+            
+            if (plan === 'tarjeta') {
+                checkCard.checked = true;
+                checkTurnos.checked = false;
+            } else if (plan === 'turnos') {
+                checkCard.checked = false;
+                checkTurnos.checked = true;
+            } else if (plan === 'combo') {
+                checkCard.checked = true;
+                checkTurnos.checked = true;
+            }
+        });
+    }
+
     const p = currentPricing;
     select.innerHTML = `
         <option value="tarjeta">Tarjeta Virtual — $${p.tarjeta.monthly.toLocaleString('es-AR')}/mes</option>
@@ -488,6 +512,15 @@ function initModal() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const activeModules = [
+            ...(document.getElementById('module-card').checked ? ['card'] : []),
+            ...(document.getElementById('module-appointments').checked ? ['appointments'] : [])
+        ];
+
+        if (activeModules.length === 0) {
+            activeModules.push('card');
+        }
+
         const data = {
             name: document.getElementById('clientName').value,
             business: document.getElementById('clientBusiness').value,
@@ -505,7 +538,25 @@ function initModal() {
             profession: document.getElementById('clientProfession').value || null,
             foto_url: document.getElementById('clientFotoUrl').value || null,
             cover_url: document.getElementById('clientCoverUrl').value || null,
+            active_modules: activeModules
         };
+
+        // --- Beta Bonus Logic ---
+        // If activating 'appointments' for the first time (or new client with it)
+        const wasAppointmentsActive = originalModules.includes('appointments');
+        const isAppointmentsActive = activeModules.includes('appointments');
+
+        if (isAppointmentsActive && !wasAppointmentsActive) {
+            let baseDate = new Date();
+            // If they already have a future free date, stack the bonus
+            if (data.free_until && new Date(data.free_until) > new Date()) {
+                baseDate = new Date(data.free_until);
+            }
+            const bonusDate = new Date(baseDate.getTime() + (30 * 24 * 60 * 60 * 1000));
+            data.free_until = bonusDate.toISOString().split('T')[0];
+            // Toast will be shown by the main success flow or here if we want immediate feedback
+            console.log('[BetaBonus] Applied 30 days for activating appointments');
+        }
 
         try {
             if (editingClientId) {
@@ -516,10 +567,10 @@ function initModal() {
                     free_until,
                     clear_free_until: free_until === null,
                 });
-                showToast('Cliente actualizado ✅');
+                showToast(`Cliente actualizado ✅ ${isAppointmentsActive && !wasAppointmentsActive ? '(+30 días Beta Bonus aplicado)' : ''}`);
             } else {
                 await addClient(data);
-                showToast('Cliente creado exitosamente 🎉');
+                showToast(`Cliente creado exitosamente 🎉 ${isAppointmentsActive ? '(+30 días Beta Bonus incluido)' : ''}`);
             }
 
             closeModal();
@@ -535,6 +586,8 @@ function initModal() {
 function openModal(client = null) {
     const modal = document.getElementById('clientModal');
     editingClientId = client ? client.id : null;
+    originalModules = client?.active_modules || []; // track current state for bonus logic
+
 
     document.getElementById('modalTitle').textContent = client ? 'Editar Cliente' : 'Nuevo Cliente';
     document.getElementById('modalSubmitText').textContent = client ? 'Actualizar' : 'Guardar';
@@ -555,6 +608,11 @@ function openModal(client = null) {
     document.getElementById('clientProfession').value = client?.profession || '';
     document.getElementById('clientFotoUrl').value = client?.foto_url || '';
     document.getElementById('clientCoverUrl').value = client?.cover_url || '';
+
+    // Módulos
+    const modules = client?.active_modules || ['card'];
+    document.getElementById('module-card').checked = modules.includes('card');
+    document.getElementById('module-appointments').checked = modules.includes('appointments');
 
     // Gallery editor button logic
     const galleryControls = document.getElementById('gallery-vcard-controls');
@@ -740,7 +798,7 @@ function _renderLeadCards(leads) {
                         <span class="lead-date">${new Date(l.created_at).toLocaleDateString()}</span>
                     </div>
                 </div>
-                <span class="badge-service ${escapeHtml(l.service_type.toLowerCase())}">${escapeHtml(l.service_type)}</span>
+                <span class="badge-service ${escapeHtml(normalizeLeadPlan(l.service_type))}">${escapeHtml(getPlanLabel(normalizeLeadPlan(l.service_type)))}</span>
             </div>
             <div class="lead-body">
                 <div class="lead-info"><strong>WhatsApp:</strong> ${escapeHtml(l.phone)}</div>
@@ -775,7 +833,7 @@ function filterAndRenderLeads() {
     const serviceVal = document.getElementById('leadsServiceFilter')?.value || '';
 
     const filtered = Array.from(_leadsCache.values()).filter(l => {
-        if (serviceVal && l.service_type !== serviceVal) return false;
+        if (serviceVal && normalizeLeadService(l.service_type) !== serviceVal) return false;
         if (searchVal) {
             const hay = [l.name, l.phone, l.details?.business_name || '']
                 .join(' ').toLowerCase();
@@ -1068,7 +1126,7 @@ window._activateLead = async function(id) {
 
     try {
         const now = new Date();
-        const plan = lead.service_type.toLowerCase();
+        const plan = normalizeLeadPlan(lead.service_type);
         
         // Trial calculation: 3 days for Tarjeta, 7 days for Turnos/Combo
         const trialDays = plan === 'tarjeta' ? 3 : 7;
@@ -1195,6 +1253,18 @@ function getPlanColor(plan) {
 
 function getPlanLabel(plan) {
     return { tarjeta: 'Tarjeta Virtual', turnos: 'Gestor Turnos', combo: 'Pack Emprendedor' }[plan] || plan;
+}
+
+function normalizeLeadPlan(serviceType) {
+    const value = String(serviceType || '').toLowerCase();
+    if (value === 'gestor') return 'turnos';
+    return value;
+}
+
+function normalizeLeadService(serviceType) {
+    const value = String(serviceType || '').toUpperCase();
+    if (value === 'GESTOR') return 'TURNOS';
+    return value;
 }
 
 /** Escapes user-supplied strings before injecting into innerHTML. */

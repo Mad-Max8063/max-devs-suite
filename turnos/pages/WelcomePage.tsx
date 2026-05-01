@@ -64,7 +64,7 @@ const WelcomePage: React.FC = () => {
   }, [appointments]);
 
   const handleShareApp = async () => {
-    const shareUrl = `${window.location.origin}/#/${slug}/booking`;
+    const shareUrl = publicShareUrl;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -121,9 +121,15 @@ const WelcomePage: React.FC = () => {
   const negocioNombre = loading ? '...' : (profile?.NombreNegocio || 'Tu Negocio');
   const valorSena = profile?.ValorSena?.toLocaleString('es-AR') || '0';
 
-  const activeModules = profile?.ActiveModules || ['appointments', 'card'];
+  const activeModules = profile?.ActiveModules || ['card'];
   const hasAppointments = activeModules.includes('appointments');
   const hasCard = activeModules.includes('card');
+  const turnosBaseUrl = window.location.pathname.startsWith('/turnos')
+    ? `${window.location.origin}/turnos`
+    : window.location.origin;
+  const publicShareUrl = hasAppointments
+    ? `${turnosBaseUrl}/#/${slug}/booking`
+    : `https://suito.pro/card/${slug}`;
 
   const hasAccess = resolveAccessPriority(profile);
   const isExpired = profile?.trial_ends_at ? new Date(profile.trial_ends_at) < new Date() : false;
@@ -428,6 +434,32 @@ const WelcomePage: React.FC = () => {
                 </div>
               </button>
             )}
+            {/* Coming Soon / Exclusive Access for Appointments */}
+            {!hasAppointments && (
+              <div className="bg-surface/30 border border-white/5 rounded-[2rem] p-7 mb-10 relative overflow-hidden group">
+                <div className="absolute -top-12 -right-12 size-32 bg-primary/10 blur-3xl rounded-full"></div>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Próximo Lanzamiento</p>
+                    <h3 className="text-xl font-black tracking-tighter text-white">Gestor de Turnos</h3>
+                  </div>
+                  <div className="bg-white/5 text-white/40 p-2.5 rounded-2xl">
+                      <span className="material-symbols-outlined">lock</span>
+                  </div>
+                </div>
+                <p className="text-xs text-on-surface-variant opacity-60 mb-6 leading-relaxed">
+                  Estamos validando la agenda con un grupo reducido. Si necesitás gestionar turnos, contactanos para solicitar acceso anticipado.
+                </p>
+                <a 
+                  href="https://wa.me/5491162621406?text=Hola!%20Me%20interesa%20activar%20el%20Gestor%20de%20Turnos%20en%20mi%20cuenta."
+                  target="_blank"
+                  className="w-full bg-white/5 border border-white/10 text-white/80 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-primary/20 hover:border-primary/30 hover:text-primary transition-all"
+                >
+                  <span className="material-symbols-outlined text-[18px]">whatsapp</span>
+                  Solicitar Acceso
+                </a>
+              </div>
+            )}
         </div>
 
         {/* Footer Info */}
@@ -436,10 +468,10 @@ const WelcomePage: React.FC = () => {
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Tu Enlace Público</p>
                  <div className="flex items-center justify-between gap-4">
                     <code className="text-xs font-bold text-white opacity-60 truncate flex-1">
-                        {`${window.location.origin}/#/${slug}/booking`}
+                        {publicShareUrl}
                     </code>
                     <button 
-                        onClick={() => copyToClipboard(`${window.location.origin}/#/${slug}/booking`)}
+                        onClick={() => copyToClipboard(publicShareUrl)}
                         className="p-3 bg-surface rounded-xl border border-white/10 active:scale-95 transition-all"
                     >
                         <span className="material-symbols-outlined text-[18px] text-white">content_copy</span>

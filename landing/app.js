@@ -102,7 +102,8 @@ if (form) {
         }
 
         try {
-            const service = inputService.value.toUpperCase();
+            const rawService = inputService.value.toUpperCase();
+            const service = rawService === 'GESTOR' ? 'TURNOS' : rawService;
             const rawName = document.getElementById('user-name').value;
             const phone   = document.getElementById('user-phone').value.trim();
             const email   = document.getElementById('user-email').value.trim();
@@ -169,7 +170,7 @@ if (form) {
                 address = document.getElementById('card-address')?.value.trim() || '';
             }
 
-            if (service === 'GESTOR' || service === 'COMBO') {
+            if (service === 'TURNOS' || service === 'COMBO') {
                 bdep  = document.getElementById('biz-deposit')?.value?.trim() || '';
                 bserv = document.getElementById('biz-service')?.value.trim() || '';
             }
@@ -207,9 +208,9 @@ if (form) {
             const successTitle = document.getElementById('success-title');
             const successMsg = document.getElementById('success-message');
 
-            if (service === 'GESTOR' || service === 'COMBO') {
-                if (successTitle) successTitle.textContent = '¡Pre-inscripción exitosa! 🎉';
-                if (successMsg) successMsg.innerHTML = 'Gracias por pre-inscribirte. Te avisaremos apenas el gestor esté 100% operativo.';
+            if (service === 'TURNOS' || service === 'COMBO') {
+                if (successTitle) successTitle.textContent = '¡Postulación recibida!';
+                if (successMsg) successMsg.innerHTML = 'Gracias por postularte a la beta privada. Revisamos tu caso y, si encaja con la validación actual, te habilitamos el gestor manualmente.';
             } else {
                 if (successTitle) successTitle.textContent = '¡Solicitud recibida! 🎉';
                 if (successMsg) successMsg.innerHTML = 'Te contactaremos en menos de <strong>24 horas</strong> para activar tu cuenta.';
@@ -217,8 +218,8 @@ if (form) {
 
             // ——— Mostrar pantalla de éxito ———
             if (successTitle) {
-                successTitle.textContent = (service === 'GESTOR' || service === 'COMBO')
-                    ? '¡Pre-inscripción exitosa!'
+                successTitle.textContent = (service === 'TURNOS' || service === 'COMBO')
+                    ? '¡Postulación recibida!'
                     : '¡Solicitud recibida!';
             }
 

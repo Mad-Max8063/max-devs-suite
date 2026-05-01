@@ -165,6 +165,7 @@ function businessToClient(b) {
         price_lock_ends_at:  b.price_lock_ends_at || null,
         disable_share:       b.disable_share || false,
         font_scale:          b.font_scale || 1.0,
+        active_modules:      b.active_modules || ['card'],
     };
 }
 
