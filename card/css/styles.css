@@ -294,6 +294,11 @@ body {
   flex-wrap: wrap;
 }
 
+.card-actions .btn-primary:only-of-type {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
 /* Legacy: .actions-grid kept for compatibility */
 .actions-grid {
   display: grid;

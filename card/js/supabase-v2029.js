@@ -446,6 +446,8 @@ export async function updateBusinessProfileSecure(cardId, editToken, profileData
         p_social_color:   profileData.social_color   ?? null,
         p_card_theme:     profileData.card_theme     ?? null,
         p_custom_css:     profileData.custom_css     ?? null,
+        p_disable_share:  profileData.disable_share  ?? null,
+        p_font_scale:     profileData.font_scale     ?? null,
     });
     if (error) { console.error('Error updating business profile (secure):', error); throw error; }
 }

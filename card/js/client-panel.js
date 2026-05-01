@@ -310,6 +310,28 @@ function buildPanelHTML(data) {
                 <label class="cp-label">Link de Turnos</label>
                 <input class="cp-input" id="cp-bookingUrl" type="url" value="${sanitize(data.bookingUrl)}" placeholder="https://turnos.suito.pro/#/.../booking" maxlength="200">
               </div>
+
+              <!-- Font Scale -->
+              <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top:20px; padding-top:16px;">
+                  <label class="cp-label" style="margin-bottom:6px; display:block;">Tamaño de Fuente</label>
+                  <select class="cp-input" id="cp-font-scale" style="cursor:pointer;">
+                      <option value="1.0" ${(data.font_scale || 1.0) == 1.0 ? 'selected' : ''}>Normal</option>
+                      <option value="1.15" ${(data.font_scale || 1.0) == 1.15 ? 'selected' : ''}>Grande</option>
+                      <option value="1.3" ${(data.font_scale || 1.0) == 1.3 ? 'selected' : ''}>Extra Grande</option>
+                  </select>
+              </div>
+
+              <!-- Toggle: Compartir -->
+              <div class="cp-toggle-row" style="display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top:20px;">
+                  <div style="flex:1; padding-right:12px;">
+                      <label class="cp-label" style="margin-bottom:2px; display:block;">Botón Compartir</label>
+                      <p style="font-size:11px; opacity:0.5; margin:0; line-height:1.3;">Permití que otros compartan tu tarjeta.</p>
+                  </div>
+                  <label class="cp-switch">
+                      <input type="checkbox" id="cp-toggle-share" ${!data.disable_share ? 'checked' : ''}>
+                      <span class="cp-slider"></span>
+                  </label>
+              </div>
             </div>
           </div>
         </div>
@@ -706,6 +728,8 @@ function wireProfileEvents(container, data) {
                 website:        container.querySelector('#cp-website')?.value || '',
                 booking_url:    container.querySelector('#cp-bookingUrl')?.value || '',
                 whatsapp_message: container.querySelector('#cp-whatsapp-message')?.value || '',
+                disable_share: !(container.querySelector('#cp-toggle-share')?.checked ?? true),
+                font_scale: parseFloat(container.querySelector('#cp-font-scale')?.value) || 1.0,
             };
 
             if (data.isPremium) {
