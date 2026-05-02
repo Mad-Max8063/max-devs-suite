@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { logger } from '../utils/logger';
 import { sheetsService, CreateAppointmentData, Appointment } from '../services/sheetsService';
 import { DEFAULT_SCHEDULE } from './useSchedule';
@@ -61,11 +61,14 @@ export function useAvailableSlots() {
     const [slots, setSlots] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const requestSeq = useRef(0);
 
     const { isConfigured } = useApiMode(null);
     const { isPremiumActive, isTrialExpired } = useApp();
 
-    const fetchSlots = useCallback(async (slug: string, date: string) => {
+    const fetchSlots = useCallback(async (slug: string, date: string, duration?: number) => {
+        const requestId = requestSeq.current + 1;
+        requestSeq.current = requestId;
         setLoading(true);
         setError(null);
 
@@ -75,7 +78,7 @@ export function useAvailableSlots() {
 
         try {
             if (shouldCallApi) {
-                let data = await sheetsService.getAvailableSlots(slug, date);
+                let data = await sheetsService.getAvailableSlots(slug, date, duration);
 
                 // Filter out past times if it's today
                 const today = new Date();
@@ -101,7 +104,7 @@ export function useAvailableSlots() {
                     data = data.slice(0, MAX_FREE_SLOTS);
                 }
 
-                setSlots(data);
+                if (requestSeq.current === requestId) setSlots(data);
             } else {
                 // Demo mode: Calculate available slots based on schedule
                 // This provides a consistent, realistic demo experience
@@ -137,8 +140,21 @@ export function useAvailableSlots() {
                     else if (daysFromToday === 14) bookedSlots.push('16:30');
                 }
 
-                // Filter out booked slots
-                let availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+                // Filter out booked slots (duration-aware overlap check)
+                const slotDuration = duration || DEFAULT_SCHEDULE.duracionTurno || 60;
+                let availableSlots = allSlots.filter(slot => {
+                    if (bookedSlots.includes(slot)) return false;
+                    const [sh, sm] = slot.split(':').map(Number);
+                    const slotMin = sh * 60 + sm;
+                    for (const busy of bookedSlots) {
+                        const [bh, bm] = busy.split(':').map(Number);
+                        const busyMin = bh * 60 + bm;
+                        if (slotMin < busyMin + slotDuration && busyMin < slotMin + slotDuration) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
 
                 // Get local YYYY-MM-DD for today
                 const today = new Date();
@@ -167,16 +183,18 @@ export function useAvailableSlots() {
                     availableSlots = availableSlots.slice(0, MAX_FREE_SLOTS);
                 }
 
-                setSlots(availableSlots);
+                if (requestSeq.current === requestId) setSlots(availableSlots);
             }
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Error cargando horarios';
-            setError(message);
-            setSlots([]); // Empty on error
+            if (requestSeq.current === requestId) {
+                setError(message);
+                setSlots([]); // Empty on error
+            }
         } finally {
-            setLoading(false);
+            if (requestSeq.current === requestId) setLoading(false);
         }
-    }, [isConfigured]);
+    }, [isConfigured, isPremiumActive, isTrialExpired]);
 
     return { slots, loading, error, fetchSlots };
 }

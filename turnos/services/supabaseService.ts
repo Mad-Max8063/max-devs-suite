@@ -55,6 +55,7 @@ export interface Appointment {
     TelefonoCliente: string;
     EmailCliente?: string;
     Servicio: string;
+    DuracionMinutos?: number;
     PrecioTotal: number;
     MontoSena: number;
     CreatedAt: string;
@@ -69,6 +70,7 @@ export interface CreateAppointmentData {
     TelefonoCliente: string;
     EmailCliente?: string;
     Servicio?: string;
+    DuracionMinutos?: number;
     PrecioTotal?: number;
     MontoSena?: number;
 }
@@ -275,6 +277,7 @@ export async function getAppointments(
         TelefonoCliente: row.telefono_cliente,
         EmailCliente: row.email_cliente || '',
         Servicio: row.servicio || '',
+        DuracionMinutos: row.duracion_minutos || 60,
         PrecioTotal: row.precio_total || 0,
         MontoSena: row.monto_sena || 0,
         CreatedAt: row.created_at,
@@ -301,6 +304,7 @@ export async function getAppointmentById(id: string): Promise<Appointment | null
         TelefonoCliente: data.telefono_cliente,
         EmailCliente: data.email_cliente || '',
         Servicio: data.servicio || '',
+        DuracionMinutos: data.duracion_minutos || 60,
         PrecioTotal: data.precio_total || 0,
         MontoSena: data.monto_sena || 0,
         CreatedAt: data.created_at,
@@ -314,21 +318,28 @@ export async function createAppointment(
     const businessId = await getBusinessId(aptData.Slug);
     if (!businessId) throw new Error('Negocio no encontrado');
 
-    const { data, error } = await supabase
-        .from('appointments')
-        .insert({
-            business_id: businessId,
-            fecha: aptData.Fecha,
-            hora: aptData.Hora,
-            nombre_cliente: aptData.NombreCliente,
-            telefono_cliente: aptData.TelefonoCliente,
-            email_cliente: aptData.EmailCliente || '',
-            servicio: aptData.Servicio || '',
-            precio_total: aptData.PrecioTotal || 0,
-            monto_sena: aptData.MontoSena || 0,
-        })
-        .select('id')
-        .single();
+    const { data, error } = await supabase.rpc('create_appointment_secure', {
+        p_business_id: businessId,
+        p_fecha: aptData.Fecha,
+        p_hora: aptData.Hora,
+        p_duracion_minutos: aptData.DuracionMinutos || 60,
+        p_nombre_cliente: aptData.NombreCliente,
+        p_telefono_cliente: aptData.TelefonoCliente,
+        p_email_cliente: aptData.EmailCliente || '',
+        p_servicio: aptData.Servicio || '',
+        p_precio_total: aptData.PrecioTotal || 0,
+        p_monto_sena: aptData.MontoSena || 0,
+    });
+
+    if (error && (error.code === '23505' || error.message.includes('slot_conflict'))) {
+        throw new Error('Este horario ya está reservado o se superpone con otro turno. Por favor seleccioná otro.');
+    }
+    if (error && (error.message.includes('slot_not_available') || error.message.includes('date_blocked'))) {
+        throw new Error('Este horario ya no está disponible. Por favor seleccioná otro.');
+    }
+    if (error && error.message.includes('appointments_module_inactive')) {
+        throw new Error('La reserva online no está habilitada para este negocio.');
+    }
 
     if (error) {
         // Handle unique constraint violation (double booking)
@@ -338,7 +349,7 @@ export async function createAppointment(
         throw new Error(error.message);
     }
 
-    return { id: data.id };
+    return { id: data as string };
 }
 
 export async function updateAppointmentStatus(
@@ -457,11 +468,18 @@ export async function saveSchedule(
     const businessId = await getBusinessId(slug);
     if (!businessId) throw new Error('Negocio no encontrado');
 
+    // Backup existing schedule before delete
+    const { data: backup } = await supabase
+        .from('schedules')
+        .select('*')
+        .eq('business_id', businessId);
+
     // Delete existing schedule
-    await supabase
+    const { error: deleteError } = await supabase
         .from('schedules')
         .delete()
         .eq('business_id', businessId);
+    if (deleteError) throw new Error(deleteError.message);
 
     // Insert new rows
     const rows = Object.entries(config.horariosPorDia)
@@ -485,14 +503,25 @@ export async function saveSchedule(
         }];
 
     const { error } = await supabase.from('schedules').insert(rowsToInsert);
-    if (error) throw new Error(error.message);
+    if (error) {
+        // Rollback: restore previous schedule
+        if (backup && backup.length > 0) {
+            const restoreRows = backup.map(({ id, ...rest }) => rest);
+            const { error: restoreError } = await supabase.from('schedules').insert(restoreRows);
+            if (restoreError) {
+                logger.error('[supabaseService] Schedule rollback failed:', restoreError);
+            }
+        }
+        throw new Error(error.message);
+    }
 
     return { success: true };
 }
 
 export async function getAvailableSlots(
     slug: string,
-    date: string
+    date: string,
+    duracion?: number
 ): Promise<string[]> {
     const businessId = await getBusinessId(slug);
     if (!businessId) return [];
@@ -505,13 +534,14 @@ export async function getAvailableSlots(
     // Get schedule for this day
     const { data: scheduleData } = await supabase
         .from('schedules')
-        .select('horarios')
+        .select('horarios, duracion_turno')
         .eq('business_id', businessId)
         .eq('dia_semana', dayOfWeek)
         .single();
 
     if (!scheduleData || !scheduleData.horarios) return [];
     const daySlots: string[] = scheduleData.horarios;
+    const slotDuration = duracion || scheduleData.duracion_turno || 60;
 
     // Check if date is blocked
     const { data: blockedData } = await supabase
@@ -523,15 +553,53 @@ export async function getAvailableSlots(
 
     if (blockedData && blockedData.length > 0) return [];
 
-    // Get booked slots through a privacy-preserving RPC.
-    const { data: busySlots, error: busySlotsError } = await supabase.rpc('get_busy_slots', {
+    // Get booked intervals through a privacy-preserving RPC.
+    const { data: busyIntervals, error: busyIntervalsError } = await supabase.rpc('get_busy_intervals', {
         p_business_id: businessId,
         p_date: date,
     });
 
-    if (busySlotsError) throw new Error(busySlotsError.message);
+    let intervals: Array<{ hora: string; duracion_minutos: number }> = [];
 
-    return daySlots.filter(slot => !(busySlots || []).includes(slot));
+    if (busyIntervalsError) {
+        // Backward-compatible fallback for environments that have not applied
+        // the duration-aware RPC yet. Production should use get_busy_intervals.
+        const { data: busySlots, error: busySlotsError } = await supabase.rpc('get_busy_slots', {
+            p_business_id: businessId,
+            p_date: date,
+        });
+
+        if (busySlotsError) throw new Error(busySlotsError.message);
+        intervals = (busySlots || []).map((hora: string) => ({
+            hora,
+            duracion_minutos: scheduleData.duracion_turno || 60,
+        }));
+    } else {
+        intervals = (busyIntervals || []).map((item: any) => ({
+            hora: item.hora,
+            duracion_minutos: item.duracion_minutos || 60,
+        }));
+    }
+
+    return daySlots.filter(slot => {
+        const slotMin = slotToMinutes(slot);
+        for (const busy of intervals) {
+            const busyMin = slotToMinutes(busy.hora);
+            const busyDuration = busy.duracion_minutos || scheduleData.duracion_turno || 60;
+            // Busy appointment occupies [busyMin, busyMin + busyDuration)
+            // New appointment would occupy [slotMin, slotMin + slotDuration)
+            if (slotMin < busyMin + busyDuration && busyMin < slotMin + slotDuration) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+function slotToMinutes(slot: string): number {
+    const [h, m] = slot.split(':').map(Number);
+    return h * 60 + m;
 }
 
 export async function getBlockedDates(slug: string): Promise<BlockedDate[]> {
@@ -558,11 +626,18 @@ export async function saveBlockedDates(
     const businessId = await getBusinessId(slug);
     if (!businessId) throw new Error('Negocio no encontrado');
 
+    // Backup existing before delete
+    const { data: backup } = await supabase
+        .from('blocked_dates')
+        .select('*')
+        .eq('business_id', businessId);
+
     // Delete existing
-    await supabase
+    const { error: deleteError } = await supabase
         .from('blocked_dates')
         .delete()
         .eq('business_id', businessId);
+    if (deleteError) throw new Error(deleteError.message);
 
     // Insert new
     if (fechas.length > 0) {
@@ -572,7 +647,17 @@ export async function saveBlockedDates(
             motivo: f.Motivo || '',
         }));
         const { error } = await supabase.from('blocked_dates').insert(rows);
-        if (error) throw new Error(error.message);
+        if (error) {
+            // Rollback: restore previous blocked dates
+            if (backup && backup.length > 0) {
+                const restoreRows = backup.map(({ id, ...rest }) => rest);
+                const { error: restoreError } = await supabase.from('blocked_dates').insert(restoreRows);
+                if (restoreError) {
+                    logger.error('[supabaseService] Blocked dates rollback failed:', restoreError);
+                }
+            }
+            throw new Error(error.message);
+        }
     }
 
     return { success: true };

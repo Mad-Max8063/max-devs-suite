@@ -47,6 +47,7 @@ export const useTurnos = (status?: 'Pendiente' | 'Confirmado' | 'Cancelado' | 'a
         TelefonoCliente: row.telefono_cliente,
         EmailCliente: row.email_cliente || '',
         Servicio: row.servicio || '',
+        DuracionMinutos: row.duracion_minutos || 60,
         PrecioTotal: row.precio_total || 0,
         MontoSena: row.monto_sena || 0,
         CreatedAt: row.created_at,
@@ -71,27 +72,30 @@ export const useCreateTurno = () => {
     mutationFn: async (aptData: CreateAppointmentData) => {
       if (!tenantId) throw new Error('Tenant context missing');
 
-      const { data, error } = await supabase
-        .from('appointments')
-        .insert({
-          business_id: tenantId,
-          fecha: aptData.Fecha,
-          hora: aptData.Hora,
-          nombre_cliente: aptData.NombreCliente,
-          telefono_cliente: aptData.TelefonoCliente,
-          email_cliente: aptData.EmailCliente || '',
-          servicio: aptData.Servicio || '',
-          precio_total: aptData.PrecioTotal || 0,
-          monto_sena: aptData.MontoSena || 0,
-        })
-        .select('id')
-        .single();
+      const { data, error } = await supabase.rpc('create_appointment_secure', {
+        p_business_id: tenantId,
+        p_fecha: aptData.Fecha,
+        p_hora: aptData.Hora,
+        p_duracion_minutos: aptData.DuracionMinutos || 60,
+        p_nombre_cliente: aptData.NombreCliente,
+        p_telefono_cliente: aptData.TelefonoCliente,
+        p_email_cliente: aptData.EmailCliente || '',
+        p_servicio: aptData.Servicio || '',
+        p_precio_total: aptData.PrecioTotal || 0,
+        p_monto_sena: aptData.MontoSena || 0,
+      });
 
       if (error) {
+        if (error.code === '23505' || error.message.includes('slot_conflict')) {
+          throw new Error('Este horario ya está reservado o se superpone con otro turno.');
+        }
+        if (error.message.includes('slot_not_available') || error.message.includes('date_blocked')) {
+          throw new Error('Este horario ya no está disponible.');
+        }
         if (error.code === '23505') throw new Error('Este horario ya está reservado.');
         throw error;
       }
-      return data;
+      return { id: data as string };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['turnos', tenantId] });
@@ -131,6 +135,7 @@ export const useUpdateTurnoStatus = () => {
       if (context?.previousTurnos) {
         queryClient.setQueryData(['turnos', tenantId], context.previousTurnos);
       }
+      logger.error('[useUpdateTurnoStatus] Failed:', err);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['turnos', tenantId] });
@@ -169,6 +174,7 @@ export const useDeleteTurno = () => {
       if (context?.previousTurnos) {
         queryClient.setQueryData(['turnos', tenantId], context.previousTurnos);
       }
+      logger.error('[useDeleteTurno] Failed:', err);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['turnos', tenantId] });

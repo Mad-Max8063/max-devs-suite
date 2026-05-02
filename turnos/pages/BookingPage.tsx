@@ -16,7 +16,7 @@ function normalizeArgentineMobilePhone(value: string): string | null {
     if (digits.startsWith('549')) {
         normalized = digits;
     } else if (digits.startsWith('54')) {
-        normalized = `549${digits.slice(digits.startsWith('549') ? 3 : 2)}`;
+        normalized = `549${digits.slice(2)}`;
     } else if (digits.startsWith('9')) {
         normalized = `54${digits}`;
     } else {
@@ -46,13 +46,14 @@ const BookingPage: React.FC = () => {
     const { setSlug, slug: contextSlug, isPremiumActive, isTrialExpired } = useApp();
     const { profile, loading: profileLoading } = useProfile();
     const { create, loading: creating, error: createError } = useCreateAppointment();
-    const { slots, fetchSlots } = useAvailableSlots();
+    const { slots, loading: slotsLoading, fetchSlots } = useAvailableSlots();
 
     const slug = urlSlug || contextSlug || undefined;
 
     const {
         isDateAvailable,
-        loading: scheduleLoading
+        loading: scheduleLoading,
+        duration: scheduleDuration,
     } = useScheduleInfo(slug || '');
 
     const { activeServices } = useServices();
@@ -68,6 +69,11 @@ const BookingPage: React.FC = () => {
     const [submitCooldown, setSubmitCooldown] = useState(false);
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const serviceNames = selectedServices.map(s => s.nombre).join(' + ') || 'Servicio General';
+    const hasServices = selectedServices.length > 0;
+    const appointmentDuration = hasServices ? selectedServices.reduce((sum, s) => sum + s.duracion, 0) : (scheduleDuration || 60);
+    const servicePrice = hasServices ? selectedServices.reduce((sum, s) => sum + s.precio, 0) : 0;
+    const totalDeposit = selectedServices.reduce((sum, s) => sum + s.sena, 0) || profile?.ValorSena || 0;
 
     useEffect(() => {
         if (slug) {
@@ -81,9 +87,16 @@ const BookingPage: React.FC = () => {
             const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
             const day = String(selectedDate.getDate()).padStart(2, '0');
             const dateStr = `${year}-${month}-${day}`;
-            fetchSlots(slug, dateStr);
+            fetchSlots(slug, dateStr, appointmentDuration);
         }
-    }, [slug, selectedDate, fetchSlots]);
+    }, [slug, selectedDate, appointmentDuration, fetchSlots]);
+
+    useEffect(() => {
+        if (!selectedTime || slotsLoading) return;
+        if (!slots.includes(selectedTime)) {
+            setSelectedTime(null);
+        }
+    }, [selectedTime, slots, slotsLoading]);
 
     const generateCalendarDays = useCallback(() => {
         const year = currentMonth.getFullYear();
@@ -112,6 +125,7 @@ const BookingPage: React.FC = () => {
     const monthName = currentMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
 
     const toggleService = useCallback((service: Service) => {
+        setSelectedTime(null);
         setSelectedServices(prev => {
             const exists = prev.find(s => s.id === service.id);
             if (exists) {
@@ -121,10 +135,6 @@ const BookingPage: React.FC = () => {
         });
     }, []);
 
-    const serviceNames = selectedServices.map(s => s.nombre).join(' + ') || 'Servicio General';
-    const hasServices = selectedServices.length > 0;
-    const servicePrice = hasServices ? selectedServices.reduce((sum, s) => sum + s.precio, 0) : 0;
-    const totalDeposit = selectedServices.reduce((sum, s) => sum + s.sena, 0) || profile?.ValorSena || 0;
     const normalizedClientPhone = normalizeArgentineMobilePhone(clientPhone);
     const hasPhoneInput = clientPhone.replace(/\D/g, '').length > 0;
     const isClientPhoneInvalid = hasPhoneInput && !normalizedClientPhone;
@@ -163,6 +173,7 @@ const BookingPage: React.FC = () => {
                 TelefonoCliente: normalizedClientPhone,
                 EmailCliente: clientEmail || undefined,
                 Servicio: serviceNames,
+                DuracionMinutos: appointmentDuration,
                 PrecioTotal: servicePrice,
                 MontoSena: totalDeposit,
             });
@@ -290,8 +301,8 @@ const BookingPage: React.FC = () => {
                                 </div>
 
                                 <div className="grid grid-cols-7 gap-y-2 text-center">
-                                    {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(d => (
-                                        <span key={d} className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-20 pb-4">{d}</span>
+                                    {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((d, idx) => (
+                                        <span key={idx} className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant opacity-20 pb-4">{d}</span>
                                     ))}
                                     {days.map((day, idx) => {
                                         const available = day ? isDateAvailable(day) : false;
@@ -301,7 +312,11 @@ const BookingPage: React.FC = () => {
                                             <button
                                                 key={idx}
                                                 disabled={!day || !available}
-                                                onClick={() => day && available && setSelectedDate(day)}
+                                                onClick={() => {
+                                                    if (!day || !available) return;
+                                                    setSelectedTime(null);
+                                                    setSelectedDate(day);
+                                                }}
                                                 className={`
                                                     relative h-11 w-full rounded-2xl text-xs font-black transition-all flex flex-col items-center justify-center
                                                     ${!day ? 'invisible' : ''}
@@ -338,7 +353,11 @@ const BookingPage: React.FC = () => {
                                     </p>
                                 </div>
 
-                                {slots.length === 0 ? (
+                                {slotsLoading ? (
+                                    <div className="flex justify-center items-center py-10">
+                                        <div className="size-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                    </div>
+                                ) : slots.length === 0 ? (
                                     <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center">
                                         <p className="text-xs font-bold text-primary opacity-60 italic">No hay horarios disponibles para este día.</p>
                                     </div>

@@ -95,6 +95,13 @@ function getAccentBlock(color) {
     color: #fff !important;
     box-shadow: 0 12px 28px color-mix(in srgb, var(--suito-accent-color) 35%, transparent) !important;
 }
+.suito-gallery-icon-circle {
+    background: var(--suito-accent-color) !important;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--suito-accent-color) 35%, transparent), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+.suito-gallery-reveal-btn:hover .suito-gallery-icon-circle {
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--suito-accent-color) 45%, transparent), 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+}
 .referral-link {
     text-shadow: 0 0 10px color-mix(in srgb, var(--suito-accent-color) 65%, transparent) !important;
 }

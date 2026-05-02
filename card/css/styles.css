@@ -629,19 +629,19 @@ body {
 .suito-gallery-icon-circle {
   width: 64px;
   height: 64px;
-  background: var(--theme-gradient);
+  background: var(--suito-accent-color, var(--theme-gradient));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--suito-accent-color, #000) 35%, transparent), 0 0 0 1px rgba(255, 255, 255, 0.1);
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 
 .suito-gallery-reveal-btn:hover .suito-gallery-icon-circle {
   transform: scale(1.08);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--suito-accent-color, #000) 45%, transparent), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .suito-gallery-badge {
