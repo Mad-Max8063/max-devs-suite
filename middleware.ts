@@ -147,7 +147,7 @@ export default async function middleware(req: Request) {
   if (subdomain === 'admin') {
     // Si es la raíz del subdominio, ir al dashboard
     if (pathname === '/') {
-        targetPath = '/admin/dashboard-v2029.html';
+        targetPath = '/admin/dashboard-v2030.html';
     } else {
         // Si pide /sw-admin.js -> /admin/sw-admin.js
         targetPath = `/admin${pathname}`;

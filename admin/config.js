@@ -15,4 +15,4 @@ export const CONFIG = {
         turnos: { monthly: 9900, quarterly: 25000 },
         combo: { monthly: 12900, quarterly: 33000 },
     }
-};
+};

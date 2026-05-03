@@ -1,5 +1,5 @@
-// Suito Admin Service Worker v2029
-const CACHE_NAME = 'suito-admin-v2029';
+// Suito Admin Service Worker v2030
+const CACHE_NAME = 'suito-admin-v2030';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

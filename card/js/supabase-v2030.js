@@ -1,4 +1,4 @@
-console.log("cachebust-v2029-FINAL");
+console.log("cachebust-v2030-FINAL");
 // ============================================
 // supabase.js — Supabase client & API functions
 // ============================================
@@ -211,7 +211,7 @@ export async function getCard(slug) {
         }));
     }
 
-    // Map DB entity 'business' to 'card' display format (v2029-FIXED)
+    // Map DB entity 'business' to 'card' display format (v2030-FIXED)
     const cardData = {
         id: business.id,
         _id: business.id, // Legacy compatibility
@@ -444,6 +444,7 @@ export async function updateBusinessProfileSecure(cardId, editToken, profileData
         p_website:        profileData.website        ?? null,
         p_booking_url:    profileData.booking_url    ?? null,
         p_whatsapp_message: profileData.whatsapp_message ?? null,
+        p_whatsapp_catalog_url: profileData.whatsapp_catalog_url ?? null,
         p_font_family:    profileData.font_family    ?? null,
         p_social_color:   profileData.social_color   ?? null,
         p_card_theme:     profileData.card_theme     ?? null,

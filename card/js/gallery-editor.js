@@ -5,7 +5,7 @@
 // ============================================
 
 import { sanitize, getCardUrl, resizeGalleryImage, dataUriToFile } from './utils.js';
-import { uploadImage, addGalleryImageSecure, deleteGalleryImageSecure, updateGalleryCaptionSecure } from './supabase-v2029.js';
+import { uploadImage, addGalleryImageSecure, deleteGalleryImageSecure, updateGalleryCaptionSecure } from './supabase-v2030.js';
 
 const FREE_GALLERY_LIMIT = 3;
 

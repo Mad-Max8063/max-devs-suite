@@ -74,7 +74,7 @@ serve(async (req) => {
           frequency: 1,
           frequency_type: 'months',
         },
-        back_url: `https://suito.pro/admin/dashboard-v2029.html?status=success&business=${business.slug}`,
+        back_url: `https://suito.pro/admin/dashboard-v2030.html?status=success&business=${business.slug}`,
         payer_email: business.email || 'hola@suito.pro',
         external_reference: business.id, // Linking back to our DB
         status: 'pending'

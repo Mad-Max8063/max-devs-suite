@@ -9,7 +9,7 @@ import {
   getSupabaseClient,
   updateBusinessProfileSecure,
   uploadImage,
-} from './supabase-v2029.js';
+} from './supabase-v2030.js';
 
 const FIELDS = ['name', 'profession', 'description', 'phone', 'email', 'location', 'instagram', 'linkedin', 'website', 'bookingUrl'];
 const MAX_DESC = 160;

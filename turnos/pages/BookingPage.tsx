@@ -402,7 +402,7 @@ const BookingPage: React.FC = () => {
                                             </div>
 
                                             <a 
-                                                href={`/admin/dashboard-v2029.html?business=${slug}`} 
+                                                href={`/admin/dashboard-v2030.html?business=${slug}`} 
                                                 className="px-8 py-4 bg-primary text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                             >
                                                 Obtener Premium

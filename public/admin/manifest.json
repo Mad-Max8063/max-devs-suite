@@ -2,7 +2,7 @@
   "name": "Suito Admin Panel",
   "short_name": "Suito Admin",
   "description": "Panel de control premium para gestionar tu Suite, editar tarjetas, revisar métricas y actualizar tu catálogo de productos.",
-  "start_url": "/admin/dashboard-v2029.html",
+  "start_url": "/admin/dashboard-v2030.html",
   "display": "standalone",
   "background_color": "#0d0f1a",
   "theme_color": "#8200e8",

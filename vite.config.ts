@@ -33,7 +33,7 @@ export default defineConfig(({ command }) => ({
         // Legal público (Términos y Privacidad)
         legal:  resolve(__dirname, 'legal.html'),
         // Admin Panel (Vanilla JS)
-        dashboard: resolve(__dirname, 'admin/dashboard-v2029.html'),
+        dashboard: resolve(__dirname, 'admin/dashboard-v2030.html'),
         // Tarjeta Virtual (Vanilla JS)
         card:   resolve(__dirname, 'card/index.html'),
         // Gestor de Turnos (React + TypeScript)

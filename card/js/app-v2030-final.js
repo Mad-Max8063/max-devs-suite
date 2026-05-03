@@ -2,8 +2,8 @@
 // app.js — Main router & app orchestration
 // ============================================
 
-import { getCard } from './supabase-v2029.js';
-import { getSubscriptionStatus } from './engine-v2029.js';
+import { getCard } from './supabase-v2030.js';
+import { getSubscriptionStatus } from './engine-v2030.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
@@ -186,7 +186,7 @@ function navigate() {
                 app.innerHTML = '';
                 app.appendChild(landingView);
 
-                import('./engine-v2029.js').then((mod) => {
+                import('./engine-v2030.js').then((mod) => {
                     mod.renderLanding(landingView, data);
                 }).catch(err => {
                     console.error('[Router] Error loading engine:', err);
@@ -223,7 +223,7 @@ function navigate() {
 
         const data = window.__previewData || {};
 
-        import('./engine-v2029.js').then((mod) => {
+        import('./engine-v2030.js').then((mod) => {
             mod.renderPreview(
                 previewView,
                 data,

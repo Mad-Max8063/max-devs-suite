@@ -13,7 +13,7 @@ import {
     deleteGalleryImageSecure,
     updateGalleryCaptionSecure,
     updateBusinessProfileSecure,
-} from './supabase-v2029.js';
+} from './supabase-v2030.js';
 import { injectSubscriptionBanner } from '../../shared/SubscriptionBanner.js';
 
 const STYLE_PRESETS = [
@@ -144,6 +144,7 @@ export function renderClientPanel(container, card) {
         activeModules: card.activeModules || card.active_modules || ['card'],
         isPremium: card.isPremium || card.is_premium || false,
         whatsappMessage: card.whatsapp_message || '',
+        whatsappCatalogUrl: card.whatsapp_catalog_url || '',
         fontFamily: card.font_family || 'Inter',
         socialColor: card.social_color || card.primary_color || card.color_primario || '#8B5CF6',
         cardTheme: card.card_theme || 'obsidian',
@@ -281,6 +282,10 @@ function buildPanelHTML(data) {
 
               <label class="cp-label">Mensaje predefinido de WhatsApp</label>
               <textarea class="cp-input" id="cp-whatsapp-message" rows="2" placeholder="Ej: Hola! Vi tu tarjeta y me gustaría hacer una consulta." maxlength="200">${sanitize(data.whatsappMessage)}</textarea>
+
+              <label class="cp-label">Catálogo de WhatsApp Business</label>
+              <input class="cp-input" id="cp-whatsapp-catalog-url" type="url" value="${sanitize(data.whatsappCatalogUrl)}" placeholder="https://wa.me/c/5491112345678" maxlength="300">
+              <p class="section-hint" style="margin-top:4px;">Si tenés un catálogo en WhatsApp Business, pegá el link acá. Aparecerá en la galería de tu tarjeta.</p>
 
               <label class="cp-label">Email</label>
               <input class="cp-input" id="cp-email" type="email" value="${sanitize(data.email)}" placeholder="vos@tuempresa.com">
@@ -732,6 +737,7 @@ function wireProfileEvents(container, data) {
                 linkedin:       container.querySelector('#cp-linkedin')?.value || '',
                 website:        container.querySelector('#cp-website')?.value || '',
                 whatsapp_message: container.querySelector('#cp-whatsapp-message')?.value || '',
+                whatsapp_catalog_url: container.querySelector('#cp-whatsapp-catalog-url')?.value || '',
                 disable_share: !(container.querySelector('#cp-toggle-share')?.checked ?? true),
                 font_scale: parseFloat(container.querySelector('#cp-font-scale')?.value) || 1.0,
             };
