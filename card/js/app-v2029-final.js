@@ -62,10 +62,13 @@ function navigate() {
     // Esto soporta slugs con guiones y evita problemas con la profundidad de la URL
     const cleanPath = path.replace(/\/$/, "");
     const segments = cleanPath.split("/");
-    const slug = segments.pop();
+    const rawSlug = segments.pop();
+
+    // 'index.html' no es slug valido -- ocurre cuando la PWA se abre desde home screen
+    const slug = (rawSlug === 'index.html' || rawSlug === '') ? '' : rawSlug;
 
     const isEdit = segments.includes('edit');
-    const isCard = segments.includes('card') || (segments.length === 0 && slug !== '');
+    const isCard = slug !== '' && (segments.includes('card') || segments.length === 0);
 
     if (isEdit && slug) {
         // — Gallery edit mode —

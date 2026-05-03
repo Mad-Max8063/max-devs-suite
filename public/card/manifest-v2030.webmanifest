@@ -2,7 +2,7 @@
   "name": "Suito | v2030",
   "short_name": "Suito",
   "description": "Tu tarjeta de presentación digital e inteligente.",
-  "start_url": "./index.html",
+  "start_url": "/card/suito",
   "scope": "/card/",
   "display": "standalone",
   "background_color": "#fff3fe",
