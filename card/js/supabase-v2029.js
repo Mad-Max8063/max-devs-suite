@@ -43,7 +43,8 @@ const PUBLIC_BUSINESS_SELECT = [
     'custom_css',
     'force_watermark',
     'disable_share',
-    'font_scale'
+    'font_scale',
+    'whatsapp_catalog_url'
 ].join(',');
 
 // ——————— ID Generation ———————
@@ -246,6 +247,7 @@ export async function getCard(slug) {
         locked_price: business.locked_price || 0,
         price_lock_ends_at: business.price_lock_ends_at || null,
         whatsapp_message: business.whatsapp_message || '',
+        whatsapp_catalog_url: business.whatsapp_catalog_url || '',
         font_family: business.font_family || '',
         social_color: business.social_color || '',
         card_theme: business.card_theme || '',

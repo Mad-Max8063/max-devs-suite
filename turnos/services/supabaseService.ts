@@ -33,6 +33,7 @@ export interface Profile {
     Instagram?: string;
     Website?: string;
     whatsapp_message?: string;
+    whatsapp_catalog_url?: string;
     CoverURL?: string;
     GalleryImages?: { image_url: string; caption?: string }[];
     ActiveModules?: string[];
@@ -164,7 +165,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
             link_pago, qr_image_url, modo_sandbox, foto_url, color_primario, 
             notificaciones_email, recordatorios_activos, fecha_vencimiento, 
             is_premium, profession, description, location, facebook, 
-            instagram, website, whatsapp_message, cover_url, gallery_images, 
+            instagram, website, whatsapp_message, whatsapp_catalog_url, cover_url, gallery_images, 
             active_modules, subscription_status, trial_ends_at, locked_price, 
             price_lock_ends_at, free_until, force_watermark
         `)
@@ -197,6 +198,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         Instagram: data.instagram || '',
         Website: data.website || '',
         whatsapp_message: data.whatsapp_message || '',
+        whatsapp_catalog_url: data.whatsapp_catalog_url || '',
         CoverURL: data.cover_url || '',
         GalleryImages: data.gallery_images || [],
         ActiveModules: data.active_modules || ['card'],
@@ -232,6 +234,7 @@ export async function saveProfile(profile: Profile): Promise<{ slug: string }> {
             instagram: profile.Instagram || '',
             website: profile.Website || '',
             whatsapp_message: profile.whatsapp_message || '',
+            whatsapp_catalog_url: profile.whatsapp_catalog_url || '',
             cover_url: profile.CoverURL || '',
             gallery_images: profile.GalleryImages || [],
             active_modules: profile.ActiveModules || ['card'],

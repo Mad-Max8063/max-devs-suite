@@ -21,6 +21,7 @@ type DraftProfile = Pick<
   'Profession' | 'Description' | 'Location' | 'Facebook' | 'Instagram' | 'Website' | 'GalleryImages'
 > & {
   whatsapp_message?: string;
+  whatsapp_catalog_url?: string;
 };
 
 const emptyDraft: DraftProfile = {
@@ -32,6 +33,7 @@ const emptyDraft: DraftProfile = {
   Website: '',
   GalleryImages: [],
   whatsapp_message: '',
+  whatsapp_catalog_url: '',
 };
 
 function profileToDraft(profile: Profile | null): DraftProfile {
@@ -45,6 +47,7 @@ function profileToDraft(profile: Profile | null): DraftProfile {
     Website: profile.Website || '',
     GalleryImages: profile.GalleryImages || [],
     whatsapp_message: profile.whatsapp_message || '',
+    whatsapp_catalog_url: profile.whatsapp_catalog_url || '',
   };
 }
 
@@ -92,6 +95,7 @@ const VirtualCardConfigPage: React.FC = () => {
       Website: data.Website,
       GalleryImages: data.GalleryImages,
       whatsapp_message: data.whatsapp_message,
+      whatsapp_catalog_url: data.whatsapp_catalog_url,
     });
     setIsDirty(false);
   }, [slug, updateProfile]);
@@ -175,6 +179,7 @@ const VirtualCardConfigPage: React.FC = () => {
         currentIndex={lightboxIndex}
         onClose={() => setLightboxIndex(null)}
         onNavigate={setLightboxIndex}
+        whatsappCatalogUrl={draftProfile.whatsapp_catalog_url || undefined}
       />
       {slug && <DemoBanner slug={slug} />}
 
@@ -253,6 +258,18 @@ const VirtualCardConfigPage: React.FC = () => {
             </Field>
             <Field label="Mensaje predefinido de WhatsApp">
               <textarea value={draftProfile.whatsapp_message || ''} onChange={(event) => updateDraft('whatsapp_message', event.target.value)} placeholder="Hola! Vi tu tarjeta y me gustaría hacer una consulta." rows={3} maxLength={240} className="suito-input resize-none" />
+            </Field>
+            <Field label="Catálogo de WhatsApp Business">
+              <input
+                value={draftProfile.whatsapp_catalog_url || ''}
+                onChange={(event) => updateDraft('whatsapp_catalog_url', event.target.value)}
+                placeholder="https://wa.me/c/..."
+                className="suito-input"
+                type="url"
+              />
+              <p className="ml-1 mt-1 text-[11px] text-on-surface-variant">
+                Si lo configurás, un clic en cualquier foto de tu galería abrirá tu catálogo de WhatsApp.
+              </p>
             </Field>
           </div>
 
