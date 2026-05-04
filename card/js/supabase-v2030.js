@@ -145,7 +145,7 @@ export async function getCard(slug) {
             email: 'hola@suito.pro',
             location: 'Buenos Aires, Argentina',
             photo: '/assets/suito-symbol.png',
-            coverPhoto: '/assets/logo.png',
+            coverPhoto: '/assets/suito-logo.png',
             primary_color: '#7c3aed',
             instagram: 'suito.pro',
             website: 'https://suito.pro',

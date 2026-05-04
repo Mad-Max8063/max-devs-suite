@@ -1,22 +1,9 @@
 {
   "framework": "vite",
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "suito.pro"
-        }
-      ],
-      "destination": "https://www.suito.pro/$1",
-      "permanent": true
-    }
-  ],
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/card/((?!css/|js/|assets/|.*\\.).*)", "destination": "/card/index.html" },
-    { "source": "/edit/((?!.*\\.).*)", "destination": "/card/index.html" },
-    { "source": "/turnos/((?!.*\\.).*)", "destination": "/turnos/index.html" },
-    { "source": "/((?!assets/|api/|images/|.*\\.).*)", "destination": "/index.html" }
+    { "source": "/card/:path*", "destination": "/card/index.html" },
+    { "source": "/edit/:path*", "destination": "/card/index.html" },
+    { "source": "/turnos/:path*", "destination": "/turnos/index.html" }
   ]
 }
