@@ -57,7 +57,7 @@ export async function injectSubscriptionBanner(containerId, business) {
   const isExpiredOrBasic = !hasAccess && (status === 'trial' || status === 'expired' || status === 'basic');
   const helperText = isExpiredOrBasic
     ? 'Tu tarjeta sigue activa en modo basico. Si queres mejorarla o consultar funciones avanzadas, podemos ayudarte por WhatsApp.'
-    : 'Evita cortes de servicio y congela tu precio hoy.';
+    : 'Suscribite ahora y congela tu precio por 3 meses.';
 
   container.hidden = false;
   container.innerHTML = `
