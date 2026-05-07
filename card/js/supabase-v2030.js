@@ -44,7 +44,8 @@ const PUBLIC_BUSINESS_SELECT = [
     'force_watermark',
     'disable_share',
     'font_scale',
-    'whatsapp_catalog_url'
+    'whatsapp_catalog_url',
+    'card_trial_used'
 ].join(',');
 
 // ——————— ID Generation ———————
@@ -253,7 +254,8 @@ export async function getCard(slug) {
         card_theme: business.card_theme || '',
         custom_css: business.custom_css || '',
         disable_share: business.disable_share || false,
-        font_scale: business.font_scale || 1.0
+        font_scale: business.font_scale || 1.0,
+        card_trial_used: business.card_trial_used || false
     };
 
     return cardData;
@@ -479,4 +481,13 @@ export async function updateActiveModulesSecure(cardId, editToken, activeModules
         console.error('Error updating active modules (secure):', error);
         throw error;
     }
+}
+
+export async function activateCardTrialByToken(cardId, editToken) {
+    const db = getClient();
+    const { error } = await db.rpc('activate_card_premium_trial_by_token', {
+        p_card_id: cardId,
+        p_edit_token: editToken,
+    });
+    if (error) throw error;
 }

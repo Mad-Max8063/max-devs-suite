@@ -13,7 +13,9 @@ import {
     deleteGalleryImageSecure,
     updateGalleryCaptionSecure,
     updateBusinessProfileSecure,
+    activateCardTrialByToken,
 } from './supabase-v2030.js';
+import { resolveAccessPriority } from '../../shared/access-resolver.js';
 import { injectSubscriptionBanner } from '../../shared/SubscriptionBanner.js';
 import {
     ASSISTED_UPGRADE_MESSAGE,
@@ -149,6 +151,10 @@ export function renderClientPanel(container, card) {
         coverPhoto: card.coverPhoto || card.cover_url || '',
         activeModules: card.activeModules || card.active_modules || ['card'],
         isPremium: card.isPremium || card.is_premium || false,
+        isPaidPremium: (card.isPremium || card.is_premium || false) || card.subscription_status === 'active',
+        hasPremiumAccess: resolveAccessPriority(card),
+        card_trial_used: card.card_trial_used || false,
+        disable_share: card.disable_share || false,
         whatsappMessage: card.whatsapp_message || '',
         whatsappCatalogUrl: card.whatsapp_catalog_url || '',
         fontFamily: card.font_family || 'Inter',
@@ -165,7 +171,7 @@ export function renderClientPanel(container, card) {
 
     container.innerHTML = buildPanelHTML(data);
     wirePanelEvents(container, data);
-    enforcePremiumDesignLock(data.isPremium, container.querySelector('#cp-design-section'));
+    enforcePremiumDesignLock(data.hasPremiumAccess, container.querySelector('#cp-design-section'));
 
     // Inject Subscription Banner at the top
     const bannerContainer = container.querySelector('#subscription-banner-root');
@@ -198,25 +204,48 @@ function buildPanelHTML(data) {
         </div>
       </div>
 
-      <div class="glass-card suito-assisted-upgrade-card" style="margin-bottom:20px;padding:18px;border-radius:24px;border:1px solid rgba(139,92,246,0.22);background:linear-gradient(135deg,rgba(139,92,246,0.14),rgba(16,185,129,0.08));box-shadow:0 18px 44px rgba(15,23,42,0.1);">
-        <div style="display:flex;align-items:flex-start;gap:12px;">
-          <div style="width:42px;height:42px;border-radius:14px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 24px rgba(37,211,102,0.28);">
-            <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i>
+      ${!data.hasPremiumAccess ? `
+      <!-- Premium Trial Offer -->
+      <div class="glass-card" style="margin-bottom:20px;padding:20px;border-radius:24px;border:1px solid rgba(245,158,11,0.3);background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(139,92,246,0.08));box-shadow:0 12px 32px rgba(15,23,42,0.08);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span class="material-symbols-outlined" style="font-size:28px;color:#f59e0b;">auto_awesome</span>
+          <div>
+            <h2 style="font-size:16px;font-weight:800;margin:0;color:var(--on-surface);">Tu tarjeta esta en modo basico</h2>
+            <p style="font-size:12px;margin:2px 0 0;color:var(--on-surface-variant);">Podes probar todas las funciones Premium gratis.</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:11px;color:var(--on-surface-variant);">
+          <div style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:14px;color:#f59e0b;">check_circle</span> Editar foto y portada</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:14px;color:#f59e0b;">check_circle</span> Colores y tipografia</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:14px;color:#f59e0b;">check_circle</span> Hasta 12 fotos en galeria</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:14px;color:#f59e0b;">check_circle</span> WhatsApp Business</div>
+        </div>
+        ${!data.card_trial_used ? `
+        <button type="button" id="cp-activate-trial" style="width:100%;min-height:48px;border:none;border-radius:16px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 8px 20px rgba(245,158,11,0.3);transition:transform 0.2s;">
+          Probar Premium por 3 dias gratis
+        </button>
+        ` : `
+        <a id="cp-assisted-upgrade-link" href="${assistedUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border-radius:16px;background:#25D366;color:#fff;text-decoration:none;font-weight:900;font-size:13px;box-shadow:0 8px 20px rgba(37,211,102,0.24);">
+          <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> Suscribirme a Premium
+        </a>
+        `}
+      </div>
+      ` : ''}
+
+      ${data.hasPremiumAccess ? `
+      <!-- Assisted Upgrade (WhatsApp help) -->
+      <div class="glass-card suito-assisted-upgrade-card" style="margin-bottom:20px;padding:16px;border-radius:20px;border:1px solid rgba(139,92,246,0.15);background:rgba(139,92,246,0.06);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fa-brands fa-whatsapp" style="font-size:18px;"></i>
           </div>
           <div style="min-width:0;flex:1;">
-            <h2 style="font-size:18px;line-height:1.15;margin:0 0 6px;color:var(--on-surface);">Queres mejorar tu tarjeta?</h2>
-            <p style="font-size:13px;line-height:1.45;margin:0;color:var(--on-surface-variant);">Te ayudamos a dejarla mas clara, mas profesional y lista para compartir.</p>
+            <p style="font-size:13px;font-weight:700;margin:0;color:var(--on-surface);">Necesitas ayuda con tu tarjeta?</p>
           </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px;">
-          <a id="cp-assisted-upgrade-link" href="${assistedUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:14px;background:#25D366;color:#fff;text-decoration:none;font-weight:900;font-size:13px;box-shadow:0 10px 24px rgba(37,211,102,0.24);">Hablar por WhatsApp</a>
-          <div style="padding:14px;border-radius:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(139,92,246,0.16);">
-            <strong style="display:block;font-size:14px;margin-bottom:4px;color:var(--on-surface);">Das turnos?</strong>
-            <p style="font-size:12px;line-height:1.4;margin:0 0 10px;color:var(--on-surface-variant);">Estamos validando turnos automaticos en beta privada con algunos profesionales.</p>
-            <a id="cp-beta-turnos-link" href="${betaTurnosUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;border-radius:12px;background:rgba(139,92,246,0.16);color:var(--on-surface);text-decoration:none;font-weight:900;font-size:12px;border:1px solid rgba(139,92,246,0.22);">Pedir acceso anticipado</a>
-          </div>
+          <a id="cp-assisted-upgrade-link" href="${assistedUrl}" target="_blank" rel="noopener" style="padding:8px 14px;border-radius:12px;background:#25D366;color:#fff;text-decoration:none;font-weight:800;font-size:11px;white-space:nowrap;">Hablar</a>
         </div>
       </div>
+      ` : ''}
 
       <!-- Install App Banner (PWA) -->
       <div id="pwa-install-banner" style="display:none; background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(139,92,246,0.15); border-radius: 20px; padding: 14px 16px; margin-bottom: 16px; align-items: center; gap: 12px; box-shadow: 0 4px 20px rgba(139,92,246,0.08);">
@@ -254,26 +283,34 @@ function buildPanelHTML(data) {
         <!-- Live Preview Header -->
         <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 24px; border-radius: 28px; box-shadow: var(--premium-shadow);">
             <div class="card-header" style="margin-bottom: 40px; border-radius: 28px 28px 0 0;">
-                <div class="card-cover-wrapper" style="height: 180px; background: var(--premium-gradient);">
+                <div class="card-cover-wrapper" style="height: 180px; background: var(--premium-gradient); position: relative;">
                     <!-- Cover Image -->
-                    ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" class="card-cover">` : `<div id="cp-cover-preview" class="card-cover"></div>`}
+                    ${data.coverPhoto ? `<img id="cp-cover-preview" src="${sanitize(data.coverPhoto)}" alt="Portada" class="card-cover" style="${!data.hasPremiumAccess ? 'filter:grayscale(0.6) brightness(0.7);' : ''}">` : `<div id="cp-cover-preview" class="card-cover"></div>`}
                     <div class="card-cover-overlay"></div>
+                    ${!data.hasPremiumAccess && data.coverPhoto ? `
+                    <!-- Cover locked overlay -->
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2;">
+                      <span class="material-symbols-outlined" style="font-size:32px;color:#fbbf24;">lock</span>
+                      <span style="color:#fff;font-size:11px;font-weight:700;margin-top:4px;">Premium</span>
+                    </div>
+                    ` : `
                     <!-- Cover Edit Button -->
-                    <label style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.2s;">
+                    <label style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 800; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.2s; z-index:2;">
                         <span class="material-symbols-outlined" style="font-size:16px;">edit</span> Portada
                         <input type="file" id="cp-cover-file" accept="image/*" style="display:none">
                     </label>
+                    `}
                 </div>
-                <!-- Avatar Edit Button -->
+                <!-- Avatar -->
                 <div class="card-avatar-container" style="bottom: -50px;">
-                    <label style="cursor: pointer; display: block; position: relative; transition: transform 0.2s;">
-                        <div class="card-avatar-ring" style="width: 110px; height: 110px; border: 5px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <label style="cursor: ${!data.hasPremiumAccess && data.photo && data.photo !== '/assets/suito-symbol.png' ? 'not-allowed' : 'pointer'}; display: block; position: relative; transition: transform 0.2s;">
+                        <div class="card-avatar-ring" style="width: 110px; height: 110px; border: 5px solid #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1);${!data.hasPremiumAccess && data.photo && data.photo !== '/assets/suito-symbol.png' ? ' filter:grayscale(0.5);' : ''}">
                             <img id="cp-avatar-preview" src="${sanitize(data.photo) || '/assets/suito-symbol.png'}" class="card-avatar">
                         </div>
-                        <div style="position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); border: 3px solid #fff;">
-                            <span class="material-symbols-outlined" style="font-size: 18px; font-weight: bold;">photo_camera</span>
+                        <div style="position: absolute; bottom: 8px; right: 8px; background: ${!data.hasPremiumAccess && data.photo && data.photo !== '/assets/suito-symbol.png' ? '#666' : 'var(--primary)'}; color: white; width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); border: 3px solid #fff;">
+                            <span class="material-symbols-outlined" style="font-size: 18px; font-weight: bold;">${!data.hasPremiumAccess && data.photo && data.photo !== '/assets/suito-symbol.png' ? 'lock' : 'photo_camera'}</span>
                         </div>
-                        <input type="file" id="cp-avatar-file" accept="image/*" style="display:none">
+                        ${data.hasPremiumAccess || !data.photo || data.photo === '/assets/suito-symbol.png' ? `<input type="file" id="cp-avatar-file" accept="image/*" style="display:none">` : ''}
                     </label>
                 </div>
             </div>
@@ -312,8 +349,8 @@ function buildPanelHTML(data) {
               <label class="cp-label">Mensaje predefinido de WhatsApp</label>
               <textarea class="cp-input" id="cp-whatsapp-message" rows="2" placeholder="Ej: Hola! Vi tu tarjeta y me gustaría hacer una consulta." maxlength="200">${sanitize(data.whatsappMessage)}</textarea>
 
-              <label class="cp-label">Catálogo de WhatsApp Business</label>
-              <input class="cp-input" id="cp-whatsapp-catalog-url" type="url" value="${sanitize(data.whatsappCatalogUrl)}" placeholder="https://wa.me/c/5491112345678" maxlength="300">
+              <label class="cp-label">Catálogo de WhatsApp Business${!data.hasPremiumAccess ? ' <span style="color:#f59e0b;font-size:10px;font-weight:700;"><span class="material-symbols-outlined" style="font-size:12px;vertical-align:middle;">lock</span> Premium</span>' : ''}</label>
+              <input class="cp-input" id="cp-whatsapp-catalog-url" type="url" value="${sanitize(data.whatsappCatalogUrl)}" placeholder="https://wa.me/c/5491112345678" maxlength="300" ${!data.hasPremiumAccess ? 'disabled style="opacity:0.5;"' : ''}>
               <p class="section-hint" style="margin-top:4px;">Si tenés un catálogo en WhatsApp Business, pegá el link acá. Aparecerá en la galería de tu tarjeta.</p>
 
               <label class="cp-label">Email</label>
@@ -366,9 +403,10 @@ function buildPanelHTML(data) {
                   <div style="flex:1; padding-right:12px;">
                       <label class="cp-label" style="margin-bottom:2px; display:block;">Botón Compartir</label>
                       <p style="font-size:11px; opacity:0.5; margin:0; line-height:1.3;">Permití que otros compartan tu tarjeta.</p>
+                      ${!data.isPaidPremium ? '<p style="font-size:10px;color:#f59e0b;margin:2px 0 0;font-weight:700;">Disponible al suscribirte a Premium</p>' : ''}
                   </div>
                   <label class="cp-switch">
-                      <input type="checkbox" id="cp-toggle-share" ${!data.disable_share ? 'checked' : ''}>
+                      <input type="checkbox" id="cp-toggle-share" ${!data.disable_share ? 'checked' : ''} ${!data.isPaidPremium ? 'disabled' : ''}>
                       <span class="cp-slider"></span>
                   </label>
               </div>
@@ -503,12 +541,12 @@ function buildPanelHTML(data) {
         <div class="glass-card">
           <div class="form-section">
             <div class="section-label">Fotos de trabajos</div>
-            <p class="section-hint">Subí hasta ${data.isPremium ? '12' : '3'} fotos y escribí una descripción de cada una. Tus clientes las van a ver en tu tarjeta.</p>
+            <p class="section-hint">Subí hasta ${data.hasPremiumAccess ? '12' : '3'} fotos y escribí una descripción de cada una. Tus clientes las van a ver en tu tarjeta.${!data.hasPremiumAccess ? ' <span style="color:#f59e0b;font-weight:700;">Premium: hasta 12</span>' : ''}</p>
 
             <div class="gallery-upload">
               <div class="gallery-grid" id="cp-gallery-grid">
                 ${buildGalleryThumbs(data.gallery)}
-                ${data.gallery.length < getGalleryLimit(data.isPremium) ? buildAddBtn() : ''}
+                ${data.gallery.length < getGalleryLimit(data.hasPremiumAccess) ? buildAddBtn() : ''}
               </div>
               <input type="file" id="cp-gallery-input" accept="image/*" multiple style="display:none">
               <div id="cp-gallery-feedback" style="display:none;text-align:center;font-size:13px;font-weight:700;margin-top:12px;padding:12px;border-radius:16px;"></div>
@@ -548,6 +586,18 @@ function buildPanelHTML(data) {
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Beta Turnos (al final) -->
+      <div style="margin-top:24px;padding:16px;border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(139,92,246,0.12);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span class="material-symbols-outlined" style="font-size:22px;color:var(--accent-purple,#8B5CF6);">calendar_month</span>
+          <div>
+            <strong style="display:block;font-size:13px;color:var(--on-surface);">Das turnos?</strong>
+            <p style="font-size:11px;line-height:1.4;margin:0;color:var(--on-surface-variant);">Estamos validando turnos automaticos en beta privada con algunos profesionales.</p>
+          </div>
+        </div>
+        <a id="cp-beta-turnos-link" href="${betaTurnosUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;border-radius:12px;background:rgba(139,92,246,0.12);color:var(--on-surface);text-decoration:none;font-weight:800;font-size:12px;border:1px solid rgba(139,92,246,0.18);">Pedir acceso anticipado</a>
       </div>
 
     </div>
@@ -648,11 +698,37 @@ function showGalleryFeedback(container, message, type = 'warning') {
 function wirePanelEvents(container, data) {
     wirePwaInstall(container);
     wireAssistedUpgradeEvents(container, data);
+    wireTrialButton(container, data);
     wireTabs(container);
     wireDesignEvents(container);
     wireProfileEvents(container, data);
     wireGalleryEvents(container, data);
     wireCopyBtn(container, data);
+}
+
+function wireTrialButton(container, data) {
+    const btn = container.querySelector('#cp-activate-trial');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Activando...';
+        try {
+            await activateCardTrialByToken(data._id, data._token);
+            alert('Tu prueba Premium de 3 dias fue activada! Recarga para ver los cambios.');
+            window.location.reload();
+        } catch (err) {
+            const msg = err?.message || '';
+            if (msg.includes('trial_already_used')) {
+                alert('Ya utilizaste tu prueba gratuita de 3 dias.');
+            } else {
+                alert('Error al activar la prueba. Intenta de nuevo.');
+                console.error('Trial activation error:', err);
+            }
+            btn.disabled = false;
+            btn.textContent = 'Probar Premium por 3 dias gratis';
+        }
+    });
 }
 
 function wireAssistedUpgradeEvents(container, data) {
@@ -784,7 +860,7 @@ function wireProfileEvents(container, data) {
                 font_scale: parseFloat(container.querySelector('#cp-font-scale')?.value) || 1.0,
             };
 
-            if (data.isPremium) {
+            if (data.hasPremiumAccess) {
                 profilePayload.font_family = container.querySelector('#cp-font-family')?.value || 'Inter';
                 profilePayload.social_color = container.querySelector('#cp-use-official-colors')?.checked
                     ? 'official'
@@ -856,18 +932,18 @@ function wireGalleryEvents(container, data) {
     galleryInput?.addEventListener('change', async (e) => {
         const files = Array.from(e.target.files || []);
         if (!files.length) return;
-        const validation = validateGalleryUpload(data.gallery.length, data.isPremium);
+        const validation = validateGalleryUpload(data.gallery.length, data.hasPremiumAccess);
         if (!validation.allowed) {
             showGalleryFeedback(container, validation.message);
             e.target.value = '';
-            updateGalleryUI(container, data.gallery.length, data.isPremium);
+            updateGalleryUI(container, data.gallery.length, data.hasPremiumAccess);
             return;
         }
 
         const remaining = validation.remaining;
         const toProcess = files.slice(0, remaining);
         if (files.length > remaining) {
-            showGalleryFeedback(container, `Se subirán ${remaining} foto${remaining === 1 ? '' : 's'}: alcanzaste el límite de ${getGalleryLimit(data.isPremium)}.`);
+            showGalleryFeedback(container, `Se subirán ${remaining} foto${remaining === 1 ? '' : 's'}: alcanzaste el límite de ${getGalleryLimit(data.hasPremiumAccess)}.`);
         }
 
         try {
@@ -942,10 +1018,10 @@ function wireGalleryRemoveAndCaptions(container, data) {
 function rerenderGallery(container, data) {
     const grid = container.querySelector('#cp-gallery-grid');
     if (!grid) return;
-    const maxPhotos = getGalleryLimit(data.isPremium);
+    const maxPhotos = getGalleryLimit(data.hasPremiumAccess);
     grid.innerHTML = buildGalleryThumbs(data.gallery) + (data.gallery.length < maxPhotos ? buildAddBtn() : '');
     wireGalleryRemoveAndCaptions(container, data);
-    updateGalleryUI(container, data.gallery.length, data.isPremium);
+    updateGalleryUI(container, data.gallery.length, data.hasPremiumAccess);
 }
 
 function wireDesignEvents(container) {
