@@ -1,11 +1,11 @@
 import React from 'react';
 import { useProfile } from '../context/AppContext';
+import { resolveAccessPriority } from '../utils/access-resolver';
 
 const ViralFooter: React.FC = () => {
   const { profile } = useProfile();
 
-  // Si es premium, no renderizamos el componente
-  if (profile?.IsPremium) {
+  if (resolveAccessPriority(profile)) {
     return null;
   }
 

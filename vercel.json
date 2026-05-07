@@ -2,8 +2,8 @@
   "framework": "vite",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/card/:path*", "destination": "/card/index.html" },
-    { "source": "/edit/:path*", "destination": "/card/index.html" },
+    { "source": "/card/:path*", "destination": "/card-entry" },
+    { "source": "/edit/:path*", "destination": "/card-entry" },
     { "source": "/turnos/:path*", "destination": "/turnos/index.html" }
   ]
 }

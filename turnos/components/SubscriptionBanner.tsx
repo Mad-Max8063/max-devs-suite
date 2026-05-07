@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../services/supabaseClient';
+import { resolveAccessPriority } from '../utils/access-resolver';
 
 export const SubscriptionBanner: React.FC = () => {
     const { profile } = useApp();
@@ -13,8 +14,10 @@ export const SubscriptionBanner: React.FC = () => {
     const status = profile.subscription_status || 'none';
     const trialEndsAt = profile.trial_ends_at;
 
-    // We only show the banner if they are in trial or have no subscription
-    if (profile.IsPremium || status === 'active') return null;
+    const activeModules = profile.ActiveModules || ['card'];
+    if (!activeModules.includes('appointments')) return null;
+
+    if (resolveAccessPriority(profile)) return null;
 
     const isExpired = trialEndsAt ? new Date(trialEndsAt) < new Date() : false;
     const daysLeft = trialEndsAt 

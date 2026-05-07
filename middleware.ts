@@ -1,3 +1,4 @@
+import { next, rewrite } from '@vercel/edge';
 import { escapeHtml, fetchOgProfile, toAbsoluteUrl } from './src/lib/ogProfile.js';
 
 export const config = {
@@ -24,7 +25,16 @@ function getCardSlug(pathname: string): string | null {
 }
 
 function continueMiddleware(): Response {
-  return new Response(null, { headers: { 'x-middleware-next': '1' } });
+  return next();
+}
+
+function hasFileExtension(pathname: string): boolean {
+  return /\.[^/]+$/.test(pathname);
+}
+
+function rewriteTo(req: Request, pathname: string): Response {
+  const rewriteUrl = new URL(pathname, req.url);
+  return rewrite(rewriteUrl);
 }
 
 function buildOgHtml(req: Request, slug: string, profile: Awaited<ReturnType<typeof fetchOgProfile>>): string {
@@ -100,9 +110,7 @@ export default async function middleware(req: Request) {
   if (cardSlug && isSocialCrawler(req)) {
     try {
       const profile = await fetchOgProfile(cardSlug);
-      if (!profile) {
-        return continueMiddleware();
-      }
+      if (!profile) return rewriteTo(req, '/card/index.html');
 
       return new Response(buildOgHtml(req, cardSlug, profile), {
         status: 200,
@@ -113,8 +121,22 @@ export default async function middleware(req: Request) {
       });
     } catch (error) {
       console.error('[OG Middleware] Error critico de resolucion:', error);
-      return continueMiddleware();
+      return rewriteTo(req, '/card/index.html');
     }
+  }
+
+  // Serve SPA entry points directly from middleware. Production was falling
+  // through to 404.html for /card/:slug, whose client script redirects to /.
+  if ((pathname === '/card' || pathname.startsWith('/card/')) && !hasFileExtension(pathname)) {
+    return rewriteTo(req, '/card/index.html');
+  }
+
+  if ((pathname === '/edit' || pathname.startsWith('/edit/')) && !hasFileExtension(pathname)) {
+    return rewriteTo(req, '/card/index.html');
+  }
+
+  if ((pathname === '/turnos' || pathname.startsWith('/turnos/')) && !hasFileExtension(pathname)) {
+    return rewriteTo(req, '/turnos/index.html');
   }
 
   // 1. Evitar bucles infinitos y servir assets directos
@@ -161,11 +183,5 @@ export default async function middleware(req: Request) {
     }
   }
 
-  const rewriteUrl = new URL(targetPath, req.url);
-
-  return new Response(null, {
-    headers: {
-      'x-middleware-rewrite': rewriteUrl.toString(),
-    },
-  });
+  return rewriteTo(req, targetPath);
 }

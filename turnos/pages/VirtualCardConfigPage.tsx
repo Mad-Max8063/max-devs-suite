@@ -11,8 +11,11 @@ import SocialIconsBar from '../components/SocialIconsBar';
 import { resizeImage } from '../../shared/imageUtils';
 import { downloadVCard } from '../../shared/vcard';
 import { useDebounceSave } from '../hooks/useDebounceSave';
+import { resolveAccessPriority } from '../utils/access-resolver';
+import { supabase } from '../services/supabaseClient';
 
-const MAX_GALLERY_IMAGES = 3;
+const FREE_GALLERY_LIMIT = 3;
+const PREMIUM_GALLERY_LIMIT = 12;
 
 type GalleryItem = { image_url: string; caption?: string };
 
@@ -55,15 +58,18 @@ const VirtualCardConfigPage: React.FC = () => {
   const navigate = useNavigate();
   const { slug: urlSlug } = useParams<{ slug: string }>();
   const { slug: contextSlug, setSlug } = useApp();
-  const { profile, loading, updateProfile } = useProfile();
+  const { profile, loading, updateProfile, refresh } = useProfile();
 
   const slug = urlSlug || contextSlug || 'demo';
-  const isPremium = profile?.IsPremium;
+  const isPremium = resolveAccessPriority(profile);
+  const isPaidPremium = profile?.IsPremium || profile?.subscription_status === 'active';
+  const maxGallery = isPremium ? PREMIUM_GALLERY_LIMIT : FREE_GALLERY_LIMIT;
   const [draftProfile, setDraftProfile] = useState<DraftProfile>(emptyDraft);
   const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [activatingTrial, setActivatingTrial] = useState(false);
 
   useEffect(() => {
     if (urlSlug && urlSlug !== contextSlug) {
@@ -120,6 +126,30 @@ const VirtualCardConfigPage: React.FC = () => {
     } catch (error) {
       logger.error('Error saving virtual card profile', error);
       alert('Error guardando los cambios');
+    }
+  };
+
+  const handleActivateCardTrial = async () => {
+    if (!profile?.id) return;
+    setActivatingTrial(true);
+    try {
+      const { error } = await supabase.rpc('activate_card_premium_trial', {
+        p_business_id: profile.id,
+      });
+      if (error) {
+        if (error.message.includes('trial_already_used')) {
+          alert('Ya utilizaste tu prueba gratuita de 3 dias.');
+        } else {
+          throw error;
+        }
+      } else {
+        alert('Tu prueba Premium de 3 dias fue activada!');
+        await refresh();
+      }
+    } catch {
+      alert('Error al activar la prueba. Intenta de nuevo.');
+    } finally {
+      setActivatingTrial(false);
     }
   };
 
@@ -208,7 +238,17 @@ const VirtualCardConfigPage: React.FC = () => {
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 p-4 text-center">
                   <span className="material-symbols-outlined text-yellow-300 text-4xl mb-2">lock</span>
                   <p className="text-white font-bold text-sm">Desbloquea tu portada</p>
-                  <p className="text-white/80 text-xs">Pasate a Premium y saca nuestra publicidad</p>
+                  {!profile?.card_trial_used ? (
+                    <button
+                      onClick={handleActivateCardTrial}
+                      disabled={activatingTrial || slug === 'demo'}
+                      className="mt-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary/80 transition-colors disabled:opacity-50"
+                    >
+                      {activatingTrial ? 'Activando...' : 'Probar Premium por 3 dias'}
+                    </button>
+                  ) : (
+                    <p className="text-white/80 text-xs">Pasate a Premium y saca nuestra publicidad</p>
+                  )}
                 </div>
               )}
               <label className={`absolute bottom-3 right-3 rounded-full bg-black/55 p-2 text-white backdrop-blur-sm transition-colors ${!isPremium ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-black/75'}`}>
@@ -260,27 +300,58 @@ const VirtualCardConfigPage: React.FC = () => {
               <textarea value={draftProfile.whatsapp_message || ''} onChange={(event) => updateDraft('whatsapp_message', event.target.value)} placeholder="Hola! Vi tu tarjeta y me gustaría hacer una consulta." rows={3} maxLength={240} className="suito-input resize-none" />
             </Field>
             <Field label="Catálogo de WhatsApp Business">
-              <input
-                value={draftProfile.whatsapp_catalog_url || ''}
-                onChange={(event) => updateDraft('whatsapp_catalog_url', event.target.value)}
-                placeholder="https://wa.me/c/..."
-                className="suito-input"
-                type="url"
-              />
+              <div className="relative">
+                <input
+                  value={draftProfile.whatsapp_catalog_url || ''}
+                  onChange={(event) => updateDraft('whatsapp_catalog_url', event.target.value)}
+                  placeholder="https://wa.me/c/..."
+                  className={`suito-input ${!isPremium ? 'opacity-50' : ''}`}
+                  type="url"
+                  disabled={!isPremium}
+                />
+                {!isPremium && (
+                  <div className="absolute inset-y-0 right-3 flex items-center">
+                    <span className="material-symbols-outlined text-yellow-400 text-[16px]">lock</span>
+                    <span className="ml-1 text-[10px] font-bold text-yellow-400">Premium</span>
+                  </div>
+                )}
+              </div>
               <p className="ml-1 mt-1 text-[11px] text-on-surface-variant">
                 Si lo configurás, un clic en cualquier foto de tu galería abrirá tu catálogo de WhatsApp.
               </p>
             </Field>
+            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant">share</span>
+                  <p className="text-sm font-medium text-on-surface">Permitir compartir tarjeta</p>
+                </div>
+                {!isPaidPremium && (
+                  <p className="text-[10px] text-yellow-400 mt-0.5 ml-6">Disponible al suscribirte a Premium</p>
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={!isPaidPremium}
+                onClick={() => updateProfile({ disable_share: !profile?.disable_share })}
+                className={`relative w-11 h-6 rounded-full transition-colors ${!isPaidPremium ? 'bg-gray-600 opacity-50 cursor-not-allowed' : profile?.disable_share ? 'bg-gray-500' : 'bg-primary'}`}
+              >
+                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${profile?.disable_share ? 'translate-x-0.5' : 'translate-x-5'}`} />
+              </button>
+            </div>
           </div>
 
           <div className="glass-card rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <SectionTitle icon="collections" title="Galería de trabajos" />
-              <span className="rounded-md bg-white/10 px-2 py-1 text-xs font-bold text-on-surface-variant">{gallery.length} / {MAX_GALLERY_IMAGES}</span>
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-white/10 px-2 py-1 text-xs font-bold text-on-surface-variant">{gallery.length} / {maxGallery}</span>
+                {!isPremium && <span className="text-[10px] text-yellow-400 font-bold">Premium: hasta {PREMIUM_GALLERY_LIMIT}</span>}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {Array.from({ length: MAX_GALLERY_IMAGES }).map((_, index) => {
+              {Array.from({ length: maxGallery }).map((_, index) => {
                 const item = gallery[index];
                 return (
                   <div key={index} className="flex flex-col gap-2">
@@ -377,7 +448,7 @@ const VirtualCardConfigPage: React.FC = () => {
               </button>
               {gallery.length > 0 && (
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  {gallery.filter((item) => item.image_url).slice(0, MAX_GALLERY_IMAGES).map((item, index) => (
+                  {gallery.filter((item) => item.image_url).slice(0, maxGallery).map((item, index) => (
                     <button key={`${item.image_url}-${index}`} type="button" onClick={() => setLightboxIndex(index)} className="relative aspect-square overflow-hidden rounded-xl bg-surface-2">
                       <img src={item.image_url} alt={item.caption || `Trabajo ${index + 1}`} className="h-full w-full object-cover" />
                     </button>

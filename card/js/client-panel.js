@@ -15,6 +15,12 @@ import {
     updateBusinessProfileSecure,
 } from './supabase-v2030.js';
 import { injectSubscriptionBanner } from '../../shared/SubscriptionBanner.js';
+import {
+    ASSISTED_UPGRADE_MESSAGE,
+    BETA_TURNOS_MESSAGE,
+    buildAssistedUpgradeWhatsAppUrl,
+    trackSuitoEvent,
+} from '../../shared/assisted-upgrade.js';
 
 const STYLE_PRESETS = [
     { key: 'caps',   label: 'Nombre en Mayúsculas', icon: 'fa-solid fa-font',               css: '.card-name { text-transform: uppercase !important; letter-spacing: 1px; }' },
@@ -171,6 +177,9 @@ export function renderClientPanel(container, card) {
 // ——— HTML ———
 
 function buildPanelHTML(data) {
+    const assistedUrl = buildAssistedUpgradeWhatsAppUrl(ASSISTED_UPGRADE_MESSAGE);
+    const betaTurnosUrl = buildAssistedUpgradeWhatsAppUrl(BETA_TURNOS_MESSAGE);
+
     return `
     <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
 
@@ -186,6 +195,26 @@ function buildPanelHTML(data) {
           </div>
           <h1 style="color: #fff; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; text-shadow: 0 2px 12px rgba(0,0,0,0.15);">Tu Panel de Control</h1>
           <p style="color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 500; margin: 0;">Personalizá tu presencia digital</p>
+        </div>
+      </div>
+
+      <div class="glass-card suito-assisted-upgrade-card" style="margin-bottom:20px;padding:18px;border-radius:24px;border:1px solid rgba(139,92,246,0.22);background:linear-gradient(135deg,rgba(139,92,246,0.14),rgba(16,185,129,0.08));box-shadow:0 18px 44px rgba(15,23,42,0.1);">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:42px;height:42px;border-radius:14px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 24px rgba(37,211,102,0.28);">
+            <i class="fa-brands fa-whatsapp" style="font-size:22px;"></i>
+          </div>
+          <div style="min-width:0;flex:1;">
+            <h2 style="font-size:18px;line-height:1.15;margin:0 0 6px;color:var(--on-surface);">Queres mejorar tu tarjeta?</h2>
+            <p style="font-size:13px;line-height:1.45;margin:0;color:var(--on-surface-variant);">Te ayudamos a dejarla mas clara, mas profesional y lista para compartir.</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px;">
+          <a id="cp-assisted-upgrade-link" href="${assistedUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:14px;background:#25D366;color:#fff;text-decoration:none;font-weight:900;font-size:13px;box-shadow:0 10px 24px rgba(37,211,102,0.24);">Hablar por WhatsApp</a>
+          <div style="padding:14px;border-radius:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(139,92,246,0.16);">
+            <strong style="display:block;font-size:14px;margin-bottom:4px;color:var(--on-surface);">Das turnos?</strong>
+            <p style="font-size:12px;line-height:1.4;margin:0 0 10px;color:var(--on-surface-variant);">Estamos validando turnos automaticos en beta privada con algunos profesionales.</p>
+            <a id="cp-beta-turnos-link" href="${betaTurnosUrl}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;border-radius:12px;background:rgba(139,92,246,0.16);color:var(--on-surface);text-decoration:none;font-weight:900;font-size:12px;border:1px solid rgba(139,92,246,0.22);">Pedir acceso anticipado</a>
+          </div>
         </div>
       </div>
 
@@ -618,11 +647,24 @@ function showGalleryFeedback(container, message, type = 'warning') {
 
 function wirePanelEvents(container, data) {
     wirePwaInstall(container);
+    wireAssistedUpgradeEvents(container, data);
     wireTabs(container);
     wireDesignEvents(container);
     wireProfileEvents(container, data);
     wireGalleryEvents(container, data);
     wireCopyBtn(container, data);
+}
+
+function wireAssistedUpgradeEvents(container, data) {
+    container.querySelector('#cp-assisted-upgrade-link')?.addEventListener('click', () => {
+        trackSuitoEvent('upgrade_assisted_clicked', { surface: 'client_panel', business_id: data._id || '' });
+        trackSuitoEvent('whatsapp_upgrade_opened', { surface: 'client_panel', business_id: data._id || '' });
+    });
+
+    container.querySelector('#cp-beta-turnos-link')?.addEventListener('click', () => {
+        trackSuitoEvent('beta_turnos_interest_clicked', { surface: 'client_panel', business_id: data._id || '' });
+        trackSuitoEvent('whatsapp_upgrade_opened', { surface: 'client_panel', business_id: data._id || '' });
+    });
 }
 
 function wirePwaInstall(container) {

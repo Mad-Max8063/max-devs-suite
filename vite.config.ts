@@ -36,6 +36,7 @@ export default defineConfig(({ command }) => ({
         dashboard: resolve(__dirname, 'admin/dashboard-v2030.html'),
         // Tarjeta Virtual (Vanilla JS)
         card:   resolve(__dirname, 'card/index.html'),
+        cardRoot: resolve(__dirname, 'card-entry.html'),
         // Gestor de Turnos (React + TypeScript)
         turnos: resolve(__dirname, 'turnos/index.html'),
       },

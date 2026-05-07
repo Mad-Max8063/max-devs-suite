@@ -367,6 +367,78 @@ body {
     gap: 24px;
 }
 
+.assisted-upgrade-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.assisted-upgrade-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 18px;
+    border: 1px solid rgba(139, 92, 246, 0.22);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(16, 185, 129, 0.08));
+    box-shadow: var(--shadow-sm);
+}
+
+.assisted-upgrade-card.secondary {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(253, 224, 115, 0.08));
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.assisted-upgrade-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 22px;
+}
+
+.assisted-upgrade-icon.whatsapp { background: #25D366; }
+.assisted-upgrade-icon.calendar { background: var(--accent-green); }
+
+.assisted-upgrade-copy strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.assisted-upgrade-copy p {
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.assisted-upgrade-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: var(--radius-sm);
+    background: #25D366;
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.assisted-upgrade-btn.ghost {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
 .dashboard-panel {
     background: var(--bg-surface);
     border: 1px solid var(--border);
@@ -1304,6 +1376,7 @@ body {
 /* ——— Responsive ——— */
 @media (max-width: 1024px) {
     .dashboard-grid { grid-template-columns: 1fr; }
+    .assisted-upgrade-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
@@ -1331,6 +1404,13 @@ body {
     .pricing-cards { grid-template-columns: 1fr; }
     .products-grid { grid-template-columns: 1fr; }
     .header-actions { display: none; }
+    .assisted-upgrade-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+    .assisted-upgrade-btn {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {

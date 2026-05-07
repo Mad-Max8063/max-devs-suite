@@ -14,6 +14,13 @@ const CONFIG = {
 import { supabase } from '@shared/supabase.js';
 import { getClients, addClient, updateClient, updateClientBenefits, deleteClient, getClientStats, initImageUploads } from './clients.js';
 import { getPricing, updatePricing, applyInflation } from './pricing.js';
+import {
+    ASSISTED_UPGRADE_MESSAGE,
+    BETA_TURNOS_MESSAGE,
+    buildAssistedUpgradeWhatsAppUrl,
+    buildWhatsAppUrl as buildSharedWhatsAppUrl,
+    trackSuitoEvent,
+} from '@shared/assisted-upgrade.js';
 
 // ——— State ———
 let currentSection = 'dashboard';
@@ -60,14 +67,7 @@ function normalizeWhatsAppNumber(value) {
 }
 
 function buildWhatsAppUrl(phone, text = '') {
-    const normalizedPhone = normalizeWhatsAppNumber(phone);
-    if (!normalizedPhone) return '';
-
-    const url = new URL(`https://wa.me/${normalizedPhone}`);
-    if (text) {
-        url.searchParams.set('text', text);
-    }
-    return url.toString();
+    return buildSharedWhatsAppUrl(phone, text, { requirePhone: true });
 }
 
 // ——— Init ———
@@ -137,9 +137,53 @@ async function switchSection(section) {
 // ——— Dashboard ———
 async function renderDashboard() {
     renderSubscriptionBanner();
+    renderAssistedUpgradeCta();
     await renderStats();
     renderPricingQuick();
     await renderRecentClients();
+}
+
+function renderAssistedUpgradeCta() {
+    const container = document.getElementById('assisted-upgrade-container');
+    if (!container) return;
+
+    const assistedUrl = buildAssistedUpgradeWhatsAppUrl(ASSISTED_UPGRADE_MESSAGE);
+    const betaTurnosUrl = buildAssistedUpgradeWhatsAppUrl(BETA_TURNOS_MESSAGE);
+
+    container.innerHTML = `
+        <div class="assisted-upgrade-grid">
+            <div class="assisted-upgrade-card">
+                <div class="assisted-upgrade-icon whatsapp"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="assisted-upgrade-copy">
+                    <strong>Queres mejorar tu tarjeta?</strong>
+                    <p>Te ayudamos a dejarla mas clara, mas profesional y lista para compartir.</p>
+                </div>
+                <a href="${assistedUrl}" target="_blank" rel="noopener" class="assisted-upgrade-btn" data-assisted-upgrade="card">
+                    Hablar por WhatsApp
+                </a>
+            </div>
+            <div class="assisted-upgrade-card secondary">
+                <div class="assisted-upgrade-icon calendar"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="assisted-upgrade-copy">
+                    <strong>Das turnos?</strong>
+                    <p>Estamos validando turnos automaticos en beta privada con algunos profesionales.</p>
+                </div>
+                <a href="${betaTurnosUrl}" target="_blank" rel="noopener" class="assisted-upgrade-btn ghost" data-assisted-upgrade="turnos">
+                    Pedir acceso anticipado
+                </a>
+            </div>
+        </div>
+    `;
+
+    container.querySelector('[data-assisted-upgrade="card"]')?.addEventListener('click', () => {
+        trackSuitoEvent('upgrade_assisted_clicked', { surface: 'admin_dashboard', business_id: userBusiness?.id || '' });
+        trackSuitoEvent('whatsapp_upgrade_opened', { surface: 'admin_dashboard', business_id: userBusiness?.id || '' });
+    });
+
+    container.querySelector('[data-assisted-upgrade="turnos"]')?.addEventListener('click', () => {
+        trackSuitoEvent('beta_turnos_interest_clicked', { surface: 'admin_dashboard', business_id: userBusiness?.id || '' });
+        trackSuitoEvent('whatsapp_upgrade_opened', { surface: 'admin_dashboard', business_id: userBusiness?.id || '' });
+    });
 }
 
 async function renderStats() {

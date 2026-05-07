@@ -44,6 +44,8 @@ export interface Profile {
     price_lock_ends_at?: string;
     free_until?: string;
     force_watermark?: boolean;
+    card_trial_used?: boolean;
+    disable_share?: boolean;
 }
 
 export interface Appointment {
@@ -167,7 +169,7 @@ export async function getProfile(slug: string): Promise<Profile | null> {
             is_premium, profession, description, location, facebook, 
             instagram, website, whatsapp_message, whatsapp_catalog_url, cover_url, gallery_images, 
             active_modules, subscription_status, trial_ends_at, locked_price, 
-            price_lock_ends_at, free_until, force_watermark
+            price_lock_ends_at, free_until, force_watermark, card_trial_used, disable_share
         `)
         .eq('slug', slug)
         .single();
@@ -206,7 +208,10 @@ export async function getProfile(slug: string): Promise<Profile | null> {
         trial_ends_at: data.trial_ends_at,
         locked_price: data.locked_price,
         price_lock_ends_at: data.price_lock_ends_at,
+        free_until: data.free_until,
         force_watermark: data.force_watermark || false,
+        card_trial_used: data.card_trial_used || false,
+        disable_share: data.disable_share || false,
     };
 }
 
@@ -238,6 +243,7 @@ export async function saveProfile(profile: Profile): Promise<{ slug: string }> {
             cover_url: profile.CoverURL || '',
             gallery_images: profile.GalleryImages || [],
             active_modules: profile.ActiveModules || ['card'],
+            disable_share: profile.disable_share || false,
             updated_at: new Date().toISOString(),
         })
         .eq('slug', profile.Slug);

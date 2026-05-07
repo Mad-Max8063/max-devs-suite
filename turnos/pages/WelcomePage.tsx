@@ -133,7 +133,7 @@ const WelcomePage: React.FC = () => {
 
   const hasAccess = resolveAccessPriority(profile);
   const isExpired = profile?.trial_ends_at ? new Date(profile.trial_ends_at) < new Date() : false;
-  const isHardLocked = !hasAccess && isExpired;
+  const isHardLocked = !hasAccess && isExpired && hasAppointments;
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-on-surface font-sans relative overflow-hidden">

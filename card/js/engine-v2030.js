@@ -708,6 +708,7 @@ function attachCardEvents(container, data) {
 }
 
 function injectDynamicManifest(data) {
+    const photoUrl = data.photo || data.photo_url || '/card/assets/icon-512.png';
     const manifest = {
         name: data.nombre_negocio || data.name || 'Tarjeta Digital',
         short_name: (data.nombre_negocio || data.name || 'Tarjeta').slice(0, 12),
@@ -717,13 +718,32 @@ function injectDynamicManifest(data) {
         background_color: '#121212',
         theme_color: data.primary_color || data.color_primario || '#7c3aed',
         icons: [
-            { src: '/card/assets/icon-192.png', sizes: '192x192', type: 'image/png' },
-            { src: '/card/assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+            { src: photoUrl, sizes: '192x192' },
+            { src: photoUrl, sizes: '512x512', purpose: 'any maskable' }
         ]
     };
     const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
     const link = document.querySelector('link[rel="manifest"]');
     if (link) link.href = URL.createObjectURL(blob);
+
+    // Update apple-touch-icon for iOS Add to Home Screen
+    let appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]');
+    if (!appleTouchIcon) {
+        appleTouchIcon = document.createElement('link');
+        appleTouchIcon.rel = 'apple-touch-icon';
+        document.head.appendChild(appleTouchIcon);
+    }
+    appleTouchIcon.href = photoUrl;
+
+    // Update regular favicon
+    let icon = document.querySelector('link[rel="icon"][type="image/png"]');
+    if (!icon) {
+        icon = document.createElement('link');
+        icon.rel = 'icon';
+        icon.type = 'image/png';
+        document.head.appendChild(icon);
+    }
+    icon.href = photoUrl;
 }
 
 let _deferredInstallPrompt = null;

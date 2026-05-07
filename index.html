@@ -243,11 +243,9 @@
                 <div style="flex:1;border-radius:12px;background:rgba(244,239,230,0.03);border:1px solid rgba(244,239,230,0.06);"></div>
                 <div style="padding:10px;border-radius:10px;background:linear-gradient(180deg, var(--gold-400), var(--gold-500));color:var(--ink-950);font-size:11px;text-align:center;font-weight:500;">Reservar</div>
               </div>
-            </div>
+            </div>      </div>
           </div>
         </div>
-
-        <!-- Features 2 y 3 removidos para el lanzamiento -->
       </div>
     </div>
   </section>
@@ -371,7 +369,7 @@
               </li>
               <li style="display:flex;gap:10px;font-size:14px;">
                 <svg width="16" height="16" viewBox="0 0 16 16" style="flex-shrink:0;margin-top:3px;color:var(--gold-500);"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Soporte directo por WhatsApp
+                Asistencia comercial por WhatsApp
               </li>
 
             </ul>
@@ -383,8 +381,80 @@
       </div>
 
       <p style="text-align:center;margin-top:40px;font-size:13px;color:var(--fg-mute);">
+        Turnos automaticos en beta privada para usuarios seleccionados.<br>
         Sin tarjetas de crédito para iniciar. Cambios de plan en cualquier momento.
       </p>
+    </div>
+  </section>
+
+  <!-- GESTOR DE TURNOS -->
+  <section style="padding:0 0 120px 0;">
+    <div class="wrap">
+      <div class="reveal" data-delay="100">
+        <div class="glass feature-row feature-card" style="position:relative; overflow:hidden;">
+          <div style="padding:48px;display:flex;flex-direction:column;gap:20px;">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <span class="eyebrow">TURNOS & AGENDA</span>
+              <span style="padding:4px 10px;border-radius:999px;background:var(--mint-500);color:var(--ink-950);font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;font-weight:700;">BETA PRIVADA</span>
+            </div>
+            <h3 class="display" style="font-size:clamp(28px, 3vw, 40px);margin:0;">Gestor de Turnos Inteligente.</h3>
+            <p style="color:var(--fg-dim);font-size:16px;line-height:1.6;margin:0;max-width:440px;">Actualmente en fase de pruebas con usuarios seleccionados. Muy pronto será parte integral de <strong>La Suite</strong>, permitiendo gestionar reservas directamente desde tu tarjeta sin plataformas de terceros.</p>
+            <ul style="display:flex;flex-direction:column;gap:10px; opacity: 0.8;">
+              <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
+                <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
+                Reservas automáticas integradas en tu link.
+              </li>
+              <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
+                <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
+                Panel de administración de disponibilidad en tiempo real.
+              </li>
+              <li style="display:flex;align-items:center;gap:10px;font-size:14px;">
+                <span style="width:16px;height:16px;border-radius:99px;border:1px solid var(--gold-500);display:inline-flex;align-items:center;justify-content:center;"><span style="width:5px;height:5px;border-radius:99px;background:var(--gold-500);"></span></span>
+                Sincronización instantánea de estados de pagos.
+              </li>
+            </ul>
+            
+            <div style="margin-top: 16px;">
+              <button class="btn btn-ghost" onclick="startOnboarding('gestor')" style="border-color:var(--gold-500); color:var(--gold-500);">Solicitar acceso beta</button>
+            </div>
+          </div>
+          <div class="feature-visual" style="position:relative;background:radial-gradient(circle at 30% 70%, rgba(201,166,107,0.1), transparent 60%);border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:40px;">
+            <div style="width:280px;border-radius:20px;background:linear-gradient(180deg, #15171f, #0b0d13);box-shadow:var(--shadow-card);display:flex;flex-direction:column;padding:24px;gap:16px;position:relative;">
+              
+              <div style="position:absolute;inset:0;backdrop-filter:blur(2px);background:rgba(11, 13, 19, 0.4);border-radius:20px;display:flex;align-items:center;justify-content:center;z-index:10;">
+                 <div style="padding:10px 16px;background:rgba(201,166,107,0.15);border:1px solid var(--gold-500);border-radius:12px;color:var(--gold-500);font-family:var(--font-mono);font-size:12px;letter-spacing:0.1em;text-align:center;box-shadow:0 10px 20px rgba(0,0,0,0.4);">
+                   PRÓXIMAMENTE
+                 </div>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-family:var(--font-display);font-size:16px;">Agenda</div>
+                <div style="font-size:12px;color:var(--gold-500);">Octubre</div>
+              </div>
+              
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;padding:8px;border-radius:12px;background:rgba(244,239,230,0.03);border:1px solid rgba(244,239,230,0.06);text-align:center;">
+                  <div style="font-size:10px;color:var(--fg-mute);">Lun</div>
+                  <div style="font-family:var(--font-display);font-size:18px;">12</div>
+                </div>
+                <div style="flex:1;padding:8px;border-radius:12px;background:var(--gold-500);color:var(--ink-950);text-align:center;">
+                  <div style="font-size:10px;opacity:0.8;">Mar</div>
+                  <div style="font-family:var(--font-display);font-size:18px;">13</div>
+                </div>
+                <div style="flex:1;padding:8px;border-radius:12px;background:rgba(244,239,230,0.03);border:1px solid rgba(244,239,230,0.06);text-align:center;">
+                  <div style="font-size:10px;color:var(--fg-mute);">Mié</div>
+                  <div style="font-family:var(--font-display);font-size:18px;">14</div>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+                <div style="padding:12px;border-radius:10px;background:rgba(244,239,230,0.03);border:1px solid var(--gold-500);color:var(--gold-500);font-size:13px;text-align:center;">10:00 AM</div>
+                <div style="padding:12px;border-radius:10px;background:rgba(244,239,230,0.03);border:1px solid rgba(244,239,230,0.06);color:var(--fg-dim);font-size:13px;text-align:center;">11:30 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -490,7 +560,7 @@
         <div style="display:flex;flex-direction:column;gap:16px;">
           <div><label class="form-label">Nombre y Apellido</label><input type="text" id="user-name" required placeholder="Ej. Elena Vasquez" class="form-input"></div>
           <div><label class="form-label">WhatsApp</label><input type="tel" id="user-phone" required placeholder="Ej. +54 9 11 1234 5678" class="form-input"></div>
-          <div><label class="form-label">Email</label><input type="email" id="user-email" required placeholder="Ej. hola@tunegocio.com" class="form-input"><span class="mono" style="font-size:10px;color:var(--fg-mute);margin-top:4px;display:block;">Lo usaremos para enviarte tus credenciales de acceso.</span></div>
+          <div><label class="form-label">Email verificable</label><input type="email" id="user-email" required placeholder="Ej. hola@tunegocio.com" class="form-input"><span class="mono" style="font-size:10px;color:var(--fg-mute);margin-top:4px;display:block;">Te enviamos ahi el acceso privado al editor. No lo mostramos en pantalla.</span></div>
           <div><label class="form-label">Nombre del Negocio</label><input type="text" id="biz-name" placeholder="Ej. Studio Vasquez" class="form-input"></div>
           <div><label class="form-label">Profesión / Rubro</label><input type="text" id="user-occupation" placeholder="Ej. Estilista, Barbero, Psicóloga" class="form-input"></div>
         </div>
@@ -525,7 +595,7 @@
 
 
       <div style="text-align:center;padding-top:16px;">
-        <p id="onboarding-footer-text" style="font-size:13px;color:var(--fg-mute);margin-bottom:20px;">Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.</p>
+        <p id="onboarding-footer-text" style="font-size:13px;color:var(--fg-mute);margin-bottom:20px;">Completá tus datos y te guiamos para activar tu tarjeta.</p>
         <button type="submit" id="submit-btn" class="btn btn-gold" style="width:100%;justify-content:center;padding:18px;font-size:16px;font-weight:600;">
           Enviar Solicitud →
         </button>
@@ -672,8 +742,8 @@ window.startOnboarding = function(serviceType) {
 
   if (footerText) {
     footerText.textContent = (isGestor)
-      ? 'Postulate a la beta privada. Si tu caso encaja, te habilitamos el gestor manualmente para validar el flujo.'
-      : 'Revisamos tu solicitud y te contactamos en menos de 24 horas para activar tu cuenta.';
+      ? 'Turnos queda como beta privada y acceso anticipado para casos seleccionados.'
+      : 'Completá tus datos y te guiamos para activar tu tarjeta.';
   }
 
   showView('onboarding');

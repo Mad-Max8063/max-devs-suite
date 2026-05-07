@@ -1,18 +1,15 @@
 // ==========================================
-// Landing — Lógica de Onboarding Suito
+// Landing - Logica de Onboarding Suito
 // ==========================================
 import { supabase } from '../shared/supabase.js';
 
-// ——— DOM refs ———
 const landingView    = document.getElementById('landing-view');
 const onboardingView = document.getElementById('onboarding-view');
 const successView    = document.getElementById('success-view');
 const form           = document.getElementById('onboarding-form');
-const sectionTarjeta = document.getElementById('section-tarjeta');
-const sectionGestor  = document.getElementById('section-gestor');
 const inputService   = document.getElementById('selected-service');
+const AUTO_ONBOARD_ENABLED = import.meta.env.VITE_AUTO_ONBOARD_ENABLED === 'true';
 
-// ——— URL params (viral referral links) ———
 document.addEventListener('DOMContentLoaded', () => {
     const params  = new URLSearchParams(window.location.search);
     const service = params.get('service');
@@ -28,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     import('./pricing-loader.js?v=2.1').then(m => m.initDynamicPricing());
 });
 
-// ——— Navigation helpers ———
 function showOnly(view) {
     [landingView, onboardingView, successView].forEach(v => {
         if (!v) return;
@@ -40,15 +36,14 @@ function showOnly(view) {
     }
 }
 
-// Las funciones startOnboarding y goBackToLanding ahora están inline en el HTML
-// para prevenir ReferenceError si el módulo tarda en cargar.
-
-// Fallback global para contacto por Email
 window.goEmailFallback = function() {
-    window.location.href = 'mailto:hola@suito.pro?subject=Soporte%20Onboarding%20Suito&body=Hola!%20Tengo%20problemas%20con%20el%20formulario...';
+    const name = document.getElementById('user-name')?.value || '';
+    const plan = document.getElementById('selected-service')?.value || '';
+    const subject = encodeURIComponent('Error en Registro - Suito');
+    const body = encodeURIComponent(`Hola! Intente registrarme en la web pero tuve un error. Mis datos:\n- Nombre: ${name}\n- Plan: ${plan}`);
+    window.location.href = `mailto:hola@suito.pro?subject=${subject}&body=${body}`;
 };
 
-// ——— UI Helpers ———
 function showError(msg) {
     const form = document.getElementById('onboarding-form');
     if (!form) return;
@@ -58,11 +53,10 @@ function showError(msg) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'onboarding-error';
         errorDiv.className = 'error-feedback-box';
-        // Insertar antes del botón de submit
         const submitWrap = document.querySelector('.submit-wrap') || form.lastElementChild;
         form.insertBefore(errorDiv, submitWrap);
     }
-    
+
     errorDiv.innerHTML = `
         <div class="error-content">
             <i class="fa-solid fa-circle-exclamation"></i>
@@ -81,15 +75,53 @@ function clearError() {
     if (errorDiv) errorDiv.style.display = 'none';
 }
 
-window.goEmailFallback = function() {
-    const name = document.getElementById('user-name')?.value || '';
-    const plan = document.getElementById('selected-service')?.value || '';
-    const subject = encodeURIComponent('Error en Registro - Suito');
-    const body = encodeURIComponent(`Hola! Intenté registrarme en la web pero tuve un error. Mis datos:\n- Nombre: ${name}\n- Plan: ${plan}`);
-    window.location.href = `mailto:hola@suito.pro?subject=${subject}&body=${body}`;
-};
+function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = String(value || '');
+    return div.innerHTML;
+}
 
-// ——— Form submit ———
+function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+}
+
+function renderAutoOnboardingSuccess(result, service) {
+    const successTitle = document.getElementById('success-title');
+    const successMsg = document.getElementById('success-message');
+    const betaRequested = result.beta_turnos_requested || service === 'TURNOS' || service === 'COMBO';
+
+    if (successTitle) successTitle.textContent = 'Tu tarjeta ya esta activa';
+    if (!successMsg) return;
+
+    successMsg.innerHTML = `
+      <span style="display:block;margin-bottom:18px;">
+        Bienvenido/a a Suito. Tu tarjeta ya esta creada.
+        Te mandamos el acceso privado al editor por email para confirmar que esa casilla es tuya.
+      </span>
+      <span style="display:grid;gap:10px;margin:18px 0;">
+        <a href="${escapeHtml(result.card_url)}" target="_blank" rel="noopener" class="btn btn-gold" style="justify-content:center;">Ver mi tarjeta</a>
+        <a href="${escapeHtml(result.whatsapp_url)}" target="_blank" rel="noopener" class="btn btn-ghost" style="justify-content:center;">Abrir instrucciones en WhatsApp</a>
+      </span>
+      <span style="display:block;color:var(--fg-dim);font-size:14px;line-height:1.55;">
+        Revisa tu email para abrir el editor privado. Ahi podes completar tu descripcion, cargar foto y portada, revisar tu mensaje de WhatsApp y dejarla lista para compartir.
+        ${betaRequested ? '<br><br>Tambien recibimos tu interes por la beta privada de turnos. No queda activada para todos automaticamente: te contactamos si tu caso encaja con la validacion actual.' : ''}
+      </span>
+    `;
+}
+
+function renderPendingLeadSuccess(service) {
+    const successTitle = document.getElementById('success-title');
+    const successMsg = document.getElementById('success-message');
+    const betaRequested = service === 'TURNOS' || service === 'COMBO';
+
+    if (successTitle) successTitle.textContent = betaRequested ? 'Postulacion recibida' : 'Solicitud recibida';
+    if (!successMsg) return;
+
+    successMsg.innerHTML = betaRequested
+        ? 'Gracias por postularte a la beta privada. Revisamos tu caso y, si encaja con la validacion actual, te contactamos para avanzar.'
+        : 'Recibimos tus datos. Te contactaremos para activar tu cuenta.';
+}
+
 if (form) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -97,7 +129,7 @@ if (form) {
 
         const submitBtn = document.getElementById('submit-btn');
         if (submitBtn) {
-            submitBtn.textContent = 'Enviando... ⏳';
+            submitBtn.textContent = 'Creando tu tarjeta...';
             submitBtn.disabled = true;
         }
 
@@ -105,135 +137,129 @@ if (form) {
             const rawService = inputService.value.toUpperCase();
             const service = rawService === 'GESTOR' ? 'TURNOS' : rawService;
             const rawName = document.getElementById('user-name').value;
-            const phone   = document.getElementById('user-phone').value.trim();
-            const email   = document.getElementById('user-email').value.trim();
-            const origin  = window.localStorage.getItem('lead_ref') || 'Tráfico Orgánico';
-
-            // Sanitización de nombre (eliminar espacios múltiples)
+            const phone = document.getElementById('user-phone').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const origin = window.localStorage.getItem('lead_ref') || 'Trafico Organico';
             const name = rawName.trim().replace(/\s+/g, ' ');
 
-            // Validaciones básicas
             if (!name || name.length < 3) {
                 showError('Por favor, ingresa tu nombre completo.');
                 return;
             }
             if (!phone || phone.replace(/\D/g, '').length < 8) {
-                showError('Por favor, ingresa un número de WhatsApp válido (mínimo 8 dígitos).');
+                showError('Por favor, ingresa un numero de WhatsApp valido (minimo 8 digitos).');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                showError('Necesitamos un email valido para enviarte el acceso privado al editor.');
                 return;
             }
 
             const bname = document.getElementById('biz-name')?.value.trim() || '';
             const occupation = document.getElementById('user-occupation')?.value.trim() || '';
 
-            // ——— Subida de imágenes ———
             let profileUrl = '';
-            let coverUrl   = '';
-            const BUCKET = 'images'; 
+            let coverUrl = '';
+            const BUCKET = 'images';
 
             const profileFile = document.getElementById('img-profile')?.files[0];
             if (profileFile) {
-                const ext      = profileFile.name.split('.').pop();
+                const ext = profileFile.name.split('.').pop();
                 const fileName = `leads/profile_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
                 const { error: uploadError } = await supabase.storage.from(BUCKET).upload(fileName, profileFile);
                 if (!uploadError) {
                     profileUrl = supabase.storage.from(BUCKET).getPublicUrl(fileName).data.publicUrl;
                 } else {
-                    console.error('[Landing] Error upload perfil:', {
-                        code: uploadError.code,
-                        message: uploadError.message,
-                        details: uploadError.details
-                    });
+                    console.error('[Landing] Error upload perfil:', uploadError);
                 }
             }
 
             const coverFile = document.getElementById('img-cover')?.files[0];
             if (coverFile) {
-                const ext      = coverFile.name.split('.').pop();
+                const ext = coverFile.name.split('.').pop();
                 const fileName = `leads/cover_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
                 const { error: uploadError } = await supabase.storage.from(BUCKET).upload(fileName, coverFile);
                 if (!uploadError) {
                     coverUrl = supabase.storage.from(BUCKET).getPublicUrl(fileName).data.publicUrl;
                 } else {
-                    console.error('[Landing] Error upload portada:', {
-                        code: uploadError.code,
-                        message: uploadError.message,
-                        details: uploadError.details
-                    });
+                    console.error('[Landing] Error upload portada:', uploadError);
                 }
             }
 
-            // ——— Datos por servicio ———
             let ig = '', address = '', bdep = '', bserv = '';
-
             if (service === 'TARJETA' || service === 'COMBO') {
-                ig      = document.getElementById('card-ig')?.value.trim() || '';
+                ig = document.getElementById('card-ig')?.value.trim() || '';
                 address = document.getElementById('card-address')?.value.trim() || '';
             }
-
             if (service === 'TURNOS' || service === 'COMBO') {
-                bdep  = document.getElementById('biz-deposit')?.value?.trim() || '';
+                bdep = document.getElementById('biz-deposit')?.value?.trim() || '';
                 bserv = document.getElementById('biz-service')?.value.trim() || '';
             }
 
-            // ——— Guardar lead en Supabase ———
-            const { error: insertError } = await supabase.from('leads').insert([{
-                name,
-                phone,
-                email,
-                service_type:    service,
-                profile_img_url: profileUrl || null,
-                cover_img_url:   coverUrl   || null,
-                details: {
-                    profession:      occupation,
-                    instagram:       ig,
+            const onboardingPayload = {
+                    name,
+                    phone,
+                    email,
+                    service,
+                    business_name: bname,
+                    profession: occupation,
+                    instagram: ig,
                     address,
-                    business_name:   bname,
-                    deposit:         bdep,
+                    profile_img_url: profileUrl || '',
+                    cover_img_url: coverUrl || '',
+                    deposit: bdep,
                     primary_service: bserv,
                     origin,
-                },
-                status: 'pending'
-            }]);
+            };
 
-            if (insertError) {
-                console.error('[Landing] Error Supabase Lead Insert:', {
-                    code: insertError.code,
-                    message: insertError.message,
-                    details: insertError.details
+            if (AUTO_ONBOARD_ENABLED) {
+                const { data: onboardingResult, error: onboardingError } = await supabase.functions.invoke('auto-onboard', {
+                    body: onboardingPayload
                 });
-                throw new Error('DATABASE_ERROR');
-            }
 
-            // ——— Conditional success messaging ———
-            const successTitle = document.getElementById('success-title');
-            const successMsg = document.getElementById('success-message');
+                if (onboardingError || !onboardingResult?.ok) {
+                    console.error('[Landing] Auto onboarding error:', onboardingError || onboardingResult);
+                    throw new Error(onboardingResult?.error || onboardingError?.message || 'AUTO_ONBOARD_ERROR');
+                }
 
-            if (service === 'TURNOS' || service === 'COMBO') {
-                if (successTitle) successTitle.textContent = '¡Postulación recibida!';
-                if (successMsg) successMsg.innerHTML = 'Gracias por postularte a la beta privada. Revisamos tu caso y, si encaja con la validación actual, te habilitamos el gestor manualmente.';
+                renderAutoOnboardingSuccess(onboardingResult, service);
             } else {
-                if (successTitle) successTitle.textContent = '¡Solicitud recibida! 🎉';
-                if (successMsg) successMsg.innerHTML = 'Te contactaremos en menos de <strong>24 horas</strong> para activar tu cuenta.';
-            }
+                const { error: insertError } = await supabase.from('leads').insert([{
+                    name,
+                    phone,
+                    email,
+                    service_type: service,
+                    profile_img_url: profileUrl || null,
+                    cover_img_url: coverUrl || null,
+                    details: {
+                        profession: occupation,
+                        instagram: ig,
+                        address,
+                        business_name: bname,
+                        deposit: bdep,
+                        primary_service: bserv,
+                        origin,
+                    },
+                    status: 'pending'
+                }]);
 
-            // ——— Mostrar pantalla de éxito ———
-            if (successTitle) {
-                successTitle.textContent = (service === 'TURNOS' || service === 'COMBO')
-                    ? '¡Postulación recibida!'
-                    : '¡Solicitud recibida!';
+                if (insertError) {
+                    console.error('[Landing] Error Supabase Lead Insert:', insertError);
+                    throw new Error('DATABASE_ERROR');
+                }
+
+                renderPendingLeadSuccess(service);
             }
 
             showOnly(successView);
             form.reset();
-
         } catch (err) {
             console.error('[Landing] Catch Error:', err);
-            showError('Hubo un problema al procesar tu solicitud. Podés intentarlo de nuevo o escribirnos por Email.');
+            showError('Hubo un problema al crear tu tarjeta. Podes intentarlo de nuevo o escribirnos por Email.');
         } finally {
             if (submitBtn) {
-                submitBtn.textContent = 'Enviar Solicitud 🚀';
+                submitBtn.textContent = 'Enviar Solicitud ->';
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Solicitud →';
             }
         }
     });

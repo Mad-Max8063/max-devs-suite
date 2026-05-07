@@ -19,6 +19,22 @@ const resolveMasterToken = () => {
 
 const MASTER_TOKEN = resolveMasterToken();
 
+function restore404Redirect() {
+    const redirectPath = sessionStorage.getItem('redirect');
+    if (!redirectPath || !/^\/(?:card|edit)\//.test(redirectPath)) return;
+
+    sessionStorage.removeItem('redirect');
+
+    if (
+        window.location.pathname === '/card/index.html' ||
+        window.location.pathname === '/card.html' ||
+        window.location.pathname === '/card-entry.html' ||
+        window.location.pathname === '/card-entry'
+    ) {
+        window.history.replaceState({}, '', redirectPath);
+    }
+}
+
 // --- PWA Nuclear Reset v2030 & Service Worker Registration ---
 if ('serviceWorker' in navigator) {
     const RESET_KEY = 'suito_v2030_reset';
@@ -48,6 +64,8 @@ if ('serviceWorker' in navigator) {
 }
 
 function navigate() {
+    restore404Redirect();
+
     const path = window.location.pathname;
     const search = window.location.search;
 

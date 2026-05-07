@@ -10,6 +10,7 @@ import SharePaymentModal from '../components/SharePaymentModal';
 import ServiceManager from '../components/ServiceManager';
 import { COLOR_FAMILIES, COLOR_PRESETS, DEFAULT_PRIMARY, applyThemeColor } from '../hooks/useTheme';
 import { uploadBusinessImage } from '../services/sheetsService';
+import { resolveAccessPriority } from '../utils/access-resolver';
 
 /**
  * Utility to resize and compress images before uploading to Supabase Storage.
@@ -90,6 +91,7 @@ const BusinessConfigPage: React.FC = () => {
 
   const activeModules = profile?.ActiveModules || ['card'];
   const hasAppointments = activeModules.includes('appointments');
+  const isPremium = resolveAccessPriority(profile);
 
   // Handle logout
   const handleLogout = () => {
@@ -348,17 +350,18 @@ const BusinessConfigPage: React.FC = () => {
           </div>
 
           {/* Brand Color Picker */}
-          <div className="flex flex-col gap-3 p-5 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
+          <div className="relative flex flex-col gap-3 p-5 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <span className="material-symbols-outlined text-primary">palette</span>
               <h3 className="font-bold text-gray-900 dark:text-white">Color del Negocio</h3>
+              {!isPremium && <span className="ml-auto text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full">Premium</span>}
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
               Elegí un color que represente tu marca. Se aplica a toda la app.
             </p>
 
             {/* Preset Swatches */}
-            <div className="space-y-4">
+            <div className={`space-y-4 ${!isPremium ? 'opacity-40 pointer-events-none select-none' : ''}`}>
               {COLOR_FAMILIES.map((family) => {
                 const presets = COLOR_PRESETS.filter((preset) => preset.family === family);
                 return (
@@ -370,6 +373,7 @@ const BusinessConfigPage: React.FC = () => {
                           key={preset.id}
                           type="button"
                           title={preset.label}
+                          disabled={!isPremium}
                           onClick={() => {
                             setColorPrimario(preset.hex);
                             setCustomColorInput('');
@@ -394,11 +398,12 @@ const BusinessConfigPage: React.FC = () => {
             </div>
 
             {/* Custom Color Input */}
-            <div className="flex items-center gap-3 mt-1">
+            <div className={`flex items-center gap-3 mt-1 ${!isPremium ? 'opacity-40 pointer-events-none' : ''}`}>
               <div className="relative">
                 <input
                   type="color"
                   value={colorPrimario}
+                  disabled={!isPremium}
                   onChange={(e) => {
                     setColorPrimario(e.target.value);
                     setCustomColorInput(e.target.value);
@@ -411,6 +416,7 @@ const BusinessConfigPage: React.FC = () => {
                 <input
                   type="text"
                   value={customColorInput}
+                  disabled={!isPremium}
                   onChange={(e) => {
                     const val = e.target.value;
                     setCustomColorInput(val);
@@ -424,6 +430,15 @@ const BusinessConfigPage: React.FC = () => {
                 />
               </div>
             </div>
+
+            {!isPremium && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/30 backdrop-blur-[1px]">
+                <div className="flex flex-col items-center text-center p-4">
+                  <span className="material-symbols-outlined text-yellow-300 text-3xl mb-1">lock</span>
+                  <p className="text-white font-bold text-sm">Personaliza tus colores con Premium</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Phone Input */}

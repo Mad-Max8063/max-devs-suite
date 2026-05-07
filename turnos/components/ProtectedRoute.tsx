@@ -67,8 +67,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     // Subscription expiration check (skip for demo mode)
     if (slug && slug !== 'demo' && profile) {
         const hasAccess = resolveAccessPriority(profile);
-        
-        if (!hasAccess) {
+        const activeModules = profile.ActiveModules || ['card'];
+        const hasAppointments = activeModules.includes('appointments');
+
+        if (!hasAccess && hasAppointments) {
             const expDate = profile.trial_ends_at || profile.free_until || profile.FechaVencimiento || null;
             const formattedDate = expDate 
                 ? new Date(expDate).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })
