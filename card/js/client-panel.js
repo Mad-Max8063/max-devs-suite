@@ -145,6 +145,9 @@ export function renderClientPanel(container, card) {
         instagram:  card.instagram || '',
         facebook:   card.facebook || '',
         linkedin:   card.linkedin || '',
+        tiktok:     card.tiktok || '',
+        youtube:    card.youtube || '',
+        threads:    card.threads || '',
         website:    card.website || '',
         bookingUrl: card.bookingUrl || card.booking_url || '',
         photo:      card.photo || card.photo_url || '',
@@ -367,6 +370,15 @@ function buildPanelHTML(data) {
 
               <label class="cp-label">LinkedIn</label>
               <input class="cp-input" id="cp-linkedin" type="url" value="${sanitize(data.linkedin)}" placeholder="https://linkedin.com/in/tuusuario" maxlength="200">
+
+              <label class="cp-label">TikTok</label>
+              <input class="cp-input" id="cp-tiktok" type="text" value="${sanitize(data.tiktok)}" placeholder="@tuusuario o https://tiktok.com/@tuusuario" maxlength="200">
+
+              <label class="cp-label">YouTube</label>
+              <input class="cp-input" id="cp-youtube" type="text" value="${sanitize(data.youtube)}" placeholder="@tucanal o https://youtube.com/@tucanal" maxlength="200">
+
+              <label class="cp-label">Threads</label>
+              <input class="cp-input" id="cp-threads" type="text" value="${sanitize(data.threads)}" placeholder="@tuusuario o https://threads.net/@tuusuario" maxlength="200">
 
               <label class="cp-label">Sitio web</label>
               <input class="cp-input" id="cp-website" type="url" value="${sanitize(data.website)}" placeholder="https://tuempresa.com">
@@ -853,6 +865,9 @@ function wireProfileEvents(container, data) {
                 instagram:      container.querySelector('#cp-instagram')?.value || '',
                 facebook:       container.querySelector('#cp-facebook')?.value || '',
                 linkedin:       container.querySelector('#cp-linkedin')?.value || '',
+                tiktok:         container.querySelector('#cp-tiktok')?.value || '',
+                youtube:        container.querySelector('#cp-youtube')?.value || '',
+                threads:        container.querySelector('#cp-threads')?.value || '',
                 website:        container.querySelector('#cp-website')?.value || '',
                 whatsapp_message: container.querySelector('#cp-whatsapp-message')?.value || '',
                 whatsapp_catalog_url: container.querySelector('#cp-whatsapp-catalog-url')?.value || '',

@@ -1,6 +1,22 @@
 // ============================================
 // vcard.js — vCard 3.0 generation & download
 // ============================================
+function normalizeSocialProfile(value, platform) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (/^(www\.|tiktok\.com\/|youtube\.com\/|youtu\.be\/|threads\.net\/|threads\.com\/)/i.test(raw)) {
+        return `https://${raw}`;
+    }
+
+    const handle = raw.replace(/^@/, '').replace(/^\/+/, '').trim();
+    if (!handle) return '';
+
+    if (platform === 'tiktok') return `https://www.tiktok.com/@${handle}`;
+    if (platform === 'youtube') return `https://www.youtube.com/@${handle}`;
+    if (platform === 'threads') return `https://www.threads.net/@${handle}`;
+    return raw;
+}
 
 export function generateVCard(data) {
     const lines = [
@@ -37,6 +53,18 @@ export function generateVCard(data) {
 
     if (data.linkedin) {
         lines.push(`X-SOCIALPROFILE;TYPE=linkedin:${data.linkedin}`);
+    }
+
+    if (data.tiktok) {
+        lines.push(`X-SOCIALPROFILE;TYPE=tiktok:${normalizeSocialProfile(data.tiktok, 'tiktok')}`);
+    }
+
+    if (data.youtube) {
+        lines.push(`X-SOCIALPROFILE;TYPE=youtube:${normalizeSocialProfile(data.youtube, 'youtube')}`);
+    }
+
+    if (data.threads) {
+        lines.push(`X-SOCIALPROFILE;TYPE=threads:${normalizeSocialProfile(data.threads, 'threads')}`);
     }
 
     if (data.description) {

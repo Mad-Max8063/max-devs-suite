@@ -7,6 +7,12 @@
 import { downloadVCard } from './vcard.js';
 import { resolveAccessPriority } from '../../shared/access-resolver.js';
 
+const SOCIAL_SVGS = {
+    tiktok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 2c.4 3 2.1 4.9 5.1 5.1v4.1c-1.7.1-3.2-.4-4.9-1.4v6.4c0 4.1-2.6 6.8-6.7 6.8-3.7 0-6.7-2.7-6.7-6.3 0-3.9 3-6.6 7.5-6.3v4.3c-.5-.1-.9-.2-1.3-.1-1.2.2-2.1 1-2.1 2.2 0 1.3 1 2.2 2.4 2.2 1.6 0 2.6-.9 2.6-2.8V2h4.1z"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8zM9.6 15.5v-7l6.2 3.5-6.2 3.5z"/></svg>',
+    threads: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 11.2c-.1-3.4-2-5.3-5.4-5.4-2-.1-3.7.5-5.1 1.8L5 5.2C7 3.3 9.5 2.4 12.5 2.5c5.2.2 8.2 3.2 8.5 8.5.1 2.4-.5 4.6-1.8 6.4-1.5 2.2-3.9 3.6-6.8 4-3.1.4-5.7-.4-7.7-2.3-1.9-1.8-2.8-4.2-2.7-7 .1-2.7 1.1-5 3-6.7l2.2 2.4c-1.2 1.1-1.9 2.6-2 4.4-.1 1.9.5 3.5 1.7 4.7 1.3 1.2 3 1.7 5.1 1.5 2-.3 3.5-1.1 4.5-2.5.6-.9 1-1.8 1.1-2.9-.8.7-1.9 1.1-3.2 1.3-.5 2-2.1 3.2-4.3 3.2-1.3 0-2.4-.4-3.3-1.1-.9-.8-1.3-1.8-1.3-3s.4-2.2 1.3-3c.9-.8 2-1.2 3.4-1.2 1.8 0 3.1.5 4 1.6l.1.1zm-4 2.4c-.3-1-1-1.5-2.2-1.5-1.1 0-1.8.5-1.8 1.3 0 .7.7 1.2 1.7 1.2 1.2 0 2-.4 2.3-1z"/></svg>',
+};
+
 const CARD_DATA = {
     profile: {
         name: "Matías Maximiliano (Max) Bernal",
@@ -224,6 +230,7 @@ export function applyPremiumBranding(dbData = {}) {
         .social-icons-bar .social-icon[aria-label="LinkedIn"] { background: #0A66C2 !important; }
         .social-icons-bar .social-icon[aria-label="TikTok"] { background: #000000 !important; }
         .social-icons-bar .social-icon[aria-label="YouTube"] { background: #FF0000 !important; }
+        .social-icons-bar .social-icon[aria-label="Threads"] { background: #000000 !important; }
         .social-icons-bar .social-icon[aria-label="Email"] { background: #EA4335 !important; }
         ` : `
         .social-icons-bar .social-icon {
@@ -575,6 +582,9 @@ function buildCardHTML(data) {
     const facebook = data.facebook || '';
     const instagram = data.instagram || '';
     const linkedin = data.linkedin || '';
+    const tiktok = data.tiktok || '';
+    const youtube = data.youtube || '';
+    const threads = data.threads || '';
     const website = data.website || '';
     const bookingUrl = data.bookingUrl || data.booking_url || '';
     const status = getSubscriptionStatus(data);
@@ -582,6 +592,9 @@ function buildCardHTML(data) {
     const whatsappMessage = data.whatsapp_message || data.whatsappMessage || '';
     const rawGallery = data.gallery || [];
     const gallery = isPremium ? rawGallery : rawGallery.slice(0, 3);
+    const tiktokUrl = normalizeSocialUrl(tiktok, 'tiktok');
+    const youtubeUrl = normalizeSocialUrl(youtube, 'youtube');
+    const threadsUrl = normalizeSocialUrl(threads, 'threads');
 
     return `
         ${!isPremium ? `
@@ -663,6 +676,9 @@ function buildCardHTML(data) {
                     if (instagram) icons.push(`<a href="https://instagram.com/${instagram.replace('@','')}" target="_blank" class="social-icon" style="background:#E4405F;" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`);
                     if (facebook) icons.push(`<a href="${facebook}" target="_blank" class="social-icon" style="background:#1877F2;" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`);
                     if (linkedin) icons.push(`<a href="${linkedin}" target="_blank" class="social-icon" style="background:#0A66C2;" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>`);
+                    if (tiktokUrl) icons.push(`<a href="${escapeAttr(tiktokUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#000000;" aria-label="TikTok">${SOCIAL_SVGS.tiktok}</a>`);
+                    if (youtubeUrl) icons.push(`<a href="${escapeAttr(youtubeUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#FF0000;" aria-label="YouTube">${SOCIAL_SVGS.youtube}</a>`);
+                    if (threadsUrl) icons.push(`<a href="${escapeAttr(threadsUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#000000;" aria-label="Threads">${SOCIAL_SVGS.threads}</a>`);
                     if (website) icons.push(`<a href="${website.startsWith('http') ? website : 'https://' + website}" target="_blank" class="social-icon" style="background:var(--primary);" aria-label="Website"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></a>`);
                     if (showBooking) icons.push(`<a href="${bookingUrl}" target="_blank" class="social-icon" style="background:var(--primary);" aria-label="Agendar turno"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg></a>`);
 
@@ -705,6 +721,31 @@ function attachCardEvents(container, data) {
     if (galleryRoot) {
         new SuitoGallery(galleryData, catalogUrl).renderGallerySection(galleryRoot);
     }
+}
+
+function escapeAttr(value = '') {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function normalizeSocialUrl(value, platform) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (/^(www\.|tiktok\.com\/|youtube\.com\/|youtu\.be\/|threads\.net\/|threads\.com\/)/i.test(raw)) {
+        return `https://${raw}`;
+    }
+
+    const handle = raw.replace(/^@/, '').replace(/^\/+/, '').trim();
+    if (!handle) return '';
+
+    if (platform === 'tiktok') return `https://www.tiktok.com/@${handle}`;
+    if (platform === 'youtube') return `https://www.youtube.com/@${handle}`;
+    if (platform === 'threads') return `https://www.threads.net/@${handle}`;
+    return raw;
 }
 
 function injectDynamicManifest(data) {

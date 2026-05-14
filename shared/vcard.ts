@@ -8,6 +8,9 @@ export interface VCardData {
   website?: string;
   instagram?: string;
   linkedin?: string;
+  tiktok?: string;
+  youtube?: string;
+  threads?: string;
   photo?: string;
 }
 
@@ -17,6 +20,22 @@ function escapeVCardValue(value = ''): string {
     .replace(/\n/g, '\\n')
     .replace(/,/g, '\\,')
     .replace(/;/g, '\\;');
+}
+
+function normalizeSocialProfile(value = '', platform: 'tiktok' | 'youtube' | 'threads'): string {
+  const raw = value.trim();
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^(www\.|tiktok\.com\/|youtube\.com\/|youtu\.be\/|threads\.net\/|threads\.com\/)/i.test(raw)) {
+    return `https://${raw}`;
+  }
+
+  const handle = raw.replace(/^@/, '').replace(/^\/+/, '').trim();
+  if (!handle) return '';
+
+  if (platform === 'tiktok') return `https://www.tiktok.com/@${handle}`;
+  if (platform === 'youtube') return `https://www.youtube.com/@${handle}`;
+  return `https://www.threads.net/@${handle}`;
 }
 
 export function generateVCard(data: VCardData): string {
@@ -43,6 +62,9 @@ export function generateVCard(data: VCardData): string {
   }
 
   if (data.linkedin) lines.push(`X-SOCIALPROFILE;TYPE=linkedin:${escapeVCardValue(data.linkedin)}`);
+  if (data.tiktok) lines.push(`X-SOCIALPROFILE;TYPE=tiktok:${escapeVCardValue(normalizeSocialProfile(data.tiktok, 'tiktok'))}`);
+  if (data.youtube) lines.push(`X-SOCIALPROFILE;TYPE=youtube:${escapeVCardValue(normalizeSocialProfile(data.youtube, 'youtube'))}`);
+  if (data.threads) lines.push(`X-SOCIALPROFILE;TYPE=threads:${escapeVCardValue(normalizeSocialProfile(data.threads, 'threads'))}`);
   if (data.description) lines.push(`NOTE:${escapeVCardValue(data.description)}`);
 
   if (data.photo?.startsWith('data:image')) {
