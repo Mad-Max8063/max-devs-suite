@@ -173,6 +173,7 @@ export function renderClientPanel(container, card) {
     };
 
     container.innerHTML = buildPanelHTML(data);
+    lockIdentityFields(container);
     wirePanelEvents(container, data);
     enforcePremiumDesignLock(data.hasPremiumAccess, container.querySelector('#cp-design-section'));
 
@@ -185,9 +186,33 @@ export function renderClientPanel(container, card) {
 
 // ——— HTML ———
 
+function lockIdentityFields(container) {
+    const lockedFields = [
+        container.querySelector('#cp-name'),
+        container.querySelector('#cp-profession'),
+    ].filter(Boolean);
+
+    lockedFields.forEach((field) => {
+        field.disabled = true;
+        field.style.opacity = '0.6';
+        field.style.cursor = 'not-allowed';
+        field.title = 'Por seguridad, contactanos para cambiar la identidad de la tarjeta';
+    });
+
+    const professionField = container.querySelector('#cp-profession');
+    if (professionField && !container.querySelector('#cp-identity-lock-note')) {
+        const note = document.createElement('div');
+        note.id = 'cp-identity-lock-note';
+        note.style.cssText = 'background:rgba(139,92,246,0.1);border:1px dashed var(--accent-purple);border-radius:8px;padding:12px;margin-bottom:16px;font-size:11px;color:var(--text-muted);line-height:1.4;';
+        note.innerHTML = '<i class="fa-solid fa-circle-info" style="color:var(--accent-purple);"></i> Tu identidad de tarjeta esta protegida. Si cambiaste de negocio o queres transferirla a otra persona, contactanos a <b>hola@suito.pro</b> para solicitar el cambio o traspaso con revision y precio bonificado.';
+        professionField.insertAdjacentElement('afterend', note);
+    }
+}
+
 function buildPanelHTML(data) {
     const assistedUrl = buildAssistedUpgradeWhatsAppUrl(ASSISTED_UPGRADE_MESSAGE);
     const betaTurnosUrl = buildAssistedUpgradeWhatsAppUrl(BETA_TURNOS_MESSAGE);
+    const publicCardUrl = getCardUrl(data._slug);
 
     return `
     <div class="card-container animate-fade-in" style="padding: 16px; min-height: 100dvh; background: transparent;">
@@ -204,6 +229,28 @@ function buildPanelHTML(data) {
           </div>
           <h1 style="color: #fff; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; text-shadow: 0 2px 12px rgba(0,0,0,0.15);">Tu Panel de Control</h1>
           <p style="color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 500; margin: 0;">Personalizá tu presencia digital</p>
+        </div>
+      </div>
+
+      <div class="glass-card suito-owner-migration-card" style="margin-bottom:20px;padding:16px;border-radius:20px;border:1px solid rgba(139,92,246,0.22);background:rgba(139,92,246,0.08);">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:38px;height:38px;border-radius:14px;background:var(--premium-gradient);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span class="material-symbols-outlined" style="font-size:20px;">link</span>
+          </div>
+          <div style="min-width:0;flex:1;">
+            <strong style="display:block;font-size:14px;color:var(--on-surface);margin-bottom:4px;">Ahora usas un solo link</strong>
+            <p style="font-size:12px;line-height:1.45;margin:0 0 12px;color:var(--on-surface-variant);">Tu link principal es la tarjeta publica. Desde ahi podes editarla y compartirla; tus contactos solo ven la tarjeta limpia.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="${publicCardUrl}" class="btn-primary" style="min-height:40px;padding:10px 14px;border-radius:14px;font-size:12px;flex:1 1 150px;">
+                <span class="material-symbols-outlined" style="font-size:17px;">open_in_new</span>
+                Abrir mi tarjeta
+              </a>
+              <button type="button" class="btn-secondary" id="cp-copy-public-card-btn" data-url="${publicCardUrl}" style="min-height:40px;padding:10px 12px;border-radius:14px;font-size:12px;flex:0 0 96px;">
+                <span class="material-symbols-outlined" style="font-size:17px;">content_copy</span>
+                Copiar
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -372,13 +419,13 @@ function buildPanelHTML(data) {
               <input class="cp-input" id="cp-linkedin" type="url" value="${sanitize(data.linkedin)}" placeholder="https://linkedin.com/in/tuusuario" maxlength="200">
 
               <label class="cp-label">TikTok</label>
-              <input class="cp-input" id="cp-tiktok" type="text" value="${sanitize(data.tiktok)}" placeholder="@tuusuario o https://tiktok.com/@tuusuario" maxlength="200">
+              <input class="cp-input" id="cp-tiktok" type="text" value="${sanitize(data.tiktok)}" placeholder="@tu.usuario o https://tiktok.com/@tu.usuario" maxlength="200">
 
               <label class="cp-label">YouTube</label>
-              <input class="cp-input" id="cp-youtube" type="text" value="${sanitize(data.youtube)}" placeholder="@tucanal o https://youtube.com/@tucanal" maxlength="200">
+              <input class="cp-input" id="cp-youtube" type="text" value="${sanitize(data.youtube)}" placeholder="@tu-canal o https://youtube.com/@tu-canal" maxlength="200">
 
               <label class="cp-label">Threads</label>
-              <input class="cp-input" id="cp-threads" type="text" value="${sanitize(data.threads)}" placeholder="@tuusuario o https://threads.net/@tuusuario" maxlength="200">
+              <input class="cp-input" id="cp-threads" type="text" value="${sanitize(data.threads)}" placeholder="@tu.usuario o https://threads.net/@tu.usuario" maxlength="200">
 
               <label class="cp-label">Sitio web</label>
               <input class="cp-input" id="cp-website" type="url" value="${sanitize(data.website)}" placeholder="https://tuempresa.com">
@@ -454,7 +501,7 @@ function buildPanelHTML(data) {
             <div class="section-header" style="margin-bottom: 12px;">
                 <h2 class="section-title">Diseño y Marca</h2>
             </div>
-            <p class="section-hint">Personalizá tipografía, color social, tema y CSS avanzado para tu tarjeta pública.</p>
+            <p class="section-hint">El plan gratis incluye color de marca basico e iconos configurables. Fuentes, temas y CSS avanzado quedan para Premium.</p>
 
             <div class="cp-fields">
               <label class="cp-label">Tipografía</label>
@@ -476,7 +523,7 @@ function buildPanelHTML(data) {
               </div>
 
               <div id="custom-social-color-wrap" style="${data.socialColor === 'official' ? 'display:none;' : ''}">
-                <label class="cp-label"><i class="fa-solid fa-palette"></i> Color de tu marca (Iconos)</label>
+                <label class="cp-label"><i class="fa-solid fa-palette"></i> Color de iconos</label>
                 <div style="display:flex; gap:10px; align-items:center;">
                   <input class="cp-input" id="cp-social-color" type="color" value="${sanitizeColor(data.socialColor)}" style="width:58px; min-width:58px; padding:4px;">
                   <input class="cp-input" id="cp-social-color-text" type="text" value="${sanitizeColor(data.socialColor)}" maxlength="7" placeholder="#8B5CF6">
@@ -484,8 +531,8 @@ function buildPanelHTML(data) {
               </div>
 
               <div>
-                <label class="cp-label"><i class="fa-solid fa-droplet"></i> Textos destacados y Agendar</label>
-                <p class="section-hint">Cambia el color de los textos violeta, el botón Compartir y el botón Agendar.</p>
+                <label class="cp-label"><i class="fa-solid fa-droplet"></i> Color de marca basico</label>
+                <p class="section-hint">Cambia el color de textos destacados, Compartir y Agendar.</p>
                 <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
                   <input class="cp-input" id="cp-accent-color" type="color" value="${sanitizeColor(data.accentColor)}" style="width:58px; min-width:58px; padding:4px;">
                   <input class="cp-input" id="cp-accent-color-text" type="text" value="${sanitizeColor(data.accentColor)}" maxlength="7" placeholder="#8B5CF6">
@@ -581,14 +628,14 @@ function buildPanelHTML(data) {
         <div class="glass-card">
           <div class="form-section">
             <div class="section-label">🔗 Tu tarjeta pública</div>
-            <p class="section-hint">Este es el link que podés compartir con tus clientes por WhatsApp, Instagram o como quieras.</p>
+            <p class="section-hint">Este es tu link principal. Compartilo con clientes y contactos; el boton Editar solo aparece para vos en los navegadores donde ya guardaste tu acceso.</p>
             <div class="share-box" style="margin-top:12px;">
-              <input type="text" id="cp-share-url" readonly value="${getCardUrl(data._slug)}">
+              <input type="text" id="cp-share-url" readonly value="${publicCardUrl}">
               <button type="button" class="btn-copy" id="cp-copy-btn">Copiar</button>
             </div>
             <div class="ge-whatsapp-row" style="margin-top:16px;">
               <a id="cp-whatsapp-link" class="btn-whatsapp" target="_blank" rel="noopener"
-                 href="https://wa.me/?text=${encodeURIComponent(`👋 ¡Hola! Te comparto mi tarjeta profesional:\n\n*${data.name}*\n${data.profession}\n\n🔗 ${getCardUrl(data._slug)}`)}">
+                 href="https://wa.me/?text=${encodeURIComponent(`Hola! Te comparto mi tarjeta profesional:\n\n*${data.name}*\n${data.profession}\n\n${publicCardUrl}`)}">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
                   <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.12 1.52 5.855L0 24l6.335-1.652A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82a9.8 9.8 0 0 1-5.01-1.372l-.36-.213-3.712.968.993-3.608-.236-.374A9.77 9.77 0 0 1 2.18 12 9.82 9.82 0 0 1 12 2.18 9.82 9.82 0 0 1 21.82 12 9.82 9.82 0 0 1 12 21.82z"/>
@@ -854,8 +901,8 @@ function wireProfileEvents(container, data) {
 
             // Update profile via secure RPC (including image URLs)
             const profilePayload = {
-                nombre_negocio: container.querySelector('#cp-name')?.value || '',
-                profession:     container.querySelector('#cp-profession')?.value || '',
+                nombre_negocio: null,
+                profession:     null,
                 description:    container.querySelector('#cp-description')?.value || '',
                 telefono:       '54' + (container.querySelector('#cp-phone')?.value || '').replace(/\D/g, ''),
                 email:          container.querySelector('#cp-email')?.value || '',
@@ -875,16 +922,17 @@ function wireProfileEvents(container, data) {
                 font_scale: parseFloat(container.querySelector('#cp-font-scale')?.value) || 1.0,
             };
 
+            profilePayload.social_color = container.querySelector('#cp-use-official-colors')?.checked
+                ? 'official'
+                : sanitizeColor(container.querySelector('#cp-social-color-text')?.value || '');
+            profilePayload.custom_css = setAccentColorCss(
+                data.hasPremiumAccess ? (container.querySelector('#cp-custom-css')?.value || '') : '',
+                container.querySelector('#cp-accent-color-text')?.value || '#8B5CF6'
+            );
+
             if (data.hasPremiumAccess) {
                 profilePayload.font_family = container.querySelector('#cp-font-family')?.value || 'Inter';
-                profilePayload.social_color = container.querySelector('#cp-use-official-colors')?.checked
-                    ? 'official'
-                    : sanitizeColor(container.querySelector('#cp-social-color-text')?.value || '');
                 profilePayload.card_theme = container.querySelector('#cp-card-theme')?.value || 'obsidian';
-                profilePayload.custom_css = setAccentColorCss(
-                    container.querySelector('#cp-custom-css')?.value || '',
-                    container.querySelector('#cp-accent-color-text')?.value || '#8B5CF6'
-                );
             }
 
             await updateBusinessProfileSecure(data._id, data._token, profilePayload);
@@ -915,10 +963,23 @@ function wireProfileEvents(container, data) {
 function enforcePremiumDesignLock(isPremium, designSectionElement) {
     if (!designSectionElement || isPremium) return;
 
-    designSectionElement.classList.add('suito-locked-feature');
-    designSectionElement.querySelectorAll('input, select, textarea, .qs-chip').forEach(input => {
+    designSectionElement.querySelectorAll('#cp-font-family, #cp-card-theme, #cp-custom-css, #qs-advanced-toggle, .qs-chip').forEach(input => {
         input.disabled = true;
+        input.setAttribute('aria-disabled', 'true');
+        input.style.opacity = '0.45';
+        input.style.cursor = 'not-allowed';
+        input.title = 'Disponible en Premium';
     });
+
+    if (!designSectionElement.querySelector('.suito-basic-design-note')) {
+        const note = document.createElement('div');
+        note.className = 'suito-basic-design-note';
+        note.style.cssText = 'margin:0 0 16px;padding:12px;border-radius:14px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.22);font-size:11px;line-height:1.45;color:var(--text-muted);';
+        note.innerHTML = '<b style="color:var(--on-surface);">Personalizacion basica incluida:</b> podes cambiar color de marca e iconos. Tipografias, temas y estilos avanzados quedan para Premium.';
+        designSectionElement.querySelector('.form-section')?.insertBefore(note, designSectionElement.querySelector('.cp-fields'));
+    }
+
+    return;
 
     if (designSectionElement.querySelector('.suito-premium-overlay')) return;
 
@@ -963,7 +1024,7 @@ function wireGalleryEvents(container, data) {
 
         try {
             for (const file of toProcess) {
-                const dataUrl = await resizeGalleryImage(file, 300);
+                const dataUrl = await resizeGalleryImage(file);
                 const uploadFile = dataUriToFile(dataUrl, file.name);
                 const imageUrl = await uploadImage(uploadFile, data._id, 'gallery');
                 const dbImage = await addGalleryImageSecure(data._id, data._token, imageUrl, '', data.gallery.length);
@@ -1094,6 +1155,7 @@ function wireQuickStyles(container) {
 
     container.querySelectorAll('.qs-chip').forEach(chip => {
         chip.addEventListener('click', () => {
+            if (chip.disabled || chip.getAttribute('aria-disabled') === 'true') return;
             const preset = STYLE_PRESETS.find(p => p.key === chip.dataset.qsKey);
             if (!preset || !textarea) return;
 
@@ -1134,6 +1196,20 @@ function wireCopyBtn(container, data) {
             setTimeout(() => {
                 copyBtn.textContent = 'Copiar';
                 copyBtn.classList.remove('copied');
+            }, 2000);
+        });
+    });
+
+    const publicCardBtn = container.querySelector('#cp-copy-public-card-btn');
+    publicCardBtn?.addEventListener('click', () => {
+        const url = publicCardBtn.dataset.url || getCardUrl(data._slug);
+        navigator.clipboard.writeText(url).then(() => {
+            const original = publicCardBtn.innerHTML;
+            publicCardBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:17px;">check</span> Copiado';
+            publicCardBtn.classList.add('copied');
+            setTimeout(() => {
+                publicCardBtn.innerHTML = original;
+                publicCardBtn.classList.remove('copied');
             }, 2000);
         });
     });

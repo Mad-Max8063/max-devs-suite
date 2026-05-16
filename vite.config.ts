@@ -8,7 +8,9 @@ const mpaFallback = {
   name: 'mpa-spa-fallback',
   configureServer(server: any) {
     server.middlewares.use((req: any, _res: any, next: any) => {
-      if ((req.url?.startsWith('/card/') || req.url?.startsWith('/edit/')) && !req.url.includes('.')) {
+      if (req.url?.startsWith('/edit/') && !req.url.includes('.')) {
+        req.url = '/card-entry.html';
+      } else if (req.url?.startsWith('/card/') && !req.url.includes('.')) {
         req.url = '/card/index.html';
       }
       next();

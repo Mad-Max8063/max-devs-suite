@@ -674,6 +674,13 @@ function openModal(client = null) {
             return `https://suito.pro/edit/${slug}?token=${token}`;
         };
 
+        const getOwnerCardUrl = () => {
+            const slug = client.slug || client.id;
+            const token = client.edit_token;
+            if (!slug || !token) return '';
+            return `https://suito.pro/card/${slug}?token=${token}`;
+        };
+
         galleryBtn.onclick = () => {
             const url = getEditorUrl();
             if (url) {
@@ -684,7 +691,7 @@ function openModal(client = null) {
         };
 
         copyBtn.onclick = () => {
-            const url = getEditorUrl();
+            const url = getOwnerCardUrl();
             if (url) {
                 navigator.clipboard.writeText(url).then(() => {
                     copyFeedback.style.display = 'block';
@@ -961,10 +968,12 @@ window._deliverClient = async function(id) {
     let message = `¡Hola ${client.name}! 👋 Te escribo de *Suito*.\n\n`;
 
     if (hasTarjeta) {
-        message += `📇 *Tu Tarjeta Virtual:*\n`;
-        message += `🔗 Ver: ${baseUrl}/card/${slug}\n`;
+        message += `Tarjeta Virtual:\n`;
         if (client.edit_token) {
-            message += `✏️ Editar (solo vos): ${baseUrl}/edit/${slug}?token=${client.edit_token}\n`;
+            message += `${baseUrl}/card/${slug}?token=${client.edit_token}\n`;
+            message += `_Desde ese mismo link podes editar tu tarjeta y compartirla limpia con tus contactos._\n`;
+        } else {
+            message += `${baseUrl}/card/${slug}\n`;
         }
         message += `\n`;
     }
@@ -1205,6 +1214,8 @@ window._activateLead = async function(id) {
             // --- New Monetization Fields (Hybrid-Trial) ---
             subscription_status: 'trial',
             trial_ends_at:       trialEnd.toISOString(),
+            free_until:          trialEnd.toISOString(),
+            card_trial_used:     plan === 'tarjeta',
             locked_price:        currentPrice,
             price_lock_ends_at:  priceLockEnd.toISOString(),
 
@@ -1235,10 +1246,12 @@ window._activateLead = async function(id) {
         const hasTurnos  = plan === 'turnos'  || plan === 'combo';
         let msg = `¡Hola ${lead.name}! 🎉 Tu suite en *Suito* ya está activa. 🚀\n\n`;
         if (hasTarjeta) {
-            msg += `📇 *Tu Tarjeta Virtual:*\n`;
-            msg += `🔗 Ver: ${baseUrl}/card/${slug}\n`;
+            msg += `Tarjeta Virtual:\n`;
             if (newClient?.edit_token) {
-                msg += `✏️ Editar (solo vos): ${baseUrl}/edit/${slug}?token=${newClient.edit_token}\n`;
+                msg += `${baseUrl}/card/${slug}?token=${newClient.edit_token}\n`;
+                msg += `_Desde ese mismo link podes editar tu tarjeta y compartirla limpia con tus contactos._\n`;
+            } else {
+                msg += `${baseUrl}/card/${slug}\n`;
             }
             msg += `\n`;
         }

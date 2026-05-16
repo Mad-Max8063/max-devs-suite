@@ -8,9 +8,9 @@ import { downloadVCard } from './vcard.js';
 import { resolveAccessPriority } from '../../shared/access-resolver.js';
 
 const SOCIAL_SVGS = {
-    tiktok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 2c.4 3 2.1 4.9 5.1 5.1v4.1c-1.7.1-3.2-.4-4.9-1.4v6.4c0 4.1-2.6 6.8-6.7 6.8-3.7 0-6.7-2.7-6.7-6.3 0-3.9 3-6.6 7.5-6.3v4.3c-.5-.1-.9-.2-1.3-.1-1.2.2-2.1 1-2.1 2.2 0 1.3 1 2.2 2.4 2.2 1.6 0 2.6-.9 2.6-2.8V2h4.1z"/></svg>',
-    youtube: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8zM9.6 15.5v-7l6.2 3.5-6.2 3.5z"/></svg>',
-    threads: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 11.2c-.1-3.4-2-5.3-5.4-5.4-2-.1-3.7.5-5.1 1.8L5 5.2C7 3.3 9.5 2.4 12.5 2.5c5.2.2 8.2 3.2 8.5 8.5.1 2.4-.5 4.6-1.8 6.4-1.5 2.2-3.9 3.6-6.8 4-3.1.4-5.7-.4-7.7-2.3-1.9-1.8-2.8-4.2-2.7-7 .1-2.7 1.1-5 3-6.7l2.2 2.4c-1.2 1.1-1.9 2.6-2 4.4-.1 1.9.5 3.5 1.7 4.7 1.3 1.2 3 1.7 5.1 1.5 2-.3 3.5-1.1 4.5-2.5.6-.9 1-1.8 1.1-2.9-.8.7-1.9 1.1-3.2 1.3-.5 2-2.1 3.2-4.3 3.2-1.3 0-2.4-.4-3.3-1.1-.9-.8-1.3-1.8-1.3-3s.4-2.2 1.3-3c.9-.8 2-1.2 3.4-1.2 1.8 0 3.1.5 4 1.6l.1.1zm-4 2.4c-.3-1-1-1.5-2.2-1.5-1.1 0-1.8.5-1.8 1.3 0 .7.7 1.2 1.7 1.2 1.2 0 2-.4 2.3-1z"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.82a6.26 6.26 0 003.82 1.32v3.22a9.7 9.7 0 01-3.75-.77v5.62c0 3.83-2.6 6.33-6.16 6.33a5.85 5.85 0 116.16-5.83h-3.3a2.63 2.63 0 10-2.86 2.63c1.58 0 2.86-.95 2.86-3.03V2.46h3.23v3.36z"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3.02 3.02 0 00-2.12-2.14C19.5 3.56 12 3.56 12 3.56s-7.5 0-9.38.5A3.02 3.02 0 00.5 6.2C0 8.08 0 12 0 12s0 3.92.5 5.8a3.02 3.02 0 002.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 002.12-2.14c.5-1.88.5-5.8.5-5.8s0-3.92-.5-5.8zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>',
+    threads: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.18 2C6.44 2 3 5.72 3 11.98 3 18.28 6.43 22 12.18 22c4.82 0 8-2.49 8-6.27 0-2.67-1.55-4.63-4.2-5.37-.46-2.61-2.08-4.02-4.73-4.02-2.1 0-3.72.94-4.58 2.65l2.28 1.1c.5-.95 1.24-1.43 2.25-1.43 1.16 0 1.92.62 2.22 1.8h-1.3c-3.36 0-5.28 1.43-5.28 3.92 0 2.22 1.75 3.72 4.35 3.72 2.66 0 4.42-1.5 4.83-4.03l.03-.32c.86.45 1.3 1.15 1.3 2.1 0 2.14-2 3.47-5.15 3.47-4.05 0-6.33-2.66-6.33-7.35 0-4.63 2.32-7.3 6.33-7.3 2.68 0 4.57 1.09 5.61 3.24l2.47-1.2C18.53 3.58 15.72 2 12.18 2zm-.94 13.82c-1.07 0-1.73-.55-1.73-1.43 0-1.04.86-1.55 2.6-1.55h1.42c-.16 1.93-.95 2.98-2.29 2.98z"/></svg>',
 };
 
 const CARD_DATA = {
@@ -68,13 +68,7 @@ function shareCard() {
 }
 
 export function getSubscriptionStatus(user) {
-    const created_at = new Date(user.created_at || Date.now());
-    const days_active = (Date.now() - created_at.getTime()) / (1000 * 3600 * 24);
-    
-    // Si es Premium (manual), Vitalicio, o está en sus primeros 3 días, es 'premium'
-    const isPremiumActive = user.isPremium || user.is_premium || user.plan_status === 'premium' || user.subscription_status === 'premium';
-    
-    return (isPremiumActive || days_active <= 3) ? 'premium' : 'basic';
+    return resolveAccessPriority(user) ? 'premium' : 'basic';
 }
 
 function injectTheme(data) {
@@ -87,6 +81,28 @@ const BRAND_STYLE_ID = 'suito-dynamic-brand-styles';
 const FONT_PREFIX = 'suito-font-';
 const DEFAULT_FONT = 'Inter';
 const ALLOWED_THEMES = new Set(['obsidian', 'luminous', 'emerald', 'rose']);
+const BASIC_ACCENT_START = '/* suito:accent-color:start */';
+const BASIC_ACCENT_END = '/* suito:accent-color:end */';
+const OWNER_HELP_KEY_PREFIX = 'suito_owner_help_dismissed:';
+
+function getPublicCardUrl(data = {}) {
+    const slug = data.slug || data._slug || '';
+    const cleanSlug = String(slug).replace(/^\/+|\/+$/g, '');
+    if (cleanSlug) return `${window.location.origin}/card/${cleanSlug}`;
+    return `${window.location.origin}${window.location.pathname}`;
+}
+
+function getOwnerHelpKey(data = {}) {
+    return `${OWNER_HELP_KEY_PREFIX}${data.slug || data._slug || 'current'}`;
+}
+
+function isOwnerHelpDismissed(data = {}) {
+    try {
+        return localStorage.getItem(getOwnerHelpKey(data)) === '1';
+    } catch {
+        return false;
+    }
+}
 
 function normalizeHexColor(value, fallback) {
     const color = String(value || '').trim();
@@ -132,6 +148,34 @@ function sanitizePremiumCss(value) {
         .replace(/javascript:/gi, '');
 }
 
+function sanitizeBasicCss(value) {
+    const css = String(value || '');
+    const start = css.indexOf(BASIC_ACCENT_START);
+    const end = css.indexOf(BASIC_ACCENT_END);
+    if (start === -1 || end === -1 || end <= start) return '';
+
+    const block = css.slice(start, end + BASIC_ACCENT_END.length);
+    const colorMatch = block.match(/--suito-accent-color:\s*(#[0-9a-f]{3}(?:[0-9a-f]{3})?)\s*;/i);
+    if (!colorMatch) return '';
+
+    const color = normalizeHexColor(colorMatch[1], '#7c3aed');
+    return `
+${BASIC_ACCENT_START}
+:root { --suito-accent-color: ${color}; }
+.card-title,
+.section-title,
+.footer-brand-name,
+.card-location,
+.referral-link { color: var(--suito-accent-color) !important; }
+.btn-secondary {
+    color: var(--suito-accent-color) !important;
+    border-color: color-mix(in srgb, var(--suito-accent-color) 42%, transparent) !important;
+}
+#btn-save-contact,
+.suito-gallery-icon-circle { background: var(--suito-accent-color) !important; }
+${BASIC_ACCENT_END}`;
+}
+
 function upsertMeta(name, content) {
     let tag = document.querySelector(`meta[name="${name}"]`);
     if (!tag) {
@@ -152,14 +196,14 @@ export function applyPremiumBranding(dbData = {}) {
     const primaryDark = darkenHex(primaryColor);
     const primaryRgb = hexToRgbString(primaryColor);
     const fontFamily = isPremium ? normalizeFontFamily(dbData.font_family) : DEFAULT_FONT;
-    const isOfficialColors = isPremium && dbData.social_color === 'official';
+    const isOfficialColors = dbData.social_color === 'official';
     const socialColor = isOfficialColors
         ? primaryColor
-        : (isPremium ? normalizeHexColor(dbData.social_color, primaryColor) : primaryColor);
+        : normalizeHexColor(dbData.social_color, primaryColor);
     const theme = isPremium && ALLOWED_THEMES.has(dbData.card_theme)
         ? dbData.card_theme
         : (isPremium ? 'obsidian' : 'luminous');
-    const customCss = isPremium ? sanitizePremiumCss(dbData.custom_css) : '';
+    const customCss = isPremium ? sanitizePremiumCss(dbData.custom_css) : sanitizeBasicCss(dbData.custom_css);
 
     if (fontFamily !== DEFAULT_FONT) {
         const fontId = `${FONT_PREFIX}${sanitizeStyleId(fontFamily)}`;
@@ -550,7 +594,9 @@ export function renderLanding(container, data) {
     injectTheme(data);
     applyPremiumBranding(data);
     container.innerHTML = buildCardHTML(data);
+    prepareCardImageReveal(container);
     attachCardEvents(container, data);
+    revealCardWhenImagesReady(container);
     injectDynamicManifest(data);
     wireInstallButton();
     if (typeof gtag === 'function') gtag('event', 'card_view', { slug: data.slug || '' });
@@ -560,7 +606,9 @@ export function renderPreview(container, data, onBack, onSave) {
     injectTheme(data);
     applyPremiumBranding(data);
     container.innerHTML = buildCardHTML(data);
+    prepareCardImageReveal(container);
     attachCardEvents(container, data);
+    revealCardWhenImagesReady(container);
     // Add back button for preview mode
     const backBtn = document.createElement('button');
     backBtn.className = 'btn-secondary';
@@ -568,6 +616,69 @@ export function renderPreview(container, data, onBack, onSave) {
     backBtn.innerHTML = '<span class="material-symbols-outlined">arrow_back</span> Volver';
     backBtn.onclick = onBack;
     container.prepend(backBtn);
+}
+
+function prepareCardImageReveal(container) {
+    const card = container.querySelector('.card-container');
+    if (!card) return;
+
+    card.classList.add('card-awaiting-images');
+
+    const loader = document.createElement('div');
+    loader.className = 'suito-card-image-loader';
+    loader.setAttribute('aria-live', 'polite');
+    loader.innerHTML = `
+        <div class="suito-favicon-coin" aria-hidden="true"></div>
+        <p>Preparando tu tarjeta...</p>
+    `;
+    container.appendChild(loader);
+}
+
+function revealCardWhenImagesReady(container) {
+    const card = container.querySelector('.card-container');
+    const loader = container.querySelector('.suito-card-image-loader');
+    if (!card) return;
+
+    const priorityImages = Array.from(card.querySelectorAll('.card-cover, .card-avatar'))
+        .filter(img => img && img.tagName === 'IMG' && img.getAttribute('src'));
+
+    const settle = () => {
+        card.classList.remove('card-awaiting-images');
+        card.classList.add('card-images-ready');
+        if (loader) loader.classList.add('is-done');
+        window.setTimeout(() => loader?.remove(), 360);
+    };
+
+    if (priorityImages.length === 0) {
+        settle();
+        return;
+    }
+
+    let pending = priorityImages.length;
+    let settled = false;
+    const done = () => {
+        if (settled) return;
+        pending -= 1;
+        if (pending <= 0) {
+            settled = true;
+            settle();
+        }
+    };
+
+    priorityImages.forEach(img => {
+        if (img.complete && img.naturalWidth > 0) {
+            done();
+            return;
+        }
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+    });
+
+    window.setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        settle();
+    }, 4200);
 }
 
 function buildCardHTML(data) {
@@ -592,17 +703,17 @@ function buildCardHTML(data) {
     const whatsappMessage = data.whatsapp_message || data.whatsappMessage || '';
     const rawGallery = data.gallery || [];
     const gallery = isPremium ? rawGallery : rawGallery.slice(0, 3);
+    const locationHref = location
+        ? (location.startsWith('http') ? location : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`)
+        : '';
+    const locationLabel = location && location.startsWith('http') ? 'Ubicacion / Mapa' : location;
+    const instagramHandle = instagram ? instagram.replace('@', '').replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/\/$/, '') : '';
     const tiktokUrl = normalizeSocialUrl(tiktok, 'tiktok');
     const youtubeUrl = normalizeSocialUrl(youtube, 'youtube');
     const threadsUrl = normalizeSocialUrl(threads, 'threads');
+    const websiteUrl = website ? (website.startsWith('http') ? website : `https://${website}`) : '';
 
     return `
-        ${!isPremium ? `
-        <div class="trial-banner" style="background:var(--color-primary); color:#fff; text-align:center; padding:8px; font-size:14px; position:sticky; top:0; z-index:100;">
-            Muestra limitada (Trial Vencido) 
-            <a href="https://suito.pro?ref=expired" target="_blank" style="color:#fff; font-weight:bold; margin-left:8px;">Activar Premium</a>
-        </div>
-        ` : ''}
         <div class="card-container animate-fade-in${!isPremium ? ' card-degraded' : ''}">
             <!-- Cover & Avatar -->
             <div class="card-header">
@@ -624,7 +735,7 @@ function buildCardHTML(data) {
                     <p class="card-title">${profession}</p>
                     ${description ? `<p class="card-bio">${description}</p>` : ''}
                     ${location ? `
-                        <a href="${location.startsWith('http') ? location : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}" target="_blank" class="card-location" style="text-decoration:none;">
+                        <a href="${locationHref}" target="_blank" class="card-location" style="text-decoration:none;">
                             <span class="material-symbols-outlined" style="pointer-events:none;">location_on</span>
                             <span style="pointer-events:none; text-decoration:underline; text-underline-offset:2px;">${location.startsWith('http') ? 'Ubicación / Mapa' : location}</span>
                         </a>
@@ -637,7 +748,7 @@ function buildCardHTML(data) {
                         <span class="material-symbols-outlined">person_add</span>
                         Agendar
                     </button>
-                    ${!data.disable_share ? `<button class="btn-secondary" onclick="if(typeof gtag==='function')gtag('event','share',{slug:'${data.slug || ''}'});navigator.share ? navigator.share({title:'${name}',url:window.location.href}).catch(()=>{}) : navigator.clipboard.writeText(window.location.href)">
+                    ${!data.disable_share ? `<button type="button" class="btn-secondary" id="btn-share-card">
                         <span class="material-symbols-outlined">share</span>
                         Compartir
                     </button>` : ''}
@@ -646,6 +757,27 @@ function buildCardHTML(data) {
                         Instalar app
                     </button>
                 </div>
+
+                ${data.isOwnerView && data.ownerEditUrl ? `
+                <div class="suito-owner-tools" data-owner-tools>
+                    <a class="suito-owner-edit" href="${escapeAttr(data.ownerEditUrl)}">
+                        <span class="material-symbols-outlined">edit</span>
+                        Editar
+                    </a>
+                    <button type="button" class="suito-owner-help-toggle" id="btn-owner-help" aria-expanded="${isOwnerHelpDismissed(data) ? 'false' : 'true'}" aria-controls="suito-owner-help-panel">
+                        <span class="material-symbols-outlined">help</span>
+                        Ayuda
+                    </button>
+                </div>
+                <div class="suito-owner-help${isOwnerHelpDismissed(data) ? ' is-hidden' : ''}" id="suito-owner-help-panel">
+                    <button type="button" class="suito-owner-help-close" id="btn-owner-help-dismiss" aria-label="No volver a mostrar">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                    <strong>Este es tu link publico.</strong>
+                    <p>Compartilo con clientes y contactos. El boton Editar aparece solo en este navegador, porque ya guardaste tu acceso.</p>
+                    <button type="button" class="suito-owner-help-dismiss" id="btn-owner-help-disable">No volver a mostrar</button>
+                </div>
+                ` : ''}
 
                 <!-- Gallery -->
                 ${gallery.length > 0 ? `
@@ -667,20 +799,31 @@ function buildCardHTML(data) {
                     const phone = phoneWith54.startsWith('549') ? phoneWith54 : phoneWith54.replace(/^54/, '549');
 
                     const icons = [];
+                    const copyIcon = (label, value, background, svg) => `<button type="button" class="social-icon suito-copy-contact" data-copy-label="${escapeAttr(label)}" data-copy-value="${escapeAttr(value)}" style="background:${background};border:0;cursor:pointer;" aria-label="Copiar ${escapeAttr(label)}">${svg}</button>`;
                     if (phone) {
                         const defaultMsg = "Hola! Vi tu tarjeta y me gustaría hacer una consulta.";
                         const msg = whatsappMessage || defaultMsg;
                         icons.push(`<a href="https://wa.me/${phone}?text=${encodeURIComponent(msg)}" target="_blank" class="social-icon" style="background:#25D366;" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z\"/></svg></a>`);
                     }
-                    if (email) icons.push(`<a href="mailto:${email}" class="social-icon" style="background:#EA4335;" aria-label="Email"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>`);
-                    if (instagram) icons.push(`<a href="https://instagram.com/${instagram.replace('@','')}" target="_blank" class="social-icon" style="background:#E4405F;" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`);
-                    if (facebook) icons.push(`<a href="${facebook}" target="_blank" class="social-icon" style="background:#1877F2;" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`);
-                    if (linkedin) icons.push(`<a href="${linkedin}" target="_blank" class="social-icon" style="background:#0A66C2;" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>`);
-                    if (tiktokUrl) icons.push(`<a href="${escapeAttr(tiktokUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#000000;" aria-label="TikTok">${SOCIAL_SVGS.tiktok}</a>`);
-                    if (youtubeUrl) icons.push(`<a href="${escapeAttr(youtubeUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#FF0000;" aria-label="YouTube">${SOCIAL_SVGS.youtube}</a>`);
-                    if (threadsUrl) icons.push(`<a href="${escapeAttr(threadsUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#000000;" aria-label="Threads">${SOCIAL_SVGS.threads}</a>`);
-                    if (website) icons.push(`<a href="${website.startsWith('http') ? website : 'https://' + website}" target="_blank" class="social-icon" style="background:var(--primary);" aria-label="Website"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></a>`);
+                    if (isPremium && email) icons.push(`<a href="mailto:${email}" class="social-icon" style="background:#EA4335;" aria-label="Email"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>`);
+                    if (isPremium && instagram) icons.push(`<a href="https://instagram.com/${instagram.replace('@','')}" target="_blank" class="social-icon" style="background:#E4405F;" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`);
+                    if (isPremium && facebook) icons.push(`<a href="${facebook}" target="_blank" class="social-icon" style="background:#1877F2;" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>`);
+                    if (isPremium && linkedin) icons.push(`<a href="${linkedin}" target="_blank" class="social-icon" style="background:#0A66C2;" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>`);
+                    if (isPremium && tiktokUrl) icons.push(`<a href="${escapeAttr(tiktokUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#000000;" aria-label="TikTok">${SOCIAL_SVGS.tiktok}</a>`);
+                    if (isPremium && youtubeUrl) icons.push(`<a href="${escapeAttr(youtubeUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#FF0000;" aria-label="YouTube">${SOCIAL_SVGS.youtube}</a>`);
+                    if (isPremium && threadsUrl) icons.push(`<a href="${escapeAttr(threadsUrl)}" target="_blank" rel="noopener" class="social-icon" style="background:#000000;" aria-label="Threads">${SOCIAL_SVGS.threads}</a>`);
+                    if (isPremium && website) icons.push(`<a href="${website.startsWith('http') ? website : 'https://' + website}" target="_blank" class="social-icon" style="background:var(--primary);" aria-label="Website"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></a>`);
                     if (showBooking) icons.push(`<a href="${bookingUrl}" target="_blank" class="social-icon" style="background:var(--primary);" aria-label="Agendar turno"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg></a>`);
+                    if (!isPremium) {
+                        if (email) icons.push(copyIcon('Email', email, '#EA4335', '<svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>'));
+                        if (instagramHandle) icons.push(copyIcon('Instagram', `@${instagramHandle}`, '#E4405F', '<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>'));
+                        if (facebook) icons.push(copyIcon('Facebook', facebook, '#1877F2', '<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'));
+                        if (linkedin) icons.push(copyIcon('LinkedIn', linkedin, '#0A66C2', '<svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'));
+                        if (tiktokUrl) icons.push(copyIcon('TikTok', tiktokUrl, '#000000', SOCIAL_SVGS.tiktok));
+                        if (youtubeUrl) icons.push(copyIcon('YouTube', youtubeUrl, '#FF0000', SOCIAL_SVGS.youtube));
+                        if (threadsUrl) icons.push(copyIcon('Threads', threadsUrl, '#000000', SOCIAL_SVGS.threads));
+                        if (websiteUrl) icons.push(copyIcon('Web', websiteUrl, 'var(--primary)', '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>'));
+                    }
 
                     return icons.length > 0 ? `<div class="social-icons-bar">${icons.join('')}</div>` : '';
                 })()}
@@ -713,6 +856,59 @@ function attachCardEvents(container, data) {
         };
     }
 
+    const shareBtn = container.querySelector('#btn-share-card');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', async () => {
+            const publicUrl = getPublicCardUrl(data);
+            if (typeof gtag === 'function') gtag('event', 'share', { slug: data.slug || '' });
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: data.name || 'Tarjeta Suito', url: publicUrl });
+                    return;
+                } catch (error) {
+                    if (error?.name === 'AbortError') return;
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(publicUrl);
+                const original = shareBtn.innerHTML;
+                shareBtn.innerHTML = '<span class="material-symbols-outlined">check</span> Copiado';
+                window.setTimeout(() => { shareBtn.innerHTML = original; }, 1800);
+            } catch {
+                window.prompt('Copiar link de tarjeta', publicUrl);
+            }
+        });
+    }
+
+    const ownerHelp = container.querySelector('#suito-owner-help-panel');
+    const ownerHelpToggle = container.querySelector('#btn-owner-help');
+    const dismissOwnerHelp = () => {
+        try {
+            localStorage.setItem(getOwnerHelpKey(data), '1');
+        } catch {}
+        ownerHelp?.classList.add('is-hidden');
+        ownerHelpToggle?.setAttribute('aria-expanded', 'false');
+    };
+
+    ownerHelpToggle?.addEventListener('click', () => {
+        if (!ownerHelp) return;
+        const isHidden = ownerHelp.classList.toggle('is-hidden');
+        ownerHelpToggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+    });
+
+    container.querySelector('#btn-owner-help-dismiss')?.addEventListener('click', dismissOwnerHelp);
+    container.querySelector('#btn-owner-help-disable')?.addEventListener('click', dismissOwnerHelp);
+
+    container.querySelectorAll('.suito-copy-contact').forEach(button => {
+        button.addEventListener('click', () => {
+            const value = button.dataset.copyValue || '';
+            const label = button.dataset.copyLabel || 'Dato';
+            showCopyPrompt(container, label, value);
+        });
+    });
+
     const status = getSubscriptionStatus(data);
     const rawGallery = data.gallery || [];
     const galleryData = status === 'premium' ? rawGallery : rawGallery.slice(0, 3);
@@ -723,29 +919,83 @@ function attachCardEvents(container, data) {
     }
 }
 
-function escapeAttr(value = '') {
-    return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[char]));
+}
+
+function escapeAttr(value) {
+    return escapeHtml(value).replace(/`/g, '&#96;');
 }
 
 function normalizeSocialUrl(value, platform) {
-    const raw = String(value || '').trim();
+    const raw = String(value || '').trim().replace(/\s+/g, '');
     if (!raw) return '';
     if (/^https?:\/\//i.test(raw)) return raw;
-    if (/^(www\.|tiktok\.com\/|youtube\.com\/|youtu\.be\/|threads\.net\/|threads\.com\/)/i.test(raw)) {
+    if (/^(www\.)?(tiktok\.com|youtube\.com|youtu\.be|threads\.net|threads\.com)\//i.test(raw)) {
         return `https://${raw}`;
     }
 
-    const handle = raw.replace(/^@/, '').replace(/^\/+/, '').trim();
+    const handle = raw.replace(/^@/, '').replace(/^\/+/, '').replace(/\/+$/, '');
     if (!handle) return '';
 
-    if (platform === 'tiktok') return `https://www.tiktok.com/@${handle}`;
-    if (platform === 'youtube') return `https://www.youtube.com/@${handle}`;
-    if (platform === 'threads') return `https://www.threads.net/@${handle}`;
-    return raw;
+    if (platform === 'youtube') return `https://youtube.com/@${encodeURIComponent(handle)}`;
+    if (platform === 'threads') return `https://threads.net/@${encodeURIComponent(handle)}`;
+    return `https://www.tiktok.com/@${encodeURIComponent(handle)}`;
+}
+
+function showCopyPrompt(container, label, value) {
+    const existing = container.querySelector('.suito-copy-popover');
+    if (existing) existing.remove();
+
+    const popover = document.createElement('div');
+    popover.className = 'suito-copy-popover';
+    popover.style.cssText = [
+        'position:fixed',
+        'left:50%',
+        'bottom:24px',
+        'transform:translateX(-50%)',
+        'z-index:9999',
+        'width:min(92vw,380px)',
+        'padding:14px',
+        'border-radius:18px',
+        'background:rgba(17,24,39,.96)',
+        'color:#fff',
+        'box-shadow:0 18px 50px rgba(0,0,0,.32)',
+        'display:grid',
+        'gap:10px'
+    ].join(';');
+    popover.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="min-width:0;flex:1;">
+                <div style="font-size:12px;opacity:.7;">${escapeHtml(label)}</div>
+                <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(value)}</div>
+            </div>
+            <button type="button" data-copy-close style="border:0;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;">&times;</button>
+        </div>
+        <button type="button" data-copy-confirm style="width:100%;border:0;border-radius:12px;background:var(--brand-primary);color:#fff;font-weight:800;padding:11px 14px;cursor:pointer;">Copiar</button>
+    `;
+
+    const close = () => popover.remove();
+    popover.querySelector('[data-copy-close]')?.addEventListener('click', close);
+    popover.querySelector('[data-copy-confirm]')?.addEventListener('click', async () => {
+        const button = popover.querySelector('[data-copy-confirm]');
+        try {
+            await navigator.clipboard.writeText(value);
+            if (button) button.textContent = 'Copiado';
+            window.setTimeout(close, 900);
+        } catch (error) {
+            window.prompt('Copiar dato', value);
+            close();
+        }
+    });
+
+    container.appendChild(popover);
 }
 
 function injectDynamicManifest(data) {

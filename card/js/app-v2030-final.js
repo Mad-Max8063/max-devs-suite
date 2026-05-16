@@ -3,21 +3,31 @@
 // ============================================
 
 import { getCard } from './supabase-v2030.js';
-import { getSubscriptionStatus } from './engine-v2030.js';
 
 window.__appRouterActive = true;
 const app = document.getElementById('app');
+const OWNER_ACCESS_KEY = 'suito_owner_access_tokens';
 
-const resolveMasterToken = () => {
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_MASTER_TOKEN) {
-        return import.meta.env.VITE_MASTER_TOKEN;
+function readOwnerTokens() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(OWNER_ACCESS_KEY) || '{}');
+        return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch {
+        return {};
     }
+}
 
-    console.warn('[Security] VITE_MASTER_TOKEN ausente en variables de entorno. Autenticación maestra denegada.');
-    return null;
-};
+function rememberOwnerToken(slug, token) {
+    if (!slug || !token) return;
+    const tokens = readOwnerTokens();
+    tokens[slug] = token;
+    localStorage.setItem(OWNER_ACCESS_KEY, JSON.stringify(tokens));
+}
 
-const MASTER_TOKEN = resolveMasterToken();
+function getRememberedOwnerToken(slug) {
+    if (!slug) return '';
+    return readOwnerTokens()[slug] || '';
+}
 
 function restore404Redirect() {
     const redirectPath = sessionStorage.getItem('redirect');
@@ -93,8 +103,9 @@ function navigate() {
         const cardId = slug;
         const params = new URLSearchParams(search);
         const token = params.get('token') || '';
-        if (token && token !== MASTER_TOKEN) {
-            localStorage.setItem('last_card_url', `edit/${cardId}?token=${token}`);
+        if (token) {
+            rememberOwnerToken(cardId, token);
+            localStorage.setItem('last_card_url', `card/${cardId}`);
         } else {
             localStorage.setItem('last_card_url', `card/${cardId}`);
         }
@@ -140,7 +151,7 @@ function navigate() {
                 return;
             }
 
-            if (!token && token !== MASTER_TOKEN) {
+            if (!token) {
                 app.innerHTML = `
                     <div style="text-align:center; padding:60px 20px;">
                       <h2 style="margin-bottom:8px;">🔒 Acceso denegado</h2>
@@ -158,19 +169,12 @@ function navigate() {
             app.innerHTML = '';
             app.appendChild(editView);
 
-            // Premium/Trial clients get full editing panel; basic clients get gallery-only
-            const status = getSubscriptionStatus(card);
-            const isPremium = status === 'premium';
-            const panelModule = isPremium
-                ? import('./client-panel.js')
-                : import('./gallery-editor.js');
+            // All clients use the full panel; free cards see locked Premium sections
+            // plus the 3-day trial CTA.
+            const panelModule = import('./client-panel.js');
 
             panelModule.then((mod) => {
-                if (isPremium) {
-                    mod.renderClientPanel(editView, card);
-                } else {
-                    mod.renderGalleryEditor(editView, card);
-                }
+                mod.renderClientPanel(editView, card);
             }).catch(err => {
                 console.error('[Router] Error loading editor:', err);
                 app.innerHTML = '<div class="error-container">Error cargando el editor. Reintentá.</div>';
@@ -180,6 +184,12 @@ function navigate() {
     } else if (isCard && slug) {
         // — Landing mode: fetch card from Supabase (fullscreen) —
         const cardId = slug;
+        const params = new URLSearchParams(search);
+        const ownerToken = params.get('token') || params.get('owner_token') || params.get('edit_token') || '';
+        if (ownerToken) {
+            rememberOwnerToken(cardId, ownerToken);
+            window.history.replaceState({}, '', `/card/${cardId}`);
+        }
         localStorage.setItem('last_card_url', `card/${cardId}`);
         app.classList.add('landing-mode');
 
@@ -197,6 +207,12 @@ function navigate() {
 
             try {
                 const data = dbToAppFormat(card);
+                const rememberedOwnerToken = getRememberedOwnerToken(data.slug || cardId) || ownerToken;
+                if (rememberedOwnerToken) {
+                    rememberOwnerToken(data.slug || cardId, rememberedOwnerToken);
+                    data.ownerEditUrl = `/edit/${data.slug || cardId}?token=${encodeURIComponent(rememberedOwnerToken)}`;
+                    data.isOwnerView = true;
+                }
                 updateMeta(data);
 
                 const landingView = document.createElement('div');
